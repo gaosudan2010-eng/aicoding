@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>计数器 - AI Coding练习</title>
     <style>
-        /* ========== 全局重置与变量 ========== */
+        /* ========== 全局重置与变量（青蓝色主题） ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --gold: #FFD700;
-            --gold-light: #FFEB3B;
-            --gold-dark: #FFA000;
-            --orange: #FF8C00;
-            --bg-dark: #0a0a0f;
+            --cyan: #00d4ff;
+            --cyan-light: #00ffff;
+            --green: #00ff88;
+            --bg-dark: #000510;
         }
 
         /* ========== 页面主体 ========== */
@@ -51,7 +50,7 @@
             );
             pointer-events: none;
             z-index: 1;
-            opacity: 0.4;
+            opacity: 0.3;
         }
 
         /* ========== 返回按钮 ========== */
@@ -59,33 +58,33 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            color: var(--gold);
+            color: var(--cyan);
             text-decoration: none;
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 0.85rem;
             padding: 0.6rem 1.2rem;
-            border: 1px solid rgba(255, 215, 0, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.5);
             transition: all 0.3s;
             z-index: 100;
-            background: rgba(20, 15, 5, 0.8);
+            background: rgba(0, 20, 40, 0.8);
             backdrop-filter: blur(10px);
         }
 
         .back-link::before { content: '‹ '; }
 
         .back-link:hover {
-            background: rgba(255, 215, 0, 0.2);
-            border-color: var(--gold);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
         /* ========== 主卡片 ========== */
         .card {
             position: relative;
             z-index: 10;
-            background: rgba(20, 15, 5, 0.85);
+            background: rgba(0, 20, 40, 0.8);
             padding: 3rem 4rem;
-            border: 1px solid rgba(255, 215, 0, 0.4);
+            border: 1px solid rgba(0, 212, 255, 0.4);
             text-align: center;
             backdrop-filter: blur(20px);
         }
@@ -96,7 +95,7 @@
             position: absolute;
             width: 30px;
             height: 30px;
-            border: 2px solid var(--gold);
+            border: 2px solid var(--cyan);
         }
 
         .card::before {
@@ -114,7 +113,7 @@
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold), var(--orange), var(--gold), transparent);
+            background: linear-gradient(90deg, transparent, var(--cyan), var(--green), var(--cyan), transparent);
             background-size: 200% 100%;
             animation: glowFlow 3s linear infinite;
         }
@@ -127,7 +126,7 @@
         /* ========== 标题 ========== */
         .title {
             font-size: 0.9rem;
-            color: var(--gold);
+            color: var(--cyan);
             font-family: 'SF Mono', Monaco, monospace;
             letter-spacing: 3px;
             text-transform: uppercase;
@@ -150,17 +149,17 @@
             font-size: 6rem;
             font-weight: 700;
             font-family: 'SF Mono', Monaco, monospace;
-            background: linear-gradient(180deg, var(--gold) 0%, var(--orange) 100%);
+            background: linear-gradient(180deg, var(--cyan) 0%, var(--green) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
             transition: transform 0.2s;
             line-height: 1;
         }
 
         .count.positive {
-            background: linear-gradient(180deg, var(--gold) 0%, var(--gold-light) 100%);
+            background: linear-gradient(180deg, var(--cyan) 0%, var(--cyan-light) 100%);
             -webkit-background-clip: text;
             background-clip: text;
         }
@@ -184,7 +183,7 @@
         .status-label {
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 0.75rem;
-            color: rgba(255, 215, 0, 0.6);
+            color: rgba(0, 212, 255, 0.6);
             letter-spacing: 2px;
             margin-top: 1rem;
         }
@@ -202,18 +201,18 @@
             height: 60px;
             font-size: 1.8rem;
             font-weight: 700;
-            border: 2px solid rgba(255, 215, 0, 0.5);
-            background: rgba(255, 215, 0, 0.1);
-            color: var(--gold);
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--cyan);
             cursor: pointer;
             transition: all 0.3s;
             font-family: 'SF Mono', Monaco, monospace;
         }
 
         .btn:hover {
-            background: rgba(255, 215, 0, 0.2);
-            border-color: var(--gold);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
             transform: translateY(-2px);
         }
 
@@ -226,25 +225,25 @@
             padding: 0 1.5rem;
             font-size: 0.85rem;
             letter-spacing: 2px;
-            border-color: rgba(255, 140, 0, 0.5);
-            color: var(--orange);
+            border-color: rgba(0, 255, 136, 0.5);
+            color: var(--green);
         }
 
         .btn-reset:hover {
-            border-color: var(--orange);
-            box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+            border-color: var(--green);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
         }
 
         /* ========== 历史记录 ========== */
         .history {
             margin-top: 1.5rem;
             padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
         }
 
         .history-title {
             font-size: 0.7rem;
-            color: rgba(255, 215, 0, 0.5);
+            color: rgba(0, 212, 255, 0.5);
             font-family: 'SF Mono', Monaco, monospace;
             letter-spacing: 2px;
             margin-bottom: 0.8rem;
@@ -259,9 +258,9 @@
 
         .history-item {
             padding: 0.3rem 0.6rem;
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            color: rgba(255, 215, 0, 0.7);
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            color: rgba(0, 212, 255, 0.7);
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 0.75rem;
         }
@@ -274,18 +273,18 @@
             transform: translateX(-50%);
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 0.7rem;
-            color: rgba(255, 215, 0, 0.4);
+            color: rgba(0, 212, 255, 0.4);
             z-index: 100;
             display: flex;
             gap: 2rem;
         }
 
         .shortcut kbd {
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
             padding: 0.2rem 0.5rem;
             margin-right: 0.3rem;
-            color: var(--gold);
+            color: var(--cyan);
         }
 
         @media (max-width: 768px) {
@@ -330,7 +329,7 @@
     </div>
 
     <script>
-        // ========== 背景动画 ==========
+        // ========== 背景动画（青蓝色主题） ==========
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -341,9 +340,7 @@
         const particleCount = 80;
 
         class Particle {
-            constructor() {
-                this.reset();
-            }
+            constructor() { this.reset(); }
 
             reset() {
                 this.x = Math.random() * width;
@@ -352,7 +349,7 @@
                 this.speedX = (Math.random() - 0.5) * 0.3;
                 this.speedY = (Math.random() - 0.5) * 0.3;
                 this.alpha = Math.random() * 0.4 + 0.1;
-                this.color = Math.random() > 0.5 ? '#FFD700' : '#FF8C00';
+                this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88';
             }
 
             update() {
@@ -366,7 +363,7 @@
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('#FFD700', 'rgba(255, 215, 0').replace('#FF8C00', 'rgba(255, 140, 0');
+                ctx.fillStyle = this.color.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136');
                 ctx.fill();
             }
         }
@@ -376,7 +373,7 @@
         }
 
         function drawGrid() {
-            ctx.strokeStyle = 'rgba(255, 215, 0, 0.02)';
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.02)';
             ctx.lineWidth = 1;
             const gridSize = 60;
             for (let x = 0; x < width; x += gridSize) {
@@ -403,7 +400,7 @@
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < maxDist) {
                         const alpha = (1 - dist / maxDist) * 0.1;
-                        ctx.strokeStyle = `rgba(255, 215, 0, ${alpha})`;
+                        ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
@@ -414,7 +411,7 @@
         }
 
         function animate() {
-            ctx.fillStyle = 'rgba(10, 10, 15, 0.1)';
+            ctx.fillStyle = 'rgba(0, 5, 16, 0.1)';
             ctx.fillRect(0, 0, width, height);
 
             drawGrid();
@@ -443,14 +440,10 @@
 
         function updateDisplay() {
             countEl.textContent = count;
-            
-            // 移除所有状态类
             countEl.classList.remove('positive', 'negative', 'bounce');
             
-            // 添加动画
             setTimeout(() => countEl.classList.add('bounce'), 10);
             
-            // 设置颜色状态
             if (count > 0) {
                 countEl.classList.add('positive');
                 statusEl.textContent = 'POSITIVE';
@@ -486,7 +479,6 @@
             addToHistory();
         }
 
-        // 键盘快捷键
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowUp' || e.key === '=') increase();
             if (e.key === 'ArrowDown' || e.key === '-') decrease();
