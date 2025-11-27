@@ -662,53 +662,144 @@
                         <line x1="75" y1="10" x2="75" y2="90"/>
                     </g>
                     
-                    <!-- 严肃风格黄色猫咪 -->
-                    <!-- 脸部（更长） -->
-                    <ellipse cx="50" cy="58" rx="24" ry="26" fill="#FFD54F"/>
+                    <!-- 科技未来感黄色猫咪 -->
+                    <defs>
+                        <!-- 全息渐变 -->
+                        <linearGradient id="holoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD54F"/>
+                            <stop offset="50%" style="stop-color:#FFC107"/>
+                            <stop offset="100%" style="stop-color:#FFB300"/>
+                        </linearGradient>
+                        <!-- 眼睛发光 -->
+                        <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.8"/>
+                            <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0"/>
+                        </radialGradient>
+                        <!-- 科技线条滤镜 -->
+                        <filter id="techGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="1" result="blur"/>
+                            <feMerge>
+                                <feMergeNode in="blur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <!-- 脸部（更长）带光泽 -->
+                    <ellipse cx="50" cy="58" rx="24" ry="26" fill="url(#holoGradient)"/>
+                    <!-- 脸部高光 -->
+                    <ellipse cx="42" cy="48" rx="8" ry="6" fill="#FFE082" opacity="0.4"/>
                     
                     <!-- 左耳（更大更尖） -->
-                    <path d="M 18 28 L 30 52 L 42 34 Z" fill="#FFD54F"/>
+                    <path d="M 18 28 L 30 52 L 42 34 Z" fill="url(#holoGradient)"/>
                     <path d="M 22 32 L 30 48 L 38 36 Z" fill="#FFAB40"/>
+                    <!-- 左耳科技纹路 -->
+                    <line x1="24" y1="35" x2="32" y2="45" stroke="#00d4ff" stroke-width="0.5" opacity="0.6">
+                        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
+                    </line>
                     
                     <!-- 右耳（更大更尖） -->
-                    <path d="M 82 28 L 70 52 L 58 34 Z" fill="#FFD54F"/>
+                    <path d="M 82 28 L 70 52 L 58 34 Z" fill="url(#holoGradient)"/>
                     <path d="M 78 32 L 70 48 L 62 36 Z" fill="#FFAB40"/>
+                    <!-- 右耳科技纹路 -->
+                    <line x1="76" y1="35" x2="68" y2="45" stroke="#00d4ff" stroke-width="0.5" opacity="0.6">
+                        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                    </line>
                     
-                    <!-- 眼睛 -->
+                    <!-- 眼睛外发光 -->
+                    <ellipse cx="38" cy="52" rx="9" ry="10" fill="url(#eyeGlow)" opacity="0.5"/>
+                    <ellipse cx="62" cy="52" rx="9" ry="10" fill="url(#eyeGlow)" opacity="0.5"/>
+                    
+                    <!-- 眼白 -->
                     <ellipse cx="38" cy="52" rx="6" ry="7" fill="#fff"/>
                     <ellipse cx="62" cy="52" rx="6" ry="7" fill="#fff"/>
-                    <ellipse cx="38" cy="52" rx="3.5" ry="4" fill="#333"/>
-                    <ellipse cx="62" cy="52" rx="3.5" ry="4" fill="#333"/>
-                    <circle cx="39" cy="50" r="1.5" fill="#fff"/>
-                    <circle cx="63" cy="50" r="1.5" fill="#fff"/>
+                    
+                    <!-- 眼睑（眨眼动画） -->
+                    <ellipse cx="38" cy="52" rx="6.5" ry="0" fill="#FFD54F">
+                        <animate attributeName="ry" values="0;7.5;0" dur="0.15s" begin="3s" repeatCount="indefinite"/>
+                    </ellipse>
+                    <ellipse cx="62" cy="52" rx="6.5" ry="0" fill="#FFD54F">
+                        <animate attributeName="ry" values="0;7.5;0" dur="0.15s" begin="3s" repeatCount="indefinite"/>
+                    </ellipse>
+                    
+                    <!-- 瞳孔（科技蓝色） -->
+                    <ellipse cx="38" cy="52" rx="3.5" ry="4" fill="#00d4ff"/>
+                    <ellipse cx="62" cy="52" rx="3.5" ry="4" fill="#00d4ff"/>
+                    <!-- 瞳孔中心 -->
+                    <circle cx="38" cy="52" r="1.5" fill="#004d5c"/>
+                    <circle cx="62" cy="52" r="1.5" fill="#004d5c"/>
+                    <!-- 眼睛高光 -->
+                    <circle cx="40" cy="50" r="1.2" fill="#fff"/>
+                    <circle cx="64" cy="50" r="1.2" fill="#fff"/>
+                    
+                    <!-- 眼睛扫描线 -->
+                    <line x1="32" y1="52" x2="44" y2="52" stroke="#00ffaa" stroke-width="0.5" opacity="0">
+                        <animate attributeName="opacity" values="0;0.8;0" dur="4s" repeatCount="indefinite"/>
+                        <animate attributeName="y1" values="45;59;45" dur="4s" repeatCount="indefinite"/>
+                        <animate attributeName="y2" values="45;59;45" dur="4s" repeatCount="indefinite"/>
+                    </line>
+                    <line x1="56" y1="52" x2="68" y2="52" stroke="#00ffaa" stroke-width="0.5" opacity="0">
+                        <animate attributeName="opacity" values="0;0.8;0" dur="4s" repeatCount="indefinite" begin="2s"/>
+                        <animate attributeName="y1" values="45;59;45" dur="4s" repeatCount="indefinite" begin="2s"/>
+                        <animate attributeName="y2" values="45;59;45" dur="4s" repeatCount="indefinite" begin="2s"/>
+                    </line>
                     
                     <!-- 鼻子 -->
                     <ellipse cx="50" cy="64" rx="2.5" ry="2" fill="#FF8A65"/>
                     
-                    <!-- 嘴巴（平直） -->
+                    <!-- 嘴巴（平直）+ 数据流 -->
                     <line x1="46" y1="70" x2="54" y2="70" stroke="#FF8A65" stroke-width="1.5" stroke-linecap="round"/>
                     
-                    <!-- 胡须（更锐利 + 动画） -->
-                    <g stroke="#E6A700" stroke-width="1.2" opacity="0.9">
+                    <!-- 面部科技纹路 -->
+                    <g stroke="#00d4ff" stroke-width="0.5" fill="none" filter="url(#techGlow)">
+                        <!-- 左脸电路线 -->
+                        <path d="M 26 55 L 30 55 L 32 58" opacity="0.4">
+                            <animate attributeName="opacity" values="0.2;0.6;0.2" dur="3s" repeatCount="indefinite"/>
+                        </path>
+                        <!-- 右脸电路线 -->
+                        <path d="M 74 55 L 70 55 L 68 58" opacity="0.4">
+                            <animate attributeName="opacity" values="0.2;0.6;0.2" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+                        </path>
+                        <!-- 额头数据点 -->
+                        <circle cx="50" cy="38" r="1.5" fill="#00d4ff" opacity="0.6">
+                            <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                    </g>
+                    
+                    <!-- 科技胡须（带数据流动效果） -->
+                    <g stroke="#00d4ff" stroke-width="1" filter="url(#techGlow)">
                         <line x1="16" y1="54" x2="30" y2="56">
-                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="stroke" values="#00d4ff;#00ff88;#00d4ff" dur="2s" repeatCount="indefinite"/>
                         </line>
                         <line x1="14" y1="60" x2="30" y2="60">
-                            <animate attributeName="opacity" values="0.8;1;0.8" dur="1.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+                            <animate attributeName="stroke" values="#00d4ff;#00ff88;#00d4ff" dur="1.5s" repeatCount="indefinite"/>
                         </line>
                         <line x1="16" y1="66" x2="30" y2="64">
-                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite"/>
+                            <animate attributeName="stroke" values="#00d4ff;#00ff88;#00d4ff" dur="2.5s" repeatCount="indefinite"/>
                         </line>
                         <line x1="70" y1="56" x2="84" y2="54">
-                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+                            <animate attributeName="stroke" values="#00d4ff;#00ff88;#00d4ff" dur="2s" repeatCount="indefinite" begin="0.3s"/>
                         </line>
                         <line x1="70" y1="60" x2="86" y2="60">
-                            <animate attributeName="opacity" values="0.8;1;0.8" dur="1.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+                            <animate attributeName="stroke" values="#00d4ff;#00ff88;#00d4ff" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
                         </line>
                         <line x1="70" y1="64" x2="84" y2="66">
-                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite" begin="0.3s"/>
+                            <animate attributeName="stroke" values="#00d4ff;#00ff88;#00d4ff" dur="2.5s" repeatCount="indefinite" begin="0.3s"/>
                         </line>
                     </g>
+                    
+                    <!-- 全息扫描线（整体） -->
+                    <line x1="20" y1="30" x2="80" y2="30" stroke="#00ffaa" stroke-width="1" opacity="0">
+                        <animate attributeName="opacity" values="0;0.5;0" dur="3s" repeatCount="indefinite"/>
+                        <animate attributeName="y1" values="25;85;25" dur="3s" repeatCount="indefinite"/>
+                        <animate attributeName="y2" values="25;85;25" dur="3s" repeatCount="indefinite"/>
+                    </line>
                 </svg>
             </div>
             <span class="cat-avatar-label">ABOUT_ME</span>
