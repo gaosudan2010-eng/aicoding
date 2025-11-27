@@ -25,7 +25,6 @@
             color: #fff;
             overflow-x: hidden;
             overflow-y: auto;
-            cursor: none;
         }
 
         /* 科技感静态背景 */
@@ -136,17 +135,6 @@
             z-index: 0;
         }
 
-        /* 鼠标轨迹画布 */
-        #trailCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 3;
-            pointer-events: none;
-        }
-
         /* 扫描线 */
         .scanlines {
             position: fixed;
@@ -161,38 +149,6 @@
                 transparent 3px
             );
             opacity: 0.4;
-        }
-
-        /* 自定义鼠标光标 */
-        .cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--cyan);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, border-color 0.2s;
-            mix-blend-mode: difference;
-        }
-
-        .cursor-dot {
-            position: fixed;
-            width: 6px;
-            height: 6px;
-            background: var(--green);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px var(--green), 0 0 20px var(--green);
-        }
-
-        .cursor.hover {
-            width: 40px;
-            height: 40px;
-            border-color: var(--green);
         }
 
         /* 内容容器 */
@@ -574,20 +530,16 @@
             .tech-container { padding: 2rem 1.5rem; margin: 0 1rem; }
             .portfolio-section { padding: 0 1rem 2rem; }
             .portfolio-grid { grid-template-columns: 1fr; }
-            .cat-avatar-container { width: 80px; height: 80px; }
-            .cat-avatar { width: 80px; height: 80px; }
-            .cursor, .cursor-dot { display: none; }
-            body { cursor: auto; }
+            .cat-avatar-container { width: 60px; height: 60px; }
+            .cat-avatar { width: 60px; height: 60px; }
         }
     </style>
 </head>
 <body>
-    <!-- 背景画布 -->
+    <!-- 背景画布（动态科技感效果） -->
     <canvas id="bgCanvas"></canvas>
-    <!-- 鼠标轨迹画布 -->
-    <canvas id="trailCanvas"></canvas>
     
-    <!-- 科技感静态背景 -->
+    <!-- 科技感静态背景（网格） -->
     <div class="tech-bg"></div>
     
     <!-- 角落装饰 -->
@@ -609,9 +561,6 @@
     
     <!-- 扫描线 -->
     <div class="scanlines"></div>
-    <!-- 自定义光标 -->
-    <div class="cursor" id="cursor"></div>
-    <div class="cursor-dot" id="cursorDot"></div>
 
     <!-- 猫咪头像（实心黄色小猫） -->
     <a href="about-me.html" class="cat-avatar-link" id="catAvatar">
@@ -677,7 +626,7 @@
         </div>
     </div>
 
-    <p class="hint">[ 移动鼠标查看轨迹效果 ] · [ 向下滚动查看作品 ]</p>
+    <p class="hint">[ 向下滚动查看作品 ]</p>
 
     <!-- 作品集 -->
     <section class="portfolio-section">
@@ -726,167 +675,13 @@
 
     <script>
         // ========================================
-        // 弱化代码雨 + 鼠标交互动画系统
+        // 科技感背景动画系统（简化版）
         // ========================================
         const bgCanvas = document.getElementById('bgCanvas');
         const bgCtx = bgCanvas.getContext('2d');
-        const trailCanvas = document.getElementById('trailCanvas');
-        const trailCtx = trailCanvas.getContext('2d');
-        const cursor = document.getElementById('cursor');
-        const cursorDot = document.getElementById('cursorDot');
 
-        let width = bgCanvas.width = trailCanvas.width = window.innerWidth;
-        let height = bgCanvas.height = trailCanvas.height = window.innerHeight;
-
-        let mouseX = width / 2;
-        let mouseY = height / 2;
-        let mouseSpeed = 0;
-        let lastMouseX = mouseX;
-        let lastMouseY = mouseY;
-
-        // 代码字符
-        const codeChars = '01アイウエオカキクケコ</>{}[];=+-*';
-        
-        // ========================================
-        // 弱化版代码雨（间距更大、透明度更低）
-        // ========================================
-        const columnGap = 35;  // 列间距增大
-        const columns = Math.floor(width / columnGap);
-        const drops = [];
-        
-        for (let i = 0; i < columns; i++) {
-            drops[i] = {
-                x: i * columnGap,
-                y: Math.random() * height,
-                baseSpeed: Math.random() * 1.5 + 0.8,  // 基础速度更慢
-                speed: 0,
-                chars: [],
-                length: Math.floor(Math.random() * 10 + 5),  // 长度变短
-                baseAlpha: Math.random() * 0.15 + 0.05,  // 基础透明度很低
-                alpha: 0,
-                mouseInfluence: 0  // 鼠标影响度
-            };
-            for (let j = 0; j < drops[i].length; j++) {
-                drops[i].chars.push(codeChars[Math.floor(Math.random() * codeChars.length)]);
-            }
-        }
-
-        // ========================================
-        // 鼠标轨迹代码字符（鼠标经过留下的代码）
-        // ========================================
-        const trailChars = [];
-        
-        class TrailChar {
-            constructor(x, y) {
-                this.x = x + (Math.random() - 0.5) * 30;
-                this.y = y + (Math.random() - 0.5) * 30;
-                this.char = codeChars[Math.floor(Math.random() * codeChars.length)];
-                this.life = 1;
-                this.decay = Math.random() * 0.02 + 0.01;
-                this.vy = Math.random() * 2 + 1;  // 向下飘落
-                this.size = Math.random() * 6 + 12;
-                this.color = Math.random() > 0.3 ? '#00d4ff' : '#00ff88';
-            }
-            update() {
-                this.y += this.vy;
-                this.life -= this.decay;
-            }
-            draw() {
-                if (this.life <= 0) return;
-                trailCtx.font = `${this.size}px "SF Mono", Monaco, monospace`;
-                trailCtx.fillStyle = this.color === '#00d4ff' 
-                    ? `rgba(0, 212, 255, ${this.life * 0.8})` 
-                    : `rgba(0, 255, 136, ${this.life * 0.8})`;
-                trailCtx.fillText(this.char, this.x, this.y);
-            }
-            isDead() { return this.life <= 0; }
-        }
-
-        // ========================================
-        // 绘制弱化代码雨（带鼠标交互）
-        // ========================================
-        function drawCodeRain() {
-            bgCtx.font = '12px "SF Mono", Monaco, monospace';
-            
-            for (let i = 0; i < drops.length; i++) {
-                const drop = drops[i];
-                
-                // 计算与鼠标的距离
-                const dx = mouseX - drop.x;
-                const dy = mouseY - drop.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                const mouseRadius = 150;
-                
-                // 鼠标靠近时的影响
-                if (dist < mouseRadius) {
-                    const influence = 1 - dist / mouseRadius;
-                    drop.mouseInfluence = Math.min(drop.mouseInfluence + influence * 0.1, 1);
-                } else {
-                    drop.mouseInfluence *= 0.95;  // 慢慢恢复
-                }
-                
-                // 根据鼠标影响调整速度和透明度
-                drop.speed = drop.baseSpeed + drop.mouseInfluence * 4;  // 加速
-                drop.alpha = drop.baseAlpha + drop.mouseInfluence * 0.5;  // 变亮
-                
-                // 绘制代码雨
-                for (let j = 0; j < drop.chars.length; j++) {
-                    const y = drop.y - j * 18;
-                    if (y < -20 || y > height + 20) continue;
-                    
-                    // 头部最亮，尾部渐淡
-                    const charAlpha = j === 0 
-                        ? drop.alpha 
-                        : drop.alpha * (1 - j / drop.length) * 0.6;
-                    
-                    const color = j === 0 ? '#00ff88' : '#00d4ff';
-                    bgCtx.fillStyle = color === '#00ff88' 
-                        ? `rgba(0, 255, 136, ${charAlpha})` 
-                        : `rgba(0, 212, 255, ${charAlpha})`;
-                    bgCtx.fillText(drop.chars[j], drop.x, y);
-                }
-                
-                // 更新位置
-                drop.y += drop.speed;
-                
-                // 鼠标影响时更频繁改变字符
-                if (Math.random() < 0.01 + drop.mouseInfluence * 0.05) {
-                    const idx = Math.floor(Math.random() * drop.chars.length);
-                    drop.chars[idx] = codeChars[Math.floor(Math.random() * codeChars.length)];
-                }
-                
-                // 重置到顶部
-                if (drop.y > height + drop.length * 18) {
-                    drop.y = -drop.length * 18;
-                    drop.baseSpeed = Math.random() * 1.5 + 0.8;
-                }
-            }
-        }
-
-        // ========================================
-        // 绘制鼠标轨迹（代码字符轨迹）
-        // ========================================
-        function drawTrail() {
-            trailCtx.fillStyle = 'rgba(0, 5, 16, 0.08)';
-            trailCtx.fillRect(0, 0, width, height);
-
-            // 绘制轨迹代码字符
-            for (let i = trailChars.length - 1; i >= 0; i--) {
-                trailChars[i].update();
-                trailChars[i].draw();
-                if (trailChars[i].isDead()) trailChars.splice(i, 1);
-            }
-
-            // 绘制鼠标光晕
-            const gradient = trailCtx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 100);
-            gradient.addColorStop(0, 'rgba(0, 212, 255, 0.1)');
-            gradient.addColorStop(0.5, 'rgba(0, 255, 136, 0.05)');
-            gradient.addColorStop(1, 'transparent');
-            trailCtx.fillStyle = gradient;
-            trailCtx.beginPath();
-            trailCtx.arc(mouseX, mouseY, 100, 0, Math.PI * 2);
-            trailCtx.fill();
-        }
+        let width = bgCanvas.width = window.innerWidth;
+        let height = bgCanvas.height = window.innerHeight;
 
         // ========================================
         // 科技感粒子（用于连接线）
@@ -1100,90 +895,28 @@
         }
 
         // ========================================
-        // 背景动画
+        // 背景动画（只保留科技感元素，无代码雨）
         // ========================================
         function animateBg() {
-            bgCtx.fillStyle = 'rgba(0, 5, 16, 0.12)';
+            // 清除画布（保持背景清晰）
+            bgCtx.fillStyle = 'rgba(0, 5, 16, 0.15)';
             bgCtx.fillRect(0, 0, width, height);
 
             // 绘制科技感背景元素
-            drawGrid();
             drawHexagons();
             drawTechParticles();
             drawCircuits();
             drawScanLine();
-            drawCodeRain();
             
             requestAnimationFrame(animateBg);
         }
 
-        // 轨迹动画
-        function animateTrail() {
-            drawTrail();
-            requestAnimationFrame(animateTrail);
-        }
-
-        // ========================================
-        // 鼠标事件
-        // ========================================
-        let charSpawnCounter = 0;
-        
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            // 计算速度
-            mouseSpeed = Math.sqrt(
-                Math.pow(mouseX - lastMouseX, 2) + 
-                Math.pow(mouseY - lastMouseY, 2)
-            );
-            
-            // 更新光标
-            cursor.style.left = mouseX + 'px';
-            cursor.style.top = mouseY + 'px';
-            cursorDot.style.left = mouseX + 'px';
-            cursorDot.style.top = mouseY + 'px';
-            
-            // 移动时产生代码字符轨迹
-            charSpawnCounter++;
-            if (charSpawnCounter > 3 && mouseSpeed > 5) {
-                charSpawnCounter = 0;
-                trailChars.push(new TrailChar(mouseX, mouseY));
-                // 限制数量
-                if (trailChars.length > 100) trailChars.shift();
-            }
-            
-            // 快速移动时产生更多字符
-            if (mouseSpeed > 20) {
-                for (let i = 0; i < 2; i++) {
-                    trailChars.push(new TrailChar(mouseX, mouseY));
-                }
-            }
-            
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-        });
-
-        // 悬停效果
-        document.querySelectorAll('a, button, .project-card').forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-        });
-
-        // 点击产生火花
-        document.addEventListener('click', (e) => {
-            for (let i = 0; i < 20; i++) {
-                sparks.push(new Spark(e.clientX, e.clientY));
-            }
-        });
-
         window.addEventListener('resize', () => {
-            width = bgCanvas.width = trailCanvas.width = window.innerWidth;
-            height = bgCanvas.height = trailCanvas.height = window.innerHeight;
+            width = bgCanvas.width = window.innerWidth;
+            height = bgCanvas.height = window.innerHeight;
         });
 
         animateBg();
-        animateTrail();
 
         // 时间显示
         function updateTime() {
