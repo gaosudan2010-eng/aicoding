@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>计数器 - AI Coding练习</title>
     <style>
-        /* ========== 全局重置与变量（青蓝色主题） ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --cyan: #00d4ff;
-            --cyan-light: #00ffff;
             --green: #00ff88;
             --bg-dark: #000510;
         }
 
-        /* ========== 页面主体 ========== */
         body {
             min-height: 100vh;
             display: flex;
@@ -24,40 +21,54 @@
             background: var(--bg-dark);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             overflow: hidden;
-            position: relative;
+            cursor: none;
         }
 
-        /* ========== 动态背景画布 ========== */
-        #bgCanvas {
+        #bgCanvas, #trailCanvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
         }
+        #bgCanvas { z-index: 0; }
+        #trailCanvas { z-index: 3; pointer-events: none; }
 
-        /* ========== 扫描线 ========== */
         .scanlines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.08) 0px,
-                rgba(0, 0, 0, 0.08) 1px,
-                transparent 1px,
-                transparent 3px
-            );
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 1px, transparent 1px, transparent 3px);
             pointer-events: none;
-            z-index: 1;
-            opacity: 0.3;
+            z-index: 4;
+            opacity: 0.4;
         }
 
-        /* ========== 返回按钮 ========== */
+        .cursor {
+            position: fixed;
+            width: 20px; height: 20px;
+            border: 2px solid var(--cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 6px; height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--green);
+        }
+
+        .cursor.hover { width: 40px; height: 40px; border-color: var(--green); }
+
         .back-link {
             position: fixed;
-            top: 20px;
-            left: 20px;
+            top: 20px; left: 20px;
             color: var(--cyan);
             text-decoration: none;
             font-family: 'SF Mono', Monaco, monospace;
@@ -68,17 +79,12 @@
             z-index: 100;
             background: rgba(0, 20, 40, 0.8);
             backdrop-filter: blur(10px);
+            cursor: none;
         }
 
         .back-link::before { content: '‹ '; }
+        .back-link:hover { background: rgba(0, 212, 255, 0.2); box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
 
-        .back-link:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: var(--cyan);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-        }
-
-        /* ========== 主卡片 ========== */
         .card {
             position: relative;
             z-index: 10;
@@ -89,26 +95,16 @@
             backdrop-filter: blur(20px);
         }
 
-        .card::before,
-        .card::after {
+        .card::before, .card::after {
             content: '';
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 30px; height: 30px;
             border: 2px solid var(--cyan);
         }
 
-        .card::before {
-            top: -1px; left: -1px;
-            border-right: none; border-bottom: none;
-        }
+        .card::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+        .card::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-        .card::after {
-            bottom: -1px; right: -1px;
-            border-left: none; border-top: none;
-        }
-
-        /* ========== 顶部发光条 ========== */
         .glow-bar {
             position: absolute;
             top: 0; left: 0; right: 0;
@@ -118,154 +114,76 @@
             animation: glowFlow 3s linear infinite;
         }
 
-        @keyframes glowFlow {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
+        @keyframes glowFlow { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-        /* ========== 标题 ========== */
         .title {
             font-size: 0.9rem;
             color: var(--cyan);
             font-family: 'SF Mono', Monaco, monospace;
             letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .title::before { content: '//'; opacity: 0.5; }
-
-        /* ========== 计数显示 ========== */
-        .counter-display {
-            position: relative;
             margin-bottom: 2rem;
         }
+
+        .title::before { content: '// '; opacity: 0.5; }
 
         .count {
             font-size: 6rem;
             font-weight: 700;
             font-family: 'SF Mono', Monaco, monospace;
-            background: linear-gradient(180deg, var(--cyan) 0%, var(--green) 100%);
+            background: linear-gradient(180deg, var(--cyan), var(--green));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
-            transition: transform 0.2s;
             line-height: 1;
+            transition: transform 0.2s;
         }
 
-        .count.positive {
-            background: linear-gradient(180deg, var(--cyan) 0%, var(--cyan-light) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-        }
+        .count.positive { background: linear-gradient(180deg, var(--cyan), #00ffff); -webkit-background-clip: text; background-clip: text; }
+        .count.negative { background: linear-gradient(180deg, #FF6B6B, #EE5A24); -webkit-background-clip: text; background-clip: text; }
+        .count.bounce { animation: bounce 0.3s ease; }
 
-        .count.negative {
-            background: linear-gradient(180deg, #FF6B6B 0%, #EE5A24 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-        }
+        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        .count.bounce {
-            animation: bounce 0.3s ease;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* ========== 状态标签 ========== */
         .status-label {
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 0.75rem;
             color: rgba(0, 212, 255, 0.6);
             letter-spacing: 2px;
-            margin-top: 1rem;
+            margin: 1rem 0 2rem;
         }
 
-        /* ========== 按钮组 ========== */
-        .buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
+        .buttons { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; }
 
         .btn {
-            width: 60px;
-            height: 60px;
+            width: 60px; height: 60px;
             font-size: 1.8rem;
             font-weight: 700;
             border: 2px solid rgba(0, 212, 255, 0.5);
             background: rgba(0, 212, 255, 0.1);
             color: var(--cyan);
-            cursor: pointer;
+            cursor: none;
             transition: all 0.3s;
             font-family: 'SF Mono', Monaco, monospace;
         }
 
-        .btn:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: var(--cyan);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
+        .btn:hover { background: rgba(0, 212, 255, 0.2); box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); transform: translateY(-2px); }
+        .btn:active { transform: scale(0.95); }
 
         .btn-reset {
             width: auto;
             padding: 0 1.5rem;
             font-size: 0.85rem;
-            letter-spacing: 2px;
             border-color: rgba(0, 255, 136, 0.5);
             color: var(--green);
         }
 
-        .btn-reset:hover {
-            border-color: var(--green);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-        }
+        .btn-reset:hover { border-color: var(--green); box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
 
-        /* ========== 历史记录 ========== */
-        .history {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(0, 212, 255, 0.2);
-        }
+        .history { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(0, 212, 255, 0.2); }
+        .history-title { font-size: 0.7rem; color: rgba(0, 212, 255, 0.5); font-family: 'SF Mono', Monaco, monospace; letter-spacing: 2px; margin-bottom: 0.8rem; }
+        .history-values { display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+        .history-item { padding: 0.3rem 0.6rem; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); color: rgba(0, 212, 255, 0.7); font-family: 'SF Mono', Monaco, monospace; font-size: 0.75rem; }
 
-        .history-title {
-            font-size: 0.7rem;
-            color: rgba(0, 212, 255, 0.5);
-            font-family: 'SF Mono', Monaco, monospace;
-            letter-spacing: 2px;
-            margin-bottom: 0.8rem;
-        }
-
-        .history-values {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .history-item {
-            padding: 0.3rem 0.6rem;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            color: rgba(0, 212, 255, 0.7);
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 0.75rem;
-        }
-
-        /* ========== 快捷键提示 ========== */
         .shortcuts {
             position: fixed;
             bottom: 20px;
@@ -279,43 +197,36 @@
             gap: 2rem;
         }
 
-        .shortcut kbd {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            padding: 0.2rem 0.5rem;
-            margin-right: 0.3rem;
-            color: var(--cyan);
-        }
+        .shortcut kbd { background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); padding: 0.2rem 0.5rem; margin-right: 0.3rem; color: var(--cyan); }
 
         @media (max-width: 768px) {
             .card { padding: 2rem; }
             .count { font-size: 4rem; }
             .shortcuts { display: none; }
+            .cursor, .cursor-dot { display: none; }
+            body { cursor: auto; }
         }
     </style>
 </head>
 <body>
     <canvas id="bgCanvas"></canvas>
+    <canvas id="trailCanvas"></canvas>
     <div class="scanlines"></div>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
 
     <a href="hello.html" class="back-link">BACK_TO_HOME</a>
 
     <div class="card">
         <div class="glow-bar"></div>
-        
         <h1 class="title">Counter</h1>
-        
-        <div class="counter-display">
-            <div class="count positive" id="count">0</div>
-            <div class="status-label" id="statusLabel">NEUTRAL</div>
-        </div>
-        
+        <div class="count positive" id="count">0</div>
+        <div class="status-label" id="statusLabel">NEUTRAL</div>
         <div class="buttons">
             <button class="btn" onclick="decrease()">−</button>
             <button class="btn btn-reset" onclick="reset()">RESET</button>
             <button class="btn" onclick="increase()">+</button>
         </div>
-
         <div class="history">
             <div class="history-title">// RECENT VALUES</div>
             <div class="history-values" id="history"></div>
@@ -329,163 +240,139 @@
     </div>
 
     <script>
-        // ========== 背景动画（青蓝色主题） ==========
-        const canvas = document.getElementById('bgCanvas');
-        const ctx = canvas.getContext('2d');
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        const trailCanvas = document.getElementById('trailCanvas');
+        const trailCtx = trailCanvas.getContext('2d');
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursorDot');
 
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+        let width = bgCanvas.width = trailCanvas.width = window.innerWidth;
+        let height = bgCanvas.height = trailCanvas.height = window.innerHeight;
+        let mouseX = width / 2, mouseY = height / 2, mouseSpeed = 0, lastMouseX = mouseX, lastMouseY = mouseY;
+
+        const codeChars = '01アイウエオカキクケコ</>{}[];=+-*';
+        const columns = Math.floor(width / 20);
+        const drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = { y: Math.random() * height, speed: Math.random() * 3 + 2, chars: [], length: Math.floor(Math.random() * 15 + 8) };
+            for (let j = 0; j < drops[i].length; j++) drops[i].chars.push(codeChars[Math.floor(Math.random() * codeChars.length)]);
+        }
 
         const particles = [];
-        const particleCount = 80;
+        for (let i = 0; i < 40; i++) particles.push({ x: Math.random() * width, y: Math.random() * height, size: Math.random() * 2 + 0.5, speedX: (Math.random() - 0.5) * 0.5, speedY: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.2 });
 
-        class Particle {
-            constructor() { this.reset(); }
+        const trailPoints = [], maxTrailPoints = 50, sparks = [];
 
-            reset() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.3;
-                this.speedY = (Math.random() - 0.5) * 0.3;
-                this.alpha = Math.random() * 0.4 + 0.1;
-                this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88';
-            }
+        class Spark {
+            constructor(x, y) { this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * 8; this.vy = (Math.random() - 0.5) * 8; this.life = 1; this.decay = Math.random() * 0.03 + 0.02; this.size = Math.random() * 3 + 1; this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88'; }
+            update() { this.x += this.vx; this.y += this.vy; this.vx *= 0.95; this.vy *= 0.95; this.life -= this.decay; }
+            draw() { trailCtx.beginPath(); trailCtx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2); trailCtx.fillStyle = this.color.replace(')', `, ${this.life})`).replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136'); trailCtx.fill(); }
+            isDead() { return this.life <= 0; }
+        }
 
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
-                    this.reset();
+        function animateBg() {
+            bgCtx.fillStyle = 'rgba(0, 5, 16, 0.15)';
+            bgCtx.fillRect(0, 0, width, height);
+
+            bgCtx.font = '14px "SF Mono", Monaco, monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const drop = drops[i], x = i * 20;
+                for (let j = 0; j < drop.chars.length; j++) {
+                    const y = drop.y - j * 20;
+                    if (y < 0 || y > height) continue;
+                    const alpha = j === 0 ? 1 : (1 - j / drop.length) * 0.5;
+                    bgCtx.fillStyle = (j === 0 ? 'rgba(0, 255, 136' : 'rgba(0, 212, 255') + `, ${alpha})`;
+                    bgCtx.fillText(drop.chars[j], x, y);
                 }
+                drop.y += drop.speed;
+                if (Math.random() < 0.02) drop.chars[Math.floor(Math.random() * drop.chars.length)] = codeChars[Math.floor(Math.random() * codeChars.length)];
+                if (drop.y > height + drop.length * 20) { drop.y = -drop.length * 20; drop.speed = Math.random() * 3 + 2; }
             }
 
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136');
-                ctx.fill();
-            }
-        }
-
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.02)';
-            ctx.lineWidth = 1;
-            const gridSize = 60;
-            for (let x = 0; x < width; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, height);
-                ctx.stroke();
-            }
-            for (let y = 0; y < height; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-        }
-
-        function drawConnections() {
-            const maxDist = 100;
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < maxDist) {
-                        const alpha = (1 - dist / maxDist) * 0.1;
-                        ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            ctx.fillStyle = 'rgba(0, 5, 16, 0.1)';
-            ctx.fillRect(0, 0, width, height);
-
-            drawGrid();
             particles.forEach(p => {
-                p.update();
-                p.draw();
+                p.x += p.speedX; p.y += p.speedY;
+                const dx = mouseX - p.x, dy = mouseY - p.y, dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 100) { p.x -= dx * 0.02; p.y -= dy * 0.02; }
+                if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) { p.x = Math.random() * width; p.y = Math.random() * height; }
+                bgCtx.beginPath(); bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(0, 212, 255, ${p.alpha})`; bgCtx.fill();
             });
-            drawConnections();
 
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animateBg);
         }
 
-        window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+        function animateTrail() {
+            trailCtx.fillStyle = 'rgba(0, 5, 16, 0.1)';
+            trailCtx.fillRect(0, 0, width, height);
+
+            if (trailPoints.length > 2) {
+                trailCtx.beginPath();
+                trailCtx.moveTo(trailPoints[0].x, trailPoints[0].y);
+                for (let i = 1; i < trailPoints.length - 1; i++) {
+                    const xc = (trailPoints[i].x + trailPoints[i + 1].x) / 2;
+                    const yc = (trailPoints[i].y + trailPoints[i + 1].y) / 2;
+                    trailCtx.quadraticCurveTo(trailPoints[i].x, trailPoints[i].y, xc, yc);
+                }
+                const gradient = trailCtx.createLinearGradient(trailPoints[0].x, trailPoints[0].y, trailPoints[trailPoints.length - 1].x, trailPoints[trailPoints.length - 1].y);
+                gradient.addColorStop(0, 'rgba(0, 212, 255, 0)');
+                gradient.addColorStop(0.5, 'rgba(0, 255, 136, 0.5)');
+                gradient.addColorStop(1, 'rgba(0, 212, 255, 0.8)');
+                trailCtx.strokeStyle = gradient;
+                trailCtx.lineWidth = 2;
+                trailCtx.lineCap = 'round';
+                trailCtx.stroke();
+            }
+
+            sparks.forEach((spark, i) => { spark.update(); spark.draw(); if (spark.isDead()) sparks.splice(i, 1); });
+            requestAnimationFrame(animateTrail);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            mouseSpeed = Math.sqrt(Math.pow(mouseX - lastMouseX, 2) + Math.pow(mouseY - lastMouseY, 2));
+            cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+            cursorDot.style.left = mouseX + 'px'; cursorDot.style.top = mouseY + 'px';
+            trailPoints.push({ x: mouseX, y: mouseY });
+            if (trailPoints.length > maxTrailPoints) trailPoints.shift();
+            if (mouseSpeed > 15) for (let i = 0; i < 3; i++) sparks.push(new Spark(mouseX, mouseY));
+            lastMouseX = mouseX; lastMouseY = mouseY;
         });
 
-        animate();
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
 
-        // ========== 计数器逻辑 ==========
-        let count = 0;
-        let history = [];
-        const countEl = document.getElementById('count');
-        const statusEl = document.getElementById('statusLabel');
-        const historyEl = document.getElementById('history');
+        document.addEventListener('click', (e) => { for (let i = 0; i < 20; i++) sparks.push(new Spark(e.clientX, e.clientY)); });
+
+        window.addEventListener('resize', () => { width = bgCanvas.width = trailCanvas.width = window.innerWidth; height = bgCanvas.height = trailCanvas.height = window.innerHeight; });
+
+        animateBg();
+        animateTrail();
+
+        // 计数器逻辑
+        let count = 0, history = [];
+        const countEl = document.getElementById('count'), statusEl = document.getElementById('statusLabel'), historyEl = document.getElementById('history');
 
         function updateDisplay() {
             countEl.textContent = count;
             countEl.classList.remove('positive', 'negative', 'bounce');
-            
             setTimeout(() => countEl.classList.add('bounce'), 10);
-            
-            if (count > 0) {
-                countEl.classList.add('positive');
-                statusEl.textContent = 'POSITIVE';
-            } else if (count < 0) {
-                countEl.classList.add('negative');
-                statusEl.textContent = 'NEGATIVE';
-            } else {
-                statusEl.textContent = 'NEUTRAL';
-            }
+            if (count > 0) { countEl.classList.add('positive'); statusEl.textContent = 'POSITIVE'; }
+            else if (count < 0) { countEl.classList.add('negative'); statusEl.textContent = 'NEGATIVE'; }
+            else statusEl.textContent = 'NEUTRAL';
         }
 
-        function addToHistory() {
-            if (history.length >= 5) history.shift();
-            history.push(count);
-            historyEl.innerHTML = history.map(v => `<span class="history-item">${v}</span>`).join('');
-        }
-
-        function increase() {
-            count++;
-            updateDisplay();
-            addToHistory();
-        }
-
-        function decrease() {
-            count--;
-            updateDisplay();
-            addToHistory();
-        }
-
-        function reset() {
-            count = 0;
-            updateDisplay();
-            addToHistory();
-        }
+        function addToHistory() { if (history.length >= 5) history.shift(); history.push(count); historyEl.innerHTML = history.map(v => `<span class="history-item">${v}</span>`).join(''); }
+        function increase() { count++; updateDisplay(); addToHistory(); }
+        function decrease() { count--; updateDisplay(); addToHistory(); }
+        function reset() { count = 0; updateDisplay(); addToHistory(); }
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowUp' || e.key === '=') increase();
             if (e.key === 'ArrowDown' || e.key === '-') decrease();
-            if (e.key === ' ' || e.key === 'Enter') {
-                e.preventDefault();
-                reset();
-            }
+            if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); reset(); }
         });
 
         updateDisplay();

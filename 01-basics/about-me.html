@@ -7,12 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            --cyan: #00d4ff;
-            --cyan-light: #00ffff;
-            --green: #00ff88;
-            --bg-dark: #000510;
-        }
+        :root { --cyan: #00d4ff; --green: #00ff88; --bg-dark: #000510; }
 
         body {
             min-height: 100vh;
@@ -23,40 +18,54 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #fff;
             overflow: hidden;
-            position: relative;
+            cursor: none;
         }
 
-        /* 背景画布 */
-        #bgCanvas {
+        #bgCanvas, #trailCanvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
         }
+        #bgCanvas { z-index: 0; }
+        #trailCanvas { z-index: 3; pointer-events: none; }
 
-        /* 扫描线 */
         .scanlines {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.08) 0px,
-                rgba(0, 0, 0, 0.08) 1px,
-                transparent 1px,
-                transparent 3px
-            );
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 1px, transparent 1px, transparent 3px);
             pointer-events: none;
-            z-index: 1;
-            opacity: 0.3;
+            z-index: 4;
+            opacity: 0.4;
         }
 
-        /* 返回按钮 */
+        .cursor {
+            position: fixed;
+            width: 20px; height: 20px;
+            border: 2px solid var(--cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 6px; height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--green);
+        }
+
+        .cursor.hover { width: 40px; height: 40px; border-color: var(--green); }
+
         .back-link {
             position: fixed;
-            top: 20px;
-            left: 20px;
+            top: 20px; left: 20px;
             color: var(--cyan);
             text-decoration: none;
             font-family: 'SF Mono', Monaco, monospace;
@@ -67,27 +76,14 @@
             z-index: 100;
             background: rgba(0, 20, 40, 0.8);
             backdrop-filter: blur(10px);
+            cursor: none;
         }
 
         .back-link::before { content: '‹ '; }
+        .back-link:hover { background: rgba(0, 212, 255, 0.2); box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
 
-        .back-link:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: var(--cyan);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-        }
+        .profile-container { position: relative; z-index: 10; }
 
-        /* 主容器 */
-        .profile-container {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        /* 科技卡片 */
         .profile-card {
             background: rgba(0, 20, 40, 0.8);
             border: 1px solid rgba(0, 212, 255, 0.4);
@@ -98,27 +94,16 @@
             backdrop-filter: blur(20px);
         }
 
-        /* 角落装饰 */
-        .profile-card::before,
-        .profile-card::after {
+        .profile-card::before, .profile-card::after {
             content: '';
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 30px; height: 30px;
             border: 2px solid var(--cyan);
         }
 
-        .profile-card::before {
-            top: -1px; left: -1px;
-            border-right: none; border-bottom: none;
-        }
+        .profile-card::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+        .profile-card::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-        .profile-card::after {
-            bottom: -1px; right: -1px;
-            border-left: none; border-top: none;
-        }
-
-        /* 顶部数据条 */
         .data-bar {
             position: absolute;
             top: 0; left: 0; right: 0;
@@ -128,100 +113,41 @@
             animation: dataFlow 3s linear infinite;
         }
 
-        @keyframes dataFlow {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
+        @keyframes dataFlow { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-        /* 头像区域 */
-        .avatar-section {
-            position: relative;
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 1.5rem;
-        }
+        .avatar-section { position: relative; width: 160px; height: 160px; margin: 0 auto 1.5rem; }
 
-        /* 六边形框架 */
         .hex-frame {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 180px;
-            height: 180px;
+            width: 180px; height: 180px;
             animation: hexPulse 4s ease-in-out infinite;
         }
 
-        @keyframes hexPulse {
-            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.05); }
-        }
+        @keyframes hexPulse { 0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.05); } }
 
-        .hex-frame svg { width: 100%; height: 100%; }
+        .orbit-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(0, 212, 255, 0.3); }
+        .orbit-ring-1 { top: -15px; left: -15px; right: -15px; bottom: -15px; animation: rotate 10s linear infinite; }
+        .orbit-ring-2 { top: -8px; left: -8px; right: -8px; bottom: -8px; border-style: dashed; border-color: rgba(0, 255, 136, 0.3); animation: rotateReverse 15s linear infinite; }
 
-        /* 旋转轨道 */
-        .orbit-ring {
-            position: absolute;
-            border-radius: 50%;
-            border: 1px solid rgba(0, 212, 255, 0.3);
-        }
-
-        .orbit-ring-1 {
-            top: -15px; left: -15px; right: -15px; bottom: -15px;
-            animation: rotate 10s linear infinite;
-        }
-
-        .orbit-ring-2 {
-            top: -8px; left: -8px; right: -8px; bottom: -8px;
-            border-style: dashed;
-            border-color: rgba(0, 255, 136, 0.3);
-            animation: rotateReverse 15s linear infinite;
-        }
-
-        .orbit-ring-1::before {
-            content: '';
-            position: absolute;
-            top: -4px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 8px;
-            height: 8px;
-            background: var(--cyan);
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--cyan);
-        }
-
-        .orbit-ring-1::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 6px;
-            height: 6px;
-            background: var(--green);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--green);
-        }
+        .orbit-ring-1::before, .orbit-ring-1::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; }
+        .orbit-ring-1::before { top: -4px; left: 50%; transform: translateX(-50%); background: var(--cyan); box-shadow: 0 0 15px var(--cyan); }
+        .orbit-ring-1::after { bottom: -4px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: var(--green); box-shadow: 0 0 10px var(--green); }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes rotateReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
-        /* 头像主体 */
         .avatar {
-            width: 160px;
-            height: 160px;
+            width: 160px; height: 160px;
             border-radius: 50%;
             border: 2px solid rgba(0, 212, 255, 0.8);
-            box-shadow: 
-                0 0 30px rgba(0, 212, 255, 0.4),
-                inset 0 0 40px rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
             background: linear-gradient(135deg, #0a1628, #0d2040);
             overflow: hidden;
             position: relative;
         }
 
-        /* 扫描效果 */
         .avatar::before {
             content: '';
             position: absolute;
@@ -232,20 +158,14 @@
             z-index: 10;
         }
 
-        @keyframes avatarScan {
-            0% { top: 0; opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
+        @keyframes avatarScan { 0% { top: 0; opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
         .avatar svg { width: 100%; height: 100%; }
 
-        /* 状态指示器 */
         .status-indicator {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 16px;
-            height: 16px;
+            top: 10px; right: 10px;
+            width: 16px; height: 16px;
             background: var(--green);
             border-radius: 50%;
             border: 3px solid #0a1628;
@@ -254,26 +174,15 @@
             animation: statusGlow 2s ease-in-out infinite;
         }
 
-        @keyframes statusGlow {
-            0%, 100% { box-shadow: 0 0 10px var(--green); }
-            50% { box-shadow: 0 0 25px var(--green), 0 0 40px var(--green); }
-        }
+        @keyframes statusGlow { 0%, 100% { box-shadow: 0 0 10px var(--green); } 50% { box-shadow: 0 0 25px var(--green), 0 0 40px var(--green); } }
 
-        /* 用户ID标签 */
-        .user-id {
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 0.7rem;
-            color: rgba(0, 212, 255, 0.6);
-            letter-spacing: 2px;
-            margin-bottom: 0.5rem;
-        }
+        .user-id { font-family: 'SF Mono', Monaco, monospace; font-size: 0.7rem; color: rgba(0, 212, 255, 0.6); letter-spacing: 2px; margin-bottom: 0.5rem; }
 
-        /* 名字 */
         .name {
             font-size: 2.2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            background: linear-gradient(90deg, var(--cyan), var(--green), var(--cyan-light), var(--cyan));
+            background: linear-gradient(90deg, var(--cyan), var(--green), #00ffff, var(--cyan));
             background-size: 300% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -281,12 +190,8 @@
             animation: nameGlow 4s ease infinite;
         }
 
-        @keyframes nameGlow {
-            0%, 100% { background-position: 0% center; }
-            50% { background-position: 100% center; }
-        }
+        @keyframes nameGlow { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
 
-        /* 在线状态 */
         .status {
             display: inline-flex;
             align-items: center;
@@ -300,28 +205,12 @@
             border: 1px solid rgba(0, 255, 136, 0.3);
         }
 
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--green);
-            border-radius: 50%;
-            animation: blink 1.5s ease-in-out infinite;
-        }
+        .status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: blink 1.5s ease-in-out infinite; }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* 职位 */
-        .title {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 1.5rem;
-            font-family: 'SF Mono', Monaco, monospace;
-        }
+        .title { font-size: 1rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem; font-family: 'SF Mono', Monaco, monospace; }
 
-        /* 简介区块 */
         .bio-block {
             position: relative;
             padding: 1.2rem 1.5rem;
@@ -334,8 +223,7 @@
         .bio-block::before {
             content: '// MISSION';
             position: absolute;
-            top: -10px;
-            left: 10px;
+            top: -10px; left: 10px;
             font-size: 0.65rem;
             color: var(--cyan);
             font-family: 'SF Mono', Monaco, monospace;
@@ -344,29 +232,12 @@
             letter-spacing: 2px;
         }
 
-        .bio {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.8;
-        }
+        .bio { font-size: 1.1rem; color: rgba(255, 255, 255, 0.9); line-height: 1.8; }
 
-        /* 技能区块 */
         .skills-block { margin-bottom: 2rem; }
+        .skills-title { font-size: 0.7rem; color: rgba(0, 212, 255, 0.6); font-family: 'SF Mono', Monaco, monospace; letter-spacing: 2px; margin-bottom: 1rem; }
 
-        .skills-title {
-            font-size: 0.7rem;
-            color: rgba(0, 212, 255, 0.6);
-            font-family: 'SF Mono', Monaco, monospace;
-            letter-spacing: 2px;
-            margin-bottom: 1rem;
-        }
-
-        .skills {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.6rem;
-        }
+        .skills { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; }
 
         .skill-tag {
             padding: 0.5rem 1rem;
@@ -376,38 +247,15 @@
             font-size: 0.8rem;
             font-family: 'SF Mono', Monaco, monospace;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            cursor: none;
         }
 
-        .skill-tag::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
-            transition: left 0.5s;
-        }
+        .skill-tag:hover { border-color: var(--green); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
 
-        .skill-tag:hover {
-            border-color: var(--green);
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
-        }
-
-        .skill-tag:hover::before { left: 100%; }
-
-        /* 社交链接 */
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
+        .social-links { display: flex; justify-content: center; gap: 1rem; }
 
         .social-link {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             border: 1px solid rgba(0, 212, 255, 0.4);
             display: flex;
             align-items: center;
@@ -415,37 +263,11 @@
             color: var(--cyan);
             text-decoration: none;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            cursor: none;
         }
 
-        .social-link::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(0, 212, 255, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.3s;
-        }
+        .social-link:hover { border-color: var(--cyan); box-shadow: 0 0 25px rgba(0, 212, 255, 0.4); color: var(--green); }
 
-        .social-link:hover::before {
-            width: 60px;
-            height: 60px;
-        }
-
-        .social-link:hover {
-            border-color: var(--cyan);
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
-            color: var(--green);
-        }
-
-        .social-link svg { position: relative; z-index: 2; }
-
-        /* 数据装饰 */
         .data-decoration {
             position: fixed;
             font-family: 'SF Mono', Monaco, monospace;
@@ -463,112 +285,61 @@
             .avatar-section { width: 130px; height: 130px; }
             .avatar { width: 130px; height: 130px; }
             .data-decoration { display: none; }
+            .cursor, .cursor-dot { display: none; }
+            body { cursor: auto; }
         }
     </style>
 </head>
 <body>
     <canvas id="bgCanvas"></canvas>
+    <canvas id="trailCanvas"></canvas>
     <div class="scanlines"></div>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
 
     <a href="hello.html" class="back-link">BACK_TO_HOME</a>
 
-    <!-- 数据装饰 -->
-    <div class="data-decoration data-top-left">
-        SYS.VERSION: 2.0.1<br>
-        PROFILE.LOAD: 100%<br>
-        CONNECTION: STABLE
-    </div>
-    <div class="data-decoration data-bottom-right">
-        LAT: 31.2304° N<br>
-        LON: 121.4737° E<br>
-        <span id="currentTime"></span>
-    </div>
+    <div class="data-decoration data-top-left">SYS.VERSION: 2.0.1<br>PROFILE.LOAD: 100%<br>CONNECTION: STABLE</div>
+    <div class="data-decoration data-bottom-right">LAT: 31.2304° N<br>LON: 121.4737° E<br><span id="currentTime"></span></div>
 
     <div class="profile-container">
         <div class="profile-card">
             <div class="data-bar"></div>
-            
             <div class="avatar-section">
-                <!-- 六边形框架 -->
-                <div class="hex-frame">
-                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" 
-                                 fill="none" stroke="#00d4ff" stroke-width="0.5"/>
-                    </svg>
-                </div>
-                <!-- 轨道 -->
+                <div class="hex-frame"><svg viewBox="0 0 100 100"><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" fill="none" stroke="#00d4ff" stroke-width="0.5"/></svg></div>
                 <div class="orbit-ring orbit-ring-1"></div>
                 <div class="orbit-ring orbit-ring-2"></div>
-                <!-- 状态指示器 -->
                 <div class="status-indicator"></div>
-                <!-- 头像 - 青蓝色科技猫咪 -->
                 <div class="avatar">
-                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="techBg" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#0a1628"/>
-                                <stop offset="100%" style="stop-color:#1a3050"/>
-                            </linearGradient>
-                        </defs>
+                    <svg viewBox="0 0 100 100">
+                        <defs><linearGradient id="techBg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0a1628"/><stop offset="100%" style="stop-color:#1a3050"/></linearGradient></defs>
                         <circle cx="50" cy="50" r="48" fill="url(#techBg)"/>
-                        <!-- 网格 -->
-                        <g stroke="#00d4ff" stroke-width="0.3" opacity="0.15">
-                            <line x1="10" y1="25" x2="90" y2="25"/>
-                            <line x1="10" y1="50" x2="90" y2="50"/>
-                            <line x1="10" y1="75" x2="90" y2="75"/>
-                            <line x1="25" y1="10" x2="25" y2="90"/>
-                            <line x1="50" y1="10" x2="50" y2="90"/>
-                            <line x1="75" y1="10" x2="75" y2="90"/>
-                        </g>
-                        <!-- 科技猫脸 - 青蓝色主题 -->
+                        <g stroke="#00d4ff" stroke-width="0.3" opacity="0.15"><line x1="10" y1="25" x2="90" y2="25"/><line x1="10" y1="50" x2="90" y2="50"/><line x1="10" y1="75" x2="90" y2="75"/><line x1="25" y1="10" x2="25" y2="90"/><line x1="50" y1="10" x2="50" y2="90"/><line x1="75" y1="10" x2="75" y2="90"/></g>
                         <ellipse cx="50" cy="55" rx="28" ry="26" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.8"/>
-                        <!-- 耳朵 -->
                         <path d="M 22 38 L 30 52 L 38 42" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
                         <path d="M 25 40 L 30 48 L 35 43" fill="none" stroke="#00ff88" stroke-width="1"/>
                         <path d="M 78 38 L 70 52 L 62 42" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
                         <path d="M 75 40 L 70 48 L 65 43" fill="none" stroke="#00ff88" stroke-width="1"/>
-                        <!-- 眼睛 -->
                         <ellipse cx="38" cy="52" rx="8" ry="8" fill="none" stroke="#00d4ff" stroke-width="1"/>
                         <ellipse cx="62" cy="52" rx="8" ry="8" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                        <circle cx="38" cy="52" r="4" fill="#00ff88"/>
-                        <circle cx="62" cy="52" r="4" fill="#00ff88"/>
-                        <circle cx="38" cy="52" r="2" fill="#fff"/>
-                        <circle cx="62" cy="52" r="2" fill="#fff"/>
-                        <!-- 鼻子 -->
+                        <circle cx="38" cy="52" r="4" fill="#00ff88"/><circle cx="62" cy="52" r="4" fill="#00ff88"/>
+                        <circle cx="38" cy="52" r="2" fill="#fff"/><circle cx="62" cy="52" r="2" fill="#fff"/>
                         <polygon points="50,60 46,66 54,66" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                        <!-- 嘴巴 -->
                         <path d="M 44 70 Q 47 73 50 70 Q 53 73 56 70" stroke="#00ff88" stroke-width="1" fill="none"/>
-                        <!-- 胡须 -->
                         <g stroke="#00d4ff" stroke-width="0.8" opacity="0.7">
                             <line x1="20" y1="55" x2="32" y2="58"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
                             <line x1="18" y1="62" x2="32" y2="62"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></line>
-                            <line x1="20" y1="69" x2="32" y2="66"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></line>
                             <line x1="68" y1="58" x2="80" y2="55"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
                             <line x1="68" y1="62" x2="82" y2="62"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></line>
-                            <line x1="68" y1="66" x2="80" y2="69"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></line>
                         </g>
-                        <!-- 数据点 -->
-                        <circle cx="15" cy="30" r="2" fill="#00ff88" opacity="0.6"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle>
-                        <circle cx="85" cy="30" r="2" fill="#00d4ff" opacity="0.6"><animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/></circle>
-                        <circle cx="50" cy="85" r="2" fill="#00ff88" opacity="0.6"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></circle>
                     </svg>
                 </div>
             </div>
-
             <div class="user-id">USER_ID: #PM_2024_001</div>
             <h1 class="name">Songsong</h1>
-            
-            <div class="status">
-                <span class="status-dot"></span>
-                <span>ONLINE</span>
-            </div>
-
+            <div class="status"><span class="status-dot"></span><span>ONLINE</span></div>
             <p class="title">// 一枚搬砖的产品经理</p>
-
-            <div class="bio-block">
-                <div class="bio">我想用好 AI，用 AI 改变世界 🌍</div>
-            </div>
-
+            <div class="bio-block"><div class="bio">我想用好 AI，用 AI 改变世界 🌍</div></div>
             <div class="skills-block">
                 <div class="skills-title">// SKILL_SET</div>
                 <div class="skills">
@@ -578,137 +349,129 @@
                     <span class="skill-tag">数据分析</span>
                 </div>
             </div>
-
             <div class="social-links">
-                <a href="#" class="social-link" title="GitHub">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                    </svg>
-                </a>
-                <a href="#" class="social-link" title="Twitter">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                </a>
-                <a href="#" class="social-link" title="Email">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                        <polyline points="22,6 12,13 2,6"/>
-                    </svg>
-                </a>
+                <a href="#" class="social-link" title="GitHub"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+                <a href="#" class="social-link" title="Twitter"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+                <a href="#" class="social-link" title="Email"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
             </div>
         </div>
     </div>
 
     <script>
-        // 背景粒子动画 - 青蓝色主题
-        const canvas = document.getElementById('bgCanvas');
-        const ctx = canvas.getContext('2d');
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        const trailCanvas = document.getElementById('trailCanvas');
+        const trailCtx = trailCanvas.getContext('2d');
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursorDot');
 
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+        let width = bgCanvas.width = trailCanvas.width = window.innerWidth;
+        let height = bgCanvas.height = trailCanvas.height = window.innerHeight;
+        let mouseX = width / 2, mouseY = height / 2, mouseSpeed = 0, lastMouseX = mouseX, lastMouseY = mouseY;
+
+        const codeChars = '01アイウエオカキクケコサシスセソ</>{}[];=+-*&|';
+        const columns = Math.floor(width / 20);
+        const drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = { y: Math.random() * height, speed: Math.random() * 3 + 2, chars: [], length: Math.floor(Math.random() * 15 + 8) };
+            for (let j = 0; j < drops[i].length; j++) drops[i].chars.push(codeChars[Math.floor(Math.random() * codeChars.length)]);
+        }
 
         const particles = [];
-        const particleCount = 60;
+        for (let i = 0; i < 40; i++) particles.push({ x: Math.random() * width, y: Math.random() * height, size: Math.random() * 2 + 0.5, speedX: (Math.random() - 0.5) * 0.5, speedY: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.2 });
 
-        class Particle {
-            constructor() { this.reset(); }
+        const trailPoints = [], maxTrailPoints = 50, sparks = [];
 
-            reset() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.3;
-                this.speedY = (Math.random() - 0.5) * 0.3;
-                this.alpha = Math.random() * 0.4 + 0.1;
-                this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88';
-            }
+        class Spark {
+            constructor(x, y) { this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * 8; this.vy = (Math.random() - 0.5) * 8; this.life = 1; this.decay = Math.random() * 0.03 + 0.02; this.size = Math.random() * 3 + 1; this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88'; }
+            update() { this.x += this.vx; this.y += this.vy; this.vx *= 0.95; this.vy *= 0.95; this.life -= this.decay; }
+            draw() { trailCtx.beginPath(); trailCtx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2); trailCtx.fillStyle = this.color.replace(')', `, ${this.life})`).replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136'); trailCtx.fill(); }
+            isDead() { return this.life <= 0; }
+        }
 
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
-                    this.reset();
+        function animateBg() {
+            bgCtx.fillStyle = 'rgba(0, 5, 16, 0.15)';
+            bgCtx.fillRect(0, 0, width, height);
+
+            bgCtx.font = '14px "SF Mono", Monaco, monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const drop = drops[i], x = i * 20;
+                for (let j = 0; j < drop.chars.length; j++) {
+                    const y = drop.y - j * 20;
+                    if (y < 0 || y > height) continue;
+                    const alpha = j === 0 ? 1 : (1 - j / drop.length) * 0.5;
+                    bgCtx.fillStyle = (j === 0 ? 'rgba(0, 255, 136' : 'rgba(0, 212, 255') + `, ${alpha})`;
+                    bgCtx.fillText(drop.chars[j], x, y);
                 }
+                drop.y += drop.speed;
+                if (Math.random() < 0.02) drop.chars[Math.floor(Math.random() * drop.chars.length)] = codeChars[Math.floor(Math.random() * codeChars.length)];
+                if (drop.y > height + drop.length * 20) { drop.y = -drop.length * 20; drop.speed = Math.random() * 3 + 2; }
             }
 
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136');
-                ctx.fill();
-            }
-        }
-
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.02)';
-            ctx.lineWidth = 1;
-            const gridSize = 60;
-            for (let x = 0; x < width; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, height);
-                ctx.stroke();
-            }
-            for (let y = 0; y < height; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-        }
-
-        function drawConnections() {
-            const maxDist = 80;
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < maxDist) {
-                        const alpha = (1 - dist / maxDist) * 0.1;
-                        ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            ctx.fillStyle = 'rgba(0, 5, 16, 0.1)';
-            ctx.fillRect(0, 0, width, height);
-
-            drawGrid();
             particles.forEach(p => {
-                p.update();
-                p.draw();
+                p.x += p.speedX; p.y += p.speedY;
+                const dx = mouseX - p.x, dy = mouseY - p.y, dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 100) { p.x -= dx * 0.02; p.y -= dy * 0.02; }
+                if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) { p.x = Math.random() * width; p.y = Math.random() * height; }
+                bgCtx.beginPath(); bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(0, 212, 255, ${p.alpha})`; bgCtx.fill();
             });
-            drawConnections();
 
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animateBg);
         }
 
-        window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+        function animateTrail() {
+            trailCtx.fillStyle = 'rgba(0, 5, 16, 0.1)';
+            trailCtx.fillRect(0, 0, width, height);
+
+            if (trailPoints.length > 2) {
+                trailCtx.beginPath();
+                trailCtx.moveTo(trailPoints[0].x, trailPoints[0].y);
+                for (let i = 1; i < trailPoints.length - 1; i++) {
+                    const xc = (trailPoints[i].x + trailPoints[i + 1].x) / 2;
+                    const yc = (trailPoints[i].y + trailPoints[i + 1].y) / 2;
+                    trailCtx.quadraticCurveTo(trailPoints[i].x, trailPoints[i].y, xc, yc);
+                }
+                const gradient = trailCtx.createLinearGradient(trailPoints[0].x, trailPoints[0].y, trailPoints[trailPoints.length - 1].x, trailPoints[trailPoints.length - 1].y);
+                gradient.addColorStop(0, 'rgba(0, 212, 255, 0)');
+                gradient.addColorStop(0.5, 'rgba(0, 255, 136, 0.5)');
+                gradient.addColorStop(1, 'rgba(0, 212, 255, 0.8)');
+                trailCtx.strokeStyle = gradient;
+                trailCtx.lineWidth = 2;
+                trailCtx.lineCap = 'round';
+                trailCtx.stroke();
+            }
+
+            sparks.forEach((spark, i) => { spark.update(); spark.draw(); if (spark.isDead()) sparks.splice(i, 1); });
+            requestAnimationFrame(animateTrail);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            mouseSpeed = Math.sqrt(Math.pow(mouseX - lastMouseX, 2) + Math.pow(mouseY - lastMouseY, 2));
+            cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+            cursorDot.style.left = mouseX + 'px'; cursorDot.style.top = mouseY + 'px';
+            trailPoints.push({ x: mouseX, y: mouseY });
+            if (trailPoints.length > maxTrailPoints) trailPoints.shift();
+            if (mouseSpeed > 15) for (let i = 0; i < 3; i++) sparks.push(new Spark(mouseX, mouseY));
+            lastMouseX = mouseX; lastMouseY = mouseY;
         });
 
-        animate();
+        document.querySelectorAll('a, .skill-tag, .social-link').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
 
-        // 时间显示
+        document.addEventListener('click', (e) => { for (let i = 0; i < 20; i++) sparks.push(new Spark(e.clientX, e.clientY)); });
+
+        window.addEventListener('resize', () => { width = bgCanvas.width = trailCanvas.width = window.innerWidth; height = bgCanvas.height = trailCanvas.height = window.innerHeight; });
+
+        animateBg();
+        animateTrail();
+
         function updateTime() {
             const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ':' +
-                           now.getMinutes().toString().padStart(2, '0') + ':' +
-                           now.getSeconds().toString().padStart(2, '0');
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0') + ':' + now.getSeconds().toString().padStart(2, '0');
             document.getElementById('currentTime').textContent = 'TIME: ' + timeStr;
         }
         updateTime();

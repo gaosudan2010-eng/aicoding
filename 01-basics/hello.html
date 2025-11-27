@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hello AI Coding</title>
     <style>
-        /* ========== 全局重置 ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* ========== 颜色变量（青蓝色主题） ========== */
         :root {
             --cyan: #00d4ff;
             --cyan-light: #00ffff;
@@ -16,7 +14,6 @@
             --bg-dark: #000510;
         }
 
-        /* ========== 页面主体样式 ========== */
         body {
             min-height: 100vh;
             display: flex;
@@ -28,11 +25,11 @@
             color: #fff;
             overflow-x: hidden;
             overflow-y: auto;
-            cursor: crosshair;
+            cursor: none;
         }
 
-        /* ========== 3D宇宙背景画布 ========== */
-        #universe {
+        /* 背景画布 */
+        #bgCanvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -41,36 +38,66 @@
             z-index: 0;
         }
 
-        /* ========== 扫描线效果 ========== */
+        /* 鼠标轨迹画布 */
+        #trailCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* 扫描线 */
         .scanlines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            z-index: 5;
+            z-index: 4;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 0, 0, 0.08) 0px,
-                rgba(0, 0, 0, 0.08) 1px,
+                rgba(0, 0, 0, 0.06) 0px,
+                rgba(0, 0, 0, 0.06) 1px,
                 transparent 1px,
                 transparent 3px
             );
-            opacity: 0.3;
+            opacity: 0.4;
         }
 
-        /* ========== 鼠标光晕跟随 ========== */
-        .mouse-glow {
+        /* 自定义鼠标光标 */
+        .cursor {
             position: fixed;
-            width: 300px;
-            height: 300px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--cyan);
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
             pointer-events: none;
-            z-index: 2;
+            z-index: 9999;
             transform: translate(-50%, -50%);
-            transition: opacity 0.3s;
+            transition: width 0.2s, height 0.2s, border-color 0.2s;
+            mix-blend-mode: difference;
         }
 
-        /* ========== 内容容器 ========== */
+        .cursor-dot {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--green), 0 0 20px var(--green);
+        }
+
+        .cursor.hover {
+            width: 40px;
+            height: 40px;
+            border-color: var(--green);
+        }
+
+        /* 内容容器 */
         .content {
             position: relative;
             z-index: 10;
@@ -79,7 +106,7 @@
             margin-bottom: 4rem;
         }
 
-        /* ========== 作品集区域 ========== */
+        /* 作品集区域 */
         .portfolio-section {
             position: relative;
             z-index: 10;
@@ -122,17 +149,14 @@
             color: rgba(0, 212, 255, 0.5);
             font-family: 'SF Mono', Monaco, monospace;
             letter-spacing: 2px;
-            text-transform: uppercase;
         }
 
-        /* ========== 作品卡片网格 ========== */
         .portfolio-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
         }
 
-        /* ========== 作品卡片 ========== */
         .project-card {
             background: rgba(0, 20, 40, 0.6);
             border: 1px solid rgba(0, 212, 255, 0.2);
@@ -142,6 +166,7 @@
             position: relative;
             text-decoration: none;
             display: block;
+            cursor: none;
         }
 
         .project-card::before {
@@ -164,8 +189,7 @@
         .project-card:hover {
             transform: translateY(-8px);
             border-color: rgba(0, 212, 255, 0.5);
-            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15),
-                        0 0 60px rgba(0, 212, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15);
         }
 
         .project-card:hover::before { opacity: 1; }
@@ -187,7 +211,6 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            position: relative;
             transition: transform 0.4s;
         }
 
@@ -213,24 +236,12 @@
             z-index: 2;
         }
 
-        .project-preview::before {
-            top: 10px; left: 10px;
-            border-right: none; border-bottom: none;
-        }
-
-        .project-preview::after {
-            bottom: 10px; right: 10px;
-            border-left: none; border-top: none;
-        }
+        .project-preview::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .project-preview::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
 
         .project-info { padding: 1.5rem; }
 
-        .project-tags {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
+        .project-tags { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
 
         .project-tag {
             font-size: 0.7rem;
@@ -239,8 +250,6 @@
             border: 1px solid rgba(0, 212, 255, 0.3);
             color: var(--cyan);
             font-family: 'SF Mono', Monaco, monospace;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .project-name {
@@ -253,11 +262,7 @@
             gap: 0.5rem;
         }
 
-        .project-name svg {
-            width: 20px;
-            height: 20px;
-            color: var(--cyan);
-        }
+        .project-name svg { width: 20px; height: 20px; color: var(--cyan); }
 
         .project-desc {
             font-size: 0.85rem;
@@ -266,11 +271,7 @@
             margin-bottom: 1rem;
         }
 
-        .project-features {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
+        .project-features { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
         .project-feature {
             font-size: 0.7rem;
@@ -292,11 +293,7 @@
             font-family: 'SF Mono', Monaco, monospace;
         }
 
-        .project-link svg {
-            width: 16px; height: 16px;
-            transition: transform 0.3s;
-        }
-
+        .project-link svg { width: 16px; height: 16px; transition: transform 0.3s; }
         .project-card:hover .project-link svg { transform: translateX(5px); }
 
         .project-card-placeholder {
@@ -308,25 +305,11 @@
             border-style: dashed;
         }
 
-        .placeholder-icon {
-            font-size: 3rem;
-            color: rgba(0, 212, 255, 0.3);
-            margin-bottom: 1rem;
-        }
+        .placeholder-icon { font-size: 3rem; color: rgba(0, 212, 255, 0.3); margin-bottom: 1rem; }
+        .placeholder-text { color: rgba(255, 255, 255, 0.4); font-size: 0.9rem; }
+        .placeholder-hint { color: rgba(255, 255, 255, 0.2); font-size: 0.75rem; font-family: 'SF Mono', Monaco, monospace; margin-top: 0.5rem; }
 
-        .placeholder-text {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9rem;
-        }
-
-        .placeholder-hint {
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 0.75rem;
-            font-family: 'SF Mono', Monaco, monospace;
-            margin-top: 0.5rem;
-        }
-
-        /* ========== 科技边框容器 ========== */
+        /* 科技边框容器 */
         .tech-container {
             background: rgba(0, 20, 40, 0.6);
             border: 1px solid rgba(0, 212, 255, 0.3);
@@ -344,17 +327,9 @@
             border: 2px solid var(--cyan);
         }
 
-        .tech-container::before {
-            top: -1px; left: -1px;
-            border-right: none; border-bottom: none;
-        }
+        .tech-container::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+        .tech-container::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-        .tech-container::after {
-            bottom: -1px; right: -1px;
-            border-left: none; border-top: none;
-        }
-
-        /* ========== 系统状态指示器 ========== */
         .system-status {
             display: flex;
             align-items: center;
@@ -380,7 +355,6 @@
             50% { opacity: 0.4; box-shadow: none; }
         }
 
-        /* ========== 主标题 ========== */
         h1 {
             font-size: 3.5rem;
             font-weight: 700;
@@ -392,7 +366,6 @@
             background-clip: text;
             animation: titleGlow 5s ease infinite;
             letter-spacing: 2px;
-            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
         }
 
         @keyframes titleGlow {
@@ -400,11 +373,7 @@
             50% { background-position: 100% center; }
         }
 
-        .subtitle {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 1.5rem;
-        }
+        .subtitle { font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem; }
 
         .time-display {
             font-family: 'SF Mono', Monaco, monospace;
@@ -414,7 +383,6 @@
             letter-spacing: 1px;
         }
 
-        /* ========== 按钮 ========== */
         .btn-start {
             padding: 1rem 2.5rem;
             font-size: 1rem;
@@ -422,7 +390,7 @@
             color: #000;
             background: linear-gradient(90deg, var(--cyan), var(--green));
             border: none;
-            cursor: pointer;
+            cursor: none;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -443,8 +411,7 @@
         }
 
         .btn-start:hover {
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5),
-                        0 0 60px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 255, 136, 0.3);
             transform: translateY(-2px);
         }
 
@@ -460,20 +427,16 @@
             margin-top: 3rem;
         }
 
-        /* ========== 科技猫咪头像入口（青蓝色） ========== */
+        /* 猫咪头像 */
         .cat-avatar-link {
             position: fixed;
             z-index: 100;
             text-decoration: none;
-            cursor: pointer;
+            cursor: none;
             transition: all 0.3s ease;
         }
 
-        .cat-avatar-container {
-            position: relative;
-            width: 100px;
-            height: 100px;
-        }
+        .cat-avatar-container { position: relative; width: 100px; height: 100px; }
 
         .hex-frame {
             position: absolute;
@@ -506,20 +469,11 @@
             height: 6px;
             background: var(--cyan);
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
         }
 
-        .cat-avatar-ring::before {
-            top: -3px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .cat-avatar-ring::after {
-            bottom: -3px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+        .cat-avatar-ring::before { top: -3px; left: 50%; transform: translateX(-50%); }
+        .cat-avatar-ring::after { bottom: -3px; left: 50%; transform: translateX(-50%); }
 
         .cat-avatar-ring-inner {
             position: absolute;
@@ -538,9 +492,7 @@
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid rgba(0, 212, 255, 0.8);
-            box-shadow: 
-                0 0 20px rgba(0, 212, 255, 0.4),
-                inset 0 0 30px rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
             transition: all 0.3s ease;
             background: linear-gradient(135deg, #0a1628, #0d2040);
             position: relative;
@@ -556,10 +508,7 @@
             z-index: 10;
         }
 
-        @keyframes scanline {
-            0% { top: 0; opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
+        @keyframes scanline { 0% { top: 0; opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
         .cat-avatar svg { width: 100%; height: 100%; }
 
@@ -574,23 +523,14 @@
             white-space: nowrap;
             opacity: 0;
             transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
             padding: 4px 12px;
             background: rgba(0, 20, 40, 0.9);
             border: 1px solid rgba(0, 212, 255, 0.5);
         }
 
-        .cat-avatar-label::before {
-            content: '>';
-            margin-right: 6px;
-            animation: blink 1s step-end infinite;
-        }
+        .cat-avatar-label::before { content: '>'; margin-right: 6px; animation: blink 1s step-end infinite; }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         .avatar-status {
             position: absolute;
@@ -611,26 +551,12 @@
             50% { box-shadow: 0 0 15px var(--green), 0 0 25px var(--green); }
         }
 
-        .cat-avatar-link:hover .cat-avatar-label {
-            opacity: 1;
-            bottom: -45px;
-        }
-
+        .cat-avatar-link:hover .cat-avatar-label { opacity: 1; bottom: -45px; }
         .cat-avatar-link:hover .cat-avatar {
             transform: scale(1.08);
-            border-color: var(--cyan);
-            box-shadow: 
-                0 0 30px rgba(0, 212, 255, 0.6),
-                0 0 60px rgba(0, 255, 136, 0.3),
-                inset 0 0 30px rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
         }
 
-        .cat-avatar-link:hover .cat-avatar-ring {
-            border-color: rgba(0, 212, 255, 0.6);
-            animation-duration: 4s;
-        }
-
-        /* ========== 响应式 ========== */
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
             .tech-container { padding: 2rem 1.5rem; margin: 0 1rem; }
@@ -638,81 +564,53 @@
             .portfolio-grid { grid-template-columns: 1fr; }
             .cat-avatar-container { width: 80px; height: 80px; }
             .cat-avatar { width: 80px; height: 80px; }
+            .cursor, .cursor-dot { display: none; }
+            body { cursor: auto; }
         }
     </style>
 </head>
 <body>
-    <!-- 3D宇宙大爆炸背景画布 -->
-    <canvas id="universe"></canvas>
-    
+    <!-- 背景画布 -->
+    <canvas id="bgCanvas"></canvas>
+    <!-- 鼠标轨迹画布 -->
+    <canvas id="trailCanvas"></canvas>
     <!-- 扫描线 -->
     <div class="scanlines"></div>
+    <!-- 自定义光标 -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
 
-    <!-- 鼠标光晕跟随 -->
-    <div class="mouse-glow" id="mouseGlow"></div>
-
-    <!-- 科技猫咪头像入口（青蓝色） -->
+    <!-- 猫咪头像 -->
     <a href="about-me.html" class="cat-avatar-link" id="catAvatar">
         <div class="cat-avatar-container">
             <div class="hex-frame">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" 
-                             fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.5"/>
-                </svg>
+                <svg viewBox="0 0 100 100"><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.5"/></svg>
             </div>
             <div class="cat-avatar-ring"></div>
             <div class="cat-avatar-ring-inner"></div>
             <div class="avatar-status"></div>
             <div class="cat-avatar">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#0a1628"/>
-                            <stop offset="100%" style="stop-color:#1a3050"/>
-                        </linearGradient>
-                    </defs>
+                <svg viewBox="0 0 100 100">
+                    <defs><linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0a1628"/><stop offset="100%" style="stop-color:#1a3050"/></linearGradient></defs>
                     <circle cx="50" cy="50" r="48" fill="url(#techGrad)"/>
-                    <!-- 网格背景 -->
-                    <g stroke="#00d4ff" stroke-width="0.3" opacity="0.15">
-                        <line x1="10" y1="25" x2="90" y2="25"/>
-                        <line x1="10" y1="50" x2="90" y2="50"/>
-                        <line x1="10" y1="75" x2="90" y2="75"/>
-                        <line x1="25" y1="10" x2="25" y2="90"/>
-                        <line x1="50" y1="10" x2="50" y2="90"/>
-                        <line x1="75" y1="10" x2="75" y2="90"/>
-                    </g>
-                    <!-- 科技猫脸 - 青蓝色主题 -->
+                    <g stroke="#00d4ff" stroke-width="0.3" opacity="0.15"><line x1="10" y1="25" x2="90" y2="25"/><line x1="10" y1="50" x2="90" y2="50"/><line x1="10" y1="75" x2="90" y2="75"/><line x1="25" y1="10" x2="25" y2="90"/><line x1="50" y1="10" x2="50" y2="90"/><line x1="75" y1="10" x2="75" y2="90"/></g>
                     <ellipse cx="50" cy="55" rx="28" ry="26" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.8"/>
-                    <!-- 左耳 -->
                     <path d="M 22 38 L 30 52 L 38 42" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
                     <path d="M 25 40 L 30 48 L 35 43" fill="none" stroke="#00ff88" stroke-width="1"/>
-                    <!-- 右耳 -->
                     <path d="M 78 38 L 70 52 L 62 42" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
                     <path d="M 75 40 L 70 48 L 65 43" fill="none" stroke="#00ff88" stroke-width="1"/>
-                    <!-- 眼睛 -->
                     <ellipse cx="38" cy="52" rx="8" ry="8" fill="none" stroke="#00d4ff" stroke-width="1"/>
                     <ellipse cx="62" cy="52" rx="8" ry="8" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                    <circle cx="38" cy="52" r="4" fill="#00ff88"/>
-                    <circle cx="62" cy="52" r="4" fill="#00ff88"/>
-                    <circle cx="38" cy="52" r="2" fill="#fff"/>
-                    <circle cx="62" cy="52" r="2" fill="#fff"/>
-                    <!-- 鼻子 -->
+                    <circle cx="38" cy="52" r="4" fill="#00ff88"/><circle cx="62" cy="52" r="4" fill="#00ff88"/>
+                    <circle cx="38" cy="52" r="2" fill="#fff"/><circle cx="62" cy="52" r="2" fill="#fff"/>
                     <polygon points="50,60 46,66 54,66" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                    <!-- 嘴巴 -->
                     <path d="M 44 70 Q 47 73 50 70 Q 53 73 56 70" stroke="#00ff88" stroke-width="1" fill="none"/>
-                    <!-- 胡须 - 数据流动画 -->
                     <g stroke="#00d4ff" stroke-width="0.8" opacity="0.7">
                         <line x1="20" y1="55" x2="32" y2="58"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
                         <line x1="18" y1="62" x2="32" y2="62"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></line>
-                        <line x1="20" y1="69" x2="32" y2="66"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></line>
                         <line x1="68" y1="58" x2="80" y2="55"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
                         <line x1="68" y1="62" x2="82" y2="62"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></line>
-                        <line x1="68" y1="66" x2="80" y2="69"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></line>
                     </g>
-                    <!-- 装饰数据点 -->
-                    <circle cx="15" cy="30" r="2" fill="#00ff88" opacity="0.6"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle>
-                    <circle cx="85" cy="30" r="2" fill="#00d4ff" opacity="0.6"><animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/></circle>
-                    <circle cx="50" cy="85" r="2" fill="#00ff88" opacity="0.6"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></circle>
                 </svg>
             </div>
             <span class="cat-avatar-label">ABOUT_ME</span>
@@ -722,10 +620,7 @@
     <!-- 主要内容 -->
     <div class="content">
         <div class="tech-container">
-            <div class="system-status">
-                <span class="status-dot"></span>
-                <span>System Online</span>
-            </div>
+            <div class="system-status"><span class="status-dot"></span><span>System Online</span></div>
             <h1>李松松的AI编程之旅</h1>
             <p class="subtitle">用AI改变产品开发的方式</p>
             <p class="time-display" id="time"></p>
@@ -733,109 +628,45 @@
         </div>
     </div>
 
-    <p class="hint">[ 移动鼠标与宇宙互动 ] · [ 点击产生能量波 ] · [ 向下滚动查看作品 ]</p>
+    <p class="hint">[ 移动鼠标查看轨迹效果 ] · [ 向下滚动查看作品 ]</p>
 
-    <!-- 作品集区域 -->
+    <!-- 作品集 -->
     <section class="portfolio-section">
         <div class="portfolio-header">
             <h2 class="portfolio-title">我的作品集</h2>
             <p class="portfolio-subtitle">// Projects Built with AI Coding</p>
         </div>
-
         <div class="portfolio-grid">
             <a href="../02-projects/todo-app/index.html" class="project-card">
-                <div class="project-preview">
-                    <div class="project-preview-inner">
-                        <img src="images/todo-app.png" alt="Todo List" class="preview-screenshot">
-                    </div>
-                </div>
+                <div class="project-preview"><div class="project-preview-inner"><img src="images/todo-app.png" alt="Todo List" class="preview-screenshot"></div></div>
                 <div class="project-info">
-                    <div class="project-tags">
-                        <span class="project-tag">HTML</span>
-                        <span class="project-tag">CSS</span>
-                        <span class="project-tag">JavaScript</span>
-                    </div>
-                    <h3 class="project-name">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                        </svg>
-                        Todo List 待办事项
-                    </h3>
+                    <div class="project-tags"><span class="project-tag">HTML</span><span class="project-tag">CSS</span><span class="project-tag">JavaScript</span></div>
+                    <h3 class="project-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Todo List 待办事项</h3>
                     <p class="project-desc">精美的待办事项应用，支持添加、完成、删除任务，数据本地持久化存储。</p>
-                    <div class="project-features">
-                        <span class="project-feature">✓ 本地存储</span>
-                        <span class="project-feature">✓ 筛选功能</span>
-                        <span class="project-feature">✓ 进度统计</span>
-                    </div>
+                    <div class="project-features"><span class="project-feature">✓ 本地存储</span><span class="project-feature">✓ 筛选功能</span><span class="project-feature">✓ 进度统计</span></div>
                 </div>
-                <div class="project-link">
-                    <span>查看项目</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
+                <div class="project-link"><span>查看项目</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
             </a>
-
             <a href="counter.html" class="project-card">
-                <div class="project-preview">
-                    <div class="project-preview-inner">
-                        <img src="images/counter-preview.png" alt="计数器" class="preview-screenshot">
-                    </div>
-                </div>
+                <div class="project-preview"><div class="project-preview-inner"><img src="images/counter-preview.png" alt="计数器" class="preview-screenshot"></div></div>
                 <div class="project-info">
-                    <div class="project-tags">
-                        <span class="project-tag">HTML</span>
-                        <span class="project-tag">CSS</span>
-                        <span class="project-tag">JavaScript</span>
-                    </div>
-                    <h3 class="project-name">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-                        </svg>
-                        科技感计数器
-                    </h3>
+                    <div class="project-tags"><span class="project-tag">HTML</span><span class="project-tag">CSS</span><span class="project-tag">JavaScript</span></div>
+                    <h3 class="project-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>科技感计数器</h3>
                     <p class="project-desc">学习 JavaScript 交互的经典练习项目，支持键盘快捷键、历史记录。</p>
-                    <div class="project-features">
-                        <span class="project-feature">✓ 键盘控制</span>
-                        <span class="project-feature">✓ 历史记录</span>
-                        <span class="project-feature">✓ 动画效果</span>
-                    </div>
+                    <div class="project-features"><span class="project-feature">✓ 键盘控制</span><span class="project-feature">✓ 历史记录</span><span class="project-feature">✓ 动画效果</span></div>
                 </div>
-                <div class="project-link">
-                    <span>查看项目</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
+                <div class="project-link"><span>查看项目</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
             </a>
-
             <a href="../FlowerCare/index.html" class="project-card">
-                <div class="project-preview">
-                    <div class="project-preview-inner">
-                        <img src="images/flowercare-home.png" alt="FlowerCare" class="preview-screenshot">
-                    </div>
-                </div>
+                <div class="project-preview"><div class="project-preview-inner"><img src="images/flowercare-home.png" alt="FlowerCare" class="preview-screenshot"></div></div>
                 <div class="project-info">
-                    <div class="project-tags">
-                        <span class="project-tag">HTML</span>
-                        <span class="project-tag">CSS</span>
-                        <span class="project-tag">JavaScript</span>
-                    </div>
-                    <h3 class="project-name">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-                        </svg>
-                        FlowerCare 鲜花养护
-                    </h3>
+                    <div class="project-tags"><span class="project-tag">HTML</span><span class="project-tag">CSS</span><span class="project-tag">JavaScript</span></div>
+                    <h3 class="project-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>FlowerCare 鲜花养护</h3>
                     <p class="project-desc">小红书风格的鲜花养护 App Demo，包含花材图鉴、养护提醒。</p>
-                    <div class="project-features">
-                        <span class="project-feature">✓ 12种花材</span>
-                        <span class="project-feature">✓ 养护指南</span>
-                        <span class="project-feature">✓ 日历提醒</span>
-                    </div>
+                    <div class="project-features"><span class="project-feature">✓ 12种花材</span><span class="project-feature">✓ 养护指南</span><span class="project-feature">✓ 日历提醒</span></div>
                 </div>
-                <div class="project-link">
-                    <span>查看项目</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
+                <div class="project-link"><span>查看项目</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
             </a>
-
             <div class="project-card project-card-placeholder">
                 <div class="placeholder-icon">+</div>
                 <p class="placeholder-text">更多项目即将上线</p>
@@ -846,312 +677,284 @@
 
     <script>
         // ========================================
-        // 宇宙大爆炸3D粒子动画系统 + 鼠标交互（青蓝色主题）
+        // 代码雨 + 粒子 + 鼠标轨迹动画系统
         // ========================================
-        const canvas = document.getElementById('universe');
-        const ctx = canvas.getContext('2d');
-        const mouseGlow = document.getElementById('mouseGlow');
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        const trailCanvas = document.getElementById('trailCanvas');
+        const trailCtx = trailCanvas.getContext('2d');
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursorDot');
 
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
-        let centerX = width / 2;
-        let centerY = height / 2;
+        let width = bgCanvas.width = trailCanvas.width = window.innerWidth;
+        let height = bgCanvas.height = trailCanvas.height = window.innerHeight;
 
-        let mouseX = centerX;
-        let mouseY = centerY;
-        let targetMouseX = mouseX;
-        let targetMouseY = mouseY;
+        let mouseX = width / 2;
+        let mouseY = height / 2;
+        let mouseSpeed = 0;
+        let lastMouseX = mouseX;
+        let lastMouseY = mouseY;
 
-        // 星星粒子
-        const stars = [];
-        const starCount = 300;
-
-        // 星云粒子
-        const nebulas = [];
-        const nebulaCount = 50;
-
-        // 流星
-        const meteors = [];
-
-        // 能量波
-        let energyWaves = [];
-
-        // 星星类
-        class Star {
-            constructor() {
-                this.reset();
-            }
-
-            reset() {
-                this.angle = Math.random() * Math.PI * 2;
-                this.distance = Math.random() * 800 + 100;
-                this.z = Math.random() * 1000;
-                this.speed = Math.random() * 2 + 0.5;
-                this.size = Math.random() * 2 + 0.5;
-                
-                // 青蓝色系颜色
-                const colors = ['#00d4ff', '#00ff88', '#00ffff', '#00e5ff', '#40ffff', '#FFFFFF'];
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-                this.alpha = Math.random() * 0.8 + 0.2;
-                this.twinkle = Math.random() * 0.02;
-            }
-
-            update() {
-                this.z -= this.speed;
-                
-                const dx = mouseX - centerX;
-                const dy = mouseY - centerY;
-                this.angle += dx * 0.00001;
-
-                if (this.z < 1) {
-                    this.z = 1000;
-                    this.distance = Math.random() * 800 + 100;
-                }
-
-                this.alpha += Math.sin(Date.now() * this.twinkle) * 0.01;
-                this.alpha = Math.max(0.1, Math.min(1, this.alpha));
-            }
-
-            draw() {
-                const scale = 500 / this.z;
-                const x = centerX + Math.cos(this.angle) * this.distance * scale;
-                const y = centerY + Math.sin(this.angle) * this.distance * scale;
-                const size = this.size * scale;
-
-                if (x < -50 || x > width + 50 || y < -50 || y > height + 50) return;
-
-                ctx.beginPath();
-                ctx.arc(x, y, Math.max(0.5, size), 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.alpha * (1 - this.z / 1000);
-                ctx.fill();
-                ctx.globalAlpha = 1;
-
-                if (size > 1.5) {
-                    ctx.beginPath();
-                    ctx.arc(x, y, size * 2, 0, Math.PI * 2);
-                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2);
-                    gradient.addColorStop(0, this.color.replace(')', ', 0.3)').replace('rgb', 'rgba').replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136').replace('#00ffff', 'rgba(0, 255, 255').replace('#00e5ff', 'rgba(0, 229, 255').replace('#40ffff', 'rgba(64, 255, 255').replace('#FFFFFF', 'rgba(255, 255, 255'));
-                    gradient.addColorStop(1, 'transparent');
-                    ctx.fillStyle = gradient;
-                    ctx.fill();
-                }
+        // 代码字符
+        const codeChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン</>{}[]();:=+-*&|!?#$%@';
+        
+        // 代码雨列
+        const columns = Math.floor(width / 20);
+        const drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = {
+                y: Math.random() * height,
+                speed: Math.random() * 3 + 2,
+                chars: [],
+                length: Math.floor(Math.random() * 15 + 8)
+            };
+            for (let j = 0; j < drops[i].length; j++) {
+                drops[i].chars.push(codeChars[Math.floor(Math.random() * codeChars.length)]);
             }
         }
 
-        // 星云类
-        class Nebula {
-            constructor() {
+        // 粒子
+        const particles = [];
+        const particleCount = 50;
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.size = Math.random() * 200 + 100;
-                this.alpha = Math.random() * 0.1 + 0.02;
-                this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88';
-                this.speedX = (Math.random() - 0.5) * 0.2;
-                this.speedY = (Math.random() - 0.5) * 0.2;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.alpha = Math.random() * 0.5 + 0.2;
             }
-
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-
-                if (this.x < -this.size) this.x = width + this.size;
-                if (this.x > width + this.size) this.x = -this.size;
-                if (this.y < -this.size) this.y = height + this.size;
-                if (this.y > height + this.size) this.y = -this.size;
-            }
-
-            draw() {
-                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-                gradient.addColorStop(0, this.color.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136'));
-                gradient.addColorStop(0.5, this.color.replace(')', `, ${this.alpha * 0.3})`).replace('rgb', 'rgba').replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136'));
-                gradient.addColorStop(1, 'transparent');
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        // 流星类
-        class Meteor {
-            constructor() {
-                this.reset();
-            }
-
-            reset() {
-                this.x = Math.random() * width;
-                this.y = -50;
-                this.length = Math.random() * 80 + 40;
-                this.speed = Math.random() * 15 + 10;
-                this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.3;
-                this.alpha = 1;
-                this.active = true;
-            }
-
-            update() {
-                this.x += Math.cos(this.angle) * this.speed;
-                this.y += Math.sin(this.angle) * this.speed;
-                this.alpha -= 0.02;
-
-                if (this.y > height + 50 || this.alpha <= 0) {
-                    this.active = false;
-                }
-            }
-
-            draw() {
-                if (!this.active) return;
                 
-                const tailX = this.x - Math.cos(this.angle) * this.length;
-                const tailY = this.y - Math.sin(this.angle) * this.length;
-
-                const gradient = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
-                gradient.addColorStop(0, 'transparent');
-                gradient.addColorStop(1, `rgba(0, 212, 255, ${this.alpha})`);
-
-                ctx.beginPath();
-                ctx.moveTo(tailX, tailY);
-                ctx.lineTo(this.x, this.y);
-                ctx.strokeStyle = gradient;
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
-                ctx.fill();
+                // 鼠标排斥
+                const dx = mouseX - this.x;
+                const dy = mouseY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 100) {
+                    this.x -= dx * 0.02;
+                    this.y -= dy * 0.02;
+                }
+                
+                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) this.reset();
+            }
+            draw() {
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(0, 212, 255, ${this.alpha})`;
+                bgCtx.fill();
             }
         }
 
-        // 能量波类
-        class EnergyWave {
+        for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+        // 鼠标轨迹点
+        const trailPoints = [];
+        const maxTrailPoints = 50;
+
+        // 鼠标火花
+        const sparks = [];
+
+        class Spark {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.radius = 0;
-                this.maxRadius = 300;
-                this.alpha = 0.8;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.life = 1;
+                this.decay = Math.random() * 0.03 + 0.02;
+                this.size = Math.random() * 3 + 1;
+                this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88';
             }
-
             update() {
-                this.radius += 8;
-                this.alpha -= 0.02;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= 0.95;
+                this.vy *= 0.95;
+                this.life -= this.decay;
             }
-
             draw() {
-                if (this.alpha <= 0) return;
-
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 212, 255, ${this.alpha})`;
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius * 0.7, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 255, 136, ${this.alpha * 0.5})`;
-                ctx.stroke();
+                trailCtx.beginPath();
+                trailCtx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+                trailCtx.fillStyle = this.color.replace(')', `, ${this.life})`).replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136');
+                trailCtx.fill();
             }
+            isDead() { return this.life <= 0; }
+        }
 
-            isDead() {
-                return this.alpha <= 0;
+        // 绘制代码雨
+        function drawCodeRain() {
+            bgCtx.font = '14px "SF Mono", Monaco, monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const drop = drops[i];
+                const x = i * 20;
+                
+                for (let j = 0; j < drop.chars.length; j++) {
+                    const y = drop.y - j * 20;
+                    if (y < 0 || y > height) continue;
+                    
+                    const alpha = j === 0 ? 1 : (1 - j / drop.length) * 0.5;
+                    const color = j === 0 ? '#00ff88' : '#00d4ff';
+                    bgCtx.fillStyle = color.replace(')', `, ${alpha})`).replace('#00ff88', 'rgba(0, 255, 136').replace('#00d4ff', 'rgba(0, 212, 255');
+                    bgCtx.fillText(drop.chars[j], x, y);
+                }
+                
+                drop.y += drop.speed;
+                
+                // 随机改变字符
+                if (Math.random() < 0.02) {
+                    const idx = Math.floor(Math.random() * drop.chars.length);
+                    drop.chars[idx] = codeChars[Math.floor(Math.random() * codeChars.length)];
+                }
+                
+                if (drop.y > height + drop.length * 20) {
+                    drop.y = -drop.length * 20;
+                    drop.speed = Math.random() * 3 + 2;
+                }
             }
         }
 
-        // 初始化
-        for (let i = 0; i < starCount; i++) stars.push(new Star());
-        for (let i = 0; i < nebulaCount; i++) nebulas.push(new Nebula());
-
-        // 绘制网格
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.02)';
-            ctx.lineWidth = 1;
-            const gridSize = 80;
-
-            for (let x = 0; x < width; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, height);
-                ctx.stroke();
-            }
-
-            for (let y = 0; y < height; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
+        // 绘制粒子连线
+        function drawConnections() {
+            const maxDist = 80;
+            bgCtx.lineWidth = 0.5;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < maxDist) {
+                        const alpha = (1 - dist / maxDist) * 0.15;
+                        bgCtx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(particles[i].x, particles[i].y);
+                        bgCtx.lineTo(particles[j].x, particles[j].y);
+                        bgCtx.stroke();
+                    }
+                }
             }
         }
 
-        // 主动画循环
-        function animate() {
-            ctx.fillStyle = 'rgba(0, 5, 16, 0.15)';
-            ctx.fillRect(0, 0, width, height);
+        // 绘制鼠标轨迹
+        function drawTrail() {
+            trailCtx.fillStyle = 'rgba(0, 5, 16, 0.1)';
+            trailCtx.fillRect(0, 0, width, height);
 
-            mouseX += (targetMouseX - mouseX) * 0.05;
-            mouseY += (targetMouseY - mouseY) * 0.05;
-
-            centerX = width / 2 + (mouseX - width / 2) * 0.1;
-            centerY = height / 2 + (mouseY - height / 2) * 0.1;
-
-            drawGrid();
-
-            nebulas.forEach(n => {
-                n.update();
-                n.draw();
-            });
-
-            stars.forEach(s => {
-                s.update();
-                s.draw();
-            });
-
-            if (Math.random() < 0.01) {
-                meteors.push(new Meteor());
+            // 轨迹线
+            if (trailPoints.length > 2) {
+                trailCtx.beginPath();
+                trailCtx.moveTo(trailPoints[0].x, trailPoints[0].y);
+                
+                for (let i = 1; i < trailPoints.length - 1; i++) {
+                    const xc = (trailPoints[i].x + trailPoints[i + 1].x) / 2;
+                    const yc = (trailPoints[i].y + trailPoints[i + 1].y) / 2;
+                    trailCtx.quadraticCurveTo(trailPoints[i].x, trailPoints[i].y, xc, yc);
+                }
+                
+                const gradient = trailCtx.createLinearGradient(
+                    trailPoints[0].x, trailPoints[0].y,
+                    trailPoints[trailPoints.length - 1].x, trailPoints[trailPoints.length - 1].y
+                );
+                gradient.addColorStop(0, 'rgba(0, 212, 255, 0)');
+                gradient.addColorStop(0.5, 'rgba(0, 255, 136, 0.5)');
+                gradient.addColorStop(1, 'rgba(0, 212, 255, 0.8)');
+                
+                trailCtx.strokeStyle = gradient;
+                trailCtx.lineWidth = 2;
+                trailCtx.lineCap = 'round';
+                trailCtx.stroke();
             }
 
-            meteors.forEach((m, i) => {
-                m.update();
-                m.draw();
-                if (!m.active) meteors.splice(i, 1);
+            // 火花
+            sparks.forEach((spark, i) => {
+                spark.update();
+                spark.draw();
+                if (spark.isDead()) sparks.splice(i, 1);
             });
-
-            energyWaves = energyWaves.filter(w => !w.isDead());
-            energyWaves.forEach(w => {
-                w.update();
-                w.draw();
-            });
-
-            requestAnimationFrame(animate);
         }
 
-        // 事件监听
+        // 背景动画
+        function animateBg() {
+            bgCtx.fillStyle = 'rgba(0, 5, 16, 0.15)';
+            bgCtx.fillRect(0, 0, width, height);
+
+            drawCodeRain();
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            drawConnections();
+            
+            requestAnimationFrame(animateBg);
+        }
+
+        // 轨迹动画
+        function animateTrail() {
+            drawTrail();
+            requestAnimationFrame(animateTrail);
+        }
+
+        // 鼠标事件
         document.addEventListener('mousemove', (e) => {
-            targetMouseX = e.clientX;
-            targetMouseY = e.clientY;
-            mouseGlow.style.left = e.clientX + 'px';
-            mouseGlow.style.top = e.clientY + 'px';
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // 计算速度
+            mouseSpeed = Math.sqrt(
+                Math.pow(mouseX - lastMouseX, 2) + 
+                Math.pow(mouseY - lastMouseY, 2)
+            );
+            
+            // 更新光标
+            cursor.style.left = mouseX + 'px';
+            cursor.style.top = mouseY + 'px';
+            cursorDot.style.left = mouseX + 'px';
+            cursorDot.style.top = mouseY + 'px';
+            
+            // 添加轨迹点
+            trailPoints.push({ x: mouseX, y: mouseY });
+            if (trailPoints.length > maxTrailPoints) trailPoints.shift();
+            
+            // 快速移动时产生火花
+            if (mouseSpeed > 15) {
+                for (let i = 0; i < 3; i++) {
+                    sparks.push(new Spark(mouseX, mouseY));
+                }
+            }
+            
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
         });
 
+        // 悬停效果
+        document.querySelectorAll('a, button, .project-card').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // 点击产生火花
         document.addEventListener('click', (e) => {
-            energyWaves.push(new EnergyWave(e.clientX, e.clientY));
-            for (let i = 0; i < 5; i++) {
-                meteors.push(new Meteor());
+            for (let i = 0; i < 20; i++) {
+                sparks.push(new Spark(e.clientX, e.clientY));
             }
         });
 
         window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            centerX = width / 2;
-            centerY = height / 2;
+            width = bgCanvas.width = trailCanvas.width = window.innerWidth;
+            height = bgCanvas.height = trailCanvas.height = window.innerHeight;
         });
 
-        animate();
+        animateBg();
+        animateTrail();
 
-        // ========================================
         // 时间显示
-        // ========================================
         function updateTime() {
             const now = new Date();
             const timeStr = now.getFullYear() + '-' + 
@@ -1165,60 +968,33 @@
         updateTime();
         setInterval(updateTime, 1000);
 
-        function startLearning() {
-            window.location.href = 'guide.html';
-        }
+        function startLearning() { window.location.href = 'guide.html'; }
 
-        // ========================================
-        // 猫咪头像游走动画（悬停停止）
-        // ========================================
+        // 猫咪游走
         const catAvatar = document.getElementById('catAvatar');
-        let catX = window.innerWidth - 140;
-        let catY = 120;
-        let catTargetX = catX;
-        let catTargetY = catY;
-        let isHovered = false;
+        let catX = window.innerWidth - 140, catY = 120, catTargetX = catX, catTargetY = catY, isHovered = false;
 
         catAvatar.addEventListener('mouseenter', () => { isHovered = true; });
         catAvatar.addEventListener('mouseleave', () => { isHovered = false; });
 
         function updateCatPosition() {
             if (!isHovered) {
-                const margin = 120;
-                const speed = 0.02;
-                
                 if (Math.random() < 0.008) {
-                    const side = Math.floor(Math.random() * 4);
+                    const margin = 120, side = Math.floor(Math.random() * 4);
                     switch(side) {
-                        case 0:
-                            catTargetX = margin + Math.random() * (window.innerWidth - margin * 2);
-                            catTargetY = margin;
-                            break;
-                        case 1:
-                            catTargetX = window.innerWidth - margin;
-                            catTargetY = margin + Math.random() * (window.innerHeight - margin * 2);
-                            break;
-                        case 2:
-                            catTargetX = margin + Math.random() * (window.innerWidth - margin * 2);
-                            catTargetY = window.innerHeight - margin - 120;
-                            break;
-                        case 3:
-                            catTargetX = margin;
-                            catTargetY = margin + Math.random() * (window.innerHeight - margin * 2);
-                            break;
+                        case 0: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = margin; break;
+                        case 1: catTargetX = window.innerWidth - margin; catTargetY = margin + Math.random() * (window.innerHeight - margin * 2); break;
+                        case 2: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = window.innerHeight - margin - 120; break;
+                        case 3: catTargetX = margin; catTargetY = margin + Math.random() * (window.innerHeight - margin * 2); break;
                     }
                 }
-
-                catX += (catTargetX - catX) * speed;
-                catY += (catTargetY - catY) * speed;
-
+                catX += (catTargetX - catX) * 0.02;
+                catY += (catTargetY - catY) * 0.02;
                 catAvatar.style.left = catX + 'px';
                 catAvatar.style.top = catY + 'px';
             }
-
             requestAnimationFrame(updateCatPosition);
         }
-
         catAvatar.style.left = catX + 'px';
         catAvatar.style.top = catY + 'px';
         updateCatPosition();
