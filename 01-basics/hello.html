@@ -481,7 +481,7 @@
             margin-top: 3rem;
         }
 
-        /* 猫咪头像（简化实心黄色小猫） */
+        /* 猫咪头像（科技感增强版 1.5x） */
         .cat-avatar-link {
             position: fixed;
             z-index: 100;
@@ -490,39 +490,115 @@
             transition: all 0.5s ease;
         }
 
-        .cat-avatar-container { position: relative; width: 65px; height: 65px; }
-
-        .cat-avatar {
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: none;
-            box-shadow: 0 0 12px rgba(255, 213, 79, 0.15);
-            transition: all 0.3s ease;
-            background: #000510;
+        .cat-avatar-container { 
+            position: relative; 
+            width: 100px; 
+            height: 100px; 
         }
 
-        .cat-avatar svg { width: 100%; height: 100%; }
+        /* 外圈旋转环 */
+        .cat-avatar-ring {
+            position: absolute;
+            top: -8px; left: -8px; right: -8px; bottom: -8px;
+            border: 1px solid rgba(255, 213, 79, 0.3);
+            border-radius: 50%;
+            animation: catRingRotate 12s linear infinite;
+        }
+        .cat-avatar-ring::before {
+            content: '';
+            position: absolute;
+            top: -3px; left: 50%;
+            transform: translateX(-50%);
+            width: 6px; height: 6px;
+            background: #FFD54F;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #FFD54F;
+        }
+        .cat-avatar-ring-inner {
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border: 1px dashed rgba(255, 165, 0, 0.25);
+            border-radius: 50%;
+            animation: catRingRotate 20s linear infinite reverse;
+        }
+        @keyframes catRingRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cat-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 213, 79, 0.5);
+            box-shadow: 0 0 20px rgba(255, 213, 79, 0.25);
+            transition: all 0.3s ease;
+            background: #000510;
+            position: relative;
+        }
+
+        /* 扫描线效果 */
+        .cat-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #FFD54F, transparent);
+            animation: catScanline 2.5s linear infinite;
+            z-index: 10;
+        }
+        @keyframes catScanline {
+            0% { top: 0; opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .cat-avatar svg { width: 100%; height: 100%; position: relative; z-index: 1; }
+
+        /* 状态指示灯 */
+        .cat-status {
+            position: absolute;
+            top: 5px; right: 5px;
+            width: 10px; height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            border: 2px solid #000510;
+            box-shadow: 0 0 8px #00ff88;
+            animation: catStatusPulse 2s ease-in-out infinite;
+            z-index: 20;
+        }
+        @keyframes catStatusPulse {
+            0%, 100% { box-shadow: 0 0 5px #00ff88; }
+            50% { box-shadow: 0 0 15px #00ff88, 0 0 25px #00ff88; }
+        }
 
         .cat-avatar-label {
             position: absolute;
-            bottom: -22px;
+            bottom: -28px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.5rem;
+            font-size: 0.6rem;
             color: #FFD54F;
             font-family: 'SF Mono', Monaco, monospace;
             white-space: nowrap;
             opacity: 0;
             transition: all 0.3s;
             letter-spacing: 1px;
+            padding: 3px 10px;
+            background: rgba(0, 5, 16, 0.9);
+            border: 1px solid rgba(255, 213, 79, 0.3);
         }
+        .cat-avatar-label::before { content: '>'; margin-right: 5px; animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .cat-avatar-link:hover .cat-avatar-label { opacity: 1; bottom: -26px; }
+        .cat-avatar-link:hover .cat-avatar-label { opacity: 1; bottom: -32px; }
         .cat-avatar-link:hover .cat-avatar {
-            transform: scale(1.12);
-            box-shadow: 0 0 25px rgba(255, 213, 79, 0.4);
+            transform: scale(1.08);
+            box-shadow: 0 0 35px rgba(255, 213, 79, 0.5);
+            border-color: rgba(255, 213, 79, 0.8);
+        }
+        .cat-avatar-link:hover .cat-avatar-ring {
+            border-color: rgba(255, 213, 79, 0.6);
         }
 
         @media (max-width: 768px) {
@@ -530,8 +606,8 @@
             .tech-container { padding: 2rem 1.5rem; margin: 0 1rem; }
             .portfolio-section { padding: 0 1rem 2rem; }
             .portfolio-grid { grid-template-columns: 1fr; }
-            .cat-avatar-container { width: 60px; height: 60px; }
-            .cat-avatar { width: 60px; height: 60px; }
+            .cat-avatar-container { width: 80px; height: 80px; }
+            .cat-avatar { width: 80px; height: 80px; }
         }
     </style>
 </head>
@@ -562,13 +638,29 @@
     <!-- 扫描线 -->
     <div class="scanlines"></div>
 
-    <!-- 猫咪头像（实心黄色小猫） -->
+    <!-- 猫咪头像（科技感增强版） -->
     <a href="about-me.html" class="cat-avatar-link" id="catAvatar">
         <div class="cat-avatar-container">
+            <!-- 外圈旋转环 -->
+            <div class="cat-avatar-ring"></div>
+            <div class="cat-avatar-ring-inner"></div>
+            <!-- 状态指示灯 -->
+            <div class="cat-status"></div>
+            <!-- 猫咪头像 -->
             <div class="cat-avatar">
                 <svg viewBox="0 0 100 100">
-                    <!-- 背景圆（与页面背景一致） -->
+                    <!-- 背景圆 -->
                     <circle cx="50" cy="50" r="48" fill="#000510"/>
+                    
+                    <!-- 科技感网格背景 -->
+                    <g stroke="#FFD54F" stroke-width="0.3" opacity="0.15">
+                        <line x1="10" y1="25" x2="90" y2="25"/>
+                        <line x1="10" y1="50" x2="90" y2="50"/>
+                        <line x1="10" y1="75" x2="90" y2="75"/>
+                        <line x1="25" y1="10" x2="25" y2="90"/>
+                        <line x1="50" y1="10" x2="50" y2="90"/>
+                        <line x1="75" y1="10" x2="75" y2="90"/>
+                    </g>
                     
                     <!-- 实心黄色猫咪 -->
                     <!-- 脸部 -->
@@ -596,14 +688,26 @@
                     <!-- 嘴巴 -->
                     <path d="M 44 66 Q 47 70 50 66 Q 53 70 56 66" stroke="#FF8A65" stroke-width="1.5" fill="none"/>
                     
-                    <!-- 胡须 -->
+                    <!-- 胡须（带动画） -->
                     <g stroke="#FFA726" stroke-width="1" opacity="0.8">
-                        <line x1="20" y1="56" x2="32" y2="58"/>
-                        <line x1="18" y1="62" x2="32" y2="62"/>
-                        <line x1="20" y1="68" x2="32" y2="66"/>
-                        <line x1="68" y1="58" x2="80" y2="56"/>
-                        <line x1="68" y1="62" x2="82" y2="62"/>
-                        <line x1="68" y1="66" x2="80" y2="68"/>
+                        <line x1="20" y1="56" x2="32" y2="58">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="18" y1="62" x2="32" y2="62">
+                            <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="20" y1="68" x2="32" y2="66">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="68" y1="58" x2="80" y2="56">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="68" y1="62" x2="82" y2="62">
+                            <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="68" y1="66" x2="80" y2="68">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+                        </line>
                     </g>
                     
                     <!-- 腮红 -->
@@ -1093,28 +1197,28 @@
 
         function startLearning() { window.location.href = 'guide.html'; }
 
-        // 猫咪游走（慢速漂浮）
+        // 猫咪游走（超慢速漂浮 - 0.5倍速）
         const catAvatar = document.getElementById('catAvatar');
-        let catX = window.innerWidth - 100, catY = 80, catTargetX = catX, catTargetY = catY, isHovered = false;
+        let catX = window.innerWidth - 130, catY = 100, catTargetX = catX, catTargetY = catY, isHovered = false;
 
         catAvatar.addEventListener('mouseenter', () => { isHovered = true; });
         catAvatar.addEventListener('mouseleave', () => { isHovered = false; });
 
         function updateCatPosition() {
             if (!isHovered) {
-                // 更低的概率改变目标位置
-                if (Math.random() < 0.002) {
-                    const margin = 80, side = Math.floor(Math.random() * 4);
+                // 更低的概率改变目标位置（减半）
+                if (Math.random() < 0.001) {
+                    const margin = 120, side = Math.floor(Math.random() * 4);
                     switch(side) {
                         case 0: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = margin; break;
                         case 1: catTargetX = window.innerWidth - margin; catTargetY = margin + Math.random() * (window.innerHeight - margin * 2); break;
-                        case 2: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = window.innerHeight - margin - 80; break;
+                        case 2: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = window.innerHeight - margin - 100; break;
                         case 3: catTargetX = margin; catTargetY = margin + Math.random() * (window.innerHeight - margin * 2); break;
                     }
                 }
-                // 更慢的移动速度
-                catX += (catTargetX - catX) * 0.005;
-                catY += (catTargetY - catY) * 0.005;
+                // 更慢的移动速度（0.5倍）
+                catX += (catTargetX - catX) * 0.0025;
+                catY += (catTargetY - catY) * 0.0025;
                 catAvatar.style.left = catX + 'px';
                 catAvatar.style.top = catY + 'px';
             }
