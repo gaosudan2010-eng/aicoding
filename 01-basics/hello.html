@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello AI Coding</title>
+    <style>
+        /* ========== 全局重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ========== 页面主体样式 ========== */
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        /* ========== 背景画布 ========== */
+        #universe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* ========== 扫描线效果 ========== */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            opacity: 0.3;
+        }
+
+        /* ========== 内容容器 ========== */
+        .content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            margin-top: 15vh;
+            margin-bottom: 4rem;
+        }
+
+        /* ========== 作品集区域 ========== */
+        .portfolio-section {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 2rem 4rem;
+            margin-bottom: 4rem;
+        }
+
+        .portfolio-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .portfolio-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .portfolio-title::before,
+        .portfolio-title::after {
+            content: '';
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00d4ff);
+        }
+
+        .portfolio-title::after {
+            background: linear-gradient(90deg, #00d4ff, transparent);
+        }
+
+        .portfolio-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'SF Mono', Monaco, monospace;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ========== 作品卡片网格 ========== */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        /* ========== 作品卡片 ========== */
+        .project-card {
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            text-decoration: none;
+            display: block;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00d4ff, #00ff88, #00d4ff);
+            background-size: 200% 100%;
+            animation: gradientMove 3s ease infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15),
+                        0 0 60px rgba(0, 212, 255, 0.1);
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        /* 卡片预览图 */
+        .project-preview {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #0a0a1a, #1a1a3a);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .project-preview-inner {
+            width: 90%;
+            height: 85%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            transition: transform 0.4s;
+        }
+
+        .project-card:hover .project-preview-inner {
+            transform: scale(1.02);
+        }
+
+        /* 截图预览样式 */
+        .preview-screenshot {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            transition: transform 0.4s;
+        }
+
+        .project-card:hover .preview-screenshot {
+            transform: scale(1.05);
+        }
+
+        /* 科技装饰角 */
+        .project-preview::before,
+        .project-preview::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            z-index: 2;
+        }
+
+        .project-preview::before {
+            top: 10px;
+            left: 10px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .project-preview::after {
+            bottom: 10px;
+            right: 10px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* 项目信息 */
+        .project-info {
+            padding: 1.5rem;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .project-tag {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+            font-family: 'SF Mono', Monaco, monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .project-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .project-name svg {
+            width: 20px;
+            height: 20px;
+            color: #00d4ff;
+        }
+
+        .project-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .project-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .project-feature {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            border-radius: 4px;
+        }
+
+        /* 查看链接 */
+        .project-link {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #00d4ff;
+            font-size: 0.85rem;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .project-link svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s;
+        }
+
+        .project-card:hover .project-link svg {
+            transform: translateX(5px);
+        }
+
+        /* 占位卡片 */
+        .project-card-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            border-style: dashed;
+        }
+
+        .placeholder-icon {
+            font-size: 3rem;
+            color: rgba(0, 212, 255, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .placeholder-text {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        .placeholder-hint {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.75rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            margin-top: 0.5rem;
+        }
+
+        /* ========== 科技边框容器 ========== */
+        .tech-container {
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 3rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .tech-container::before,
+        .tech-container::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00d4ff;
+        }
+
+        .tech-container::before {
+            top: -1px;
+            left: -1px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .tech-container::after {
+            bottom: -1px;
+            right: -1px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* ========== 系统状态指示器 ========== */
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.75rem;
+            color: #00ff88;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ========== 主标题 ========== */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #00d4ff, #00ff88, #00d4ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 4s ease infinite;
+            letter-spacing: 2px;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 200% center; }
+        }
+
+        /* ========== 副标题 ========== */
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ========== 时间显示 ========== */
+        .time-display {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 1rem;
+            color: rgba(0, 212, 255, 0.8);
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        /* ========== 按钮 ========== */
+        .btn-start {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #000;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'SF Mono', Monaco, monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-start::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-start:hover {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5),
+                        0 0 60px rgba(0, 255, 136, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-start:hover::before {
+            left: 100%;
+        }
+
+        /* ========== 提示文字 ========== */
+        .hint {
+            position: relative;
+            z-index: 10;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            font-family: 'SF Mono', Monaco, monospace;
+            letter-spacing: 2px;
+            margin-top: 3rem;
+        }
+
+        /* ========== 猫咪头像入口 ========== */
+        .cat-avatar-link {
+            position: fixed;
+            z-index: 100;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cat-avatar-container {
+            position: relative;
+            width: 90px;
+            height: 90px;
+        }
+
+        .cat-avatar-ring {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cat-avatar-ring::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #00d4ff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00d4ff;
+        }
+
+        .cat-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(0, 212, 255, 0.6);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #1a1a3a, #0a0a2a);
+        }
+
+        .cat-avatar svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .cat-avatar-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: #00d4ff;
+            font-family: 'SF Mono', Monaco, monospace;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cat-avatar-link:hover .cat-avatar-label {
+            opacity: 1;
+            bottom: -35px;
+        }
+
+        .cat-avatar-link:hover .cat-avatar {
+            transform: scale(1.1);
+            border-color: #00d4ff;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .tech-container {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+            .portfolio-section {
+                padding: 0 1rem 2rem;
+            }
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+            .cat-avatar-container {
+                width: 70px;
+                height: 70px;
+            }
+            .cat-avatar {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景画布 -->
+    <canvas id="universe"></canvas>
+    
+    <!-- 扫描线 -->
+    <div class="scanlines"></div>
+
+    <!-- 猫咪头像入口 -->
+    <a href="about-me.html" class="cat-avatar-link" id="catAvatar">
+        <div class="cat-avatar-container">
+            <div class="cat-avatar-ring"></div>
+            <div class="cat-avatar">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <circle cx="50" cy="50" r="48" fill="#2a2a4a"/>
+                    <!-- 猫脸 -->
+                    <ellipse cx="50" cy="55" rx="30" ry="28" fill="#FFE4C4"/>
+                    <!-- 左耳 -->
+                    <path d="M 20 35 L 28 55 L 38 40 Z" fill="#FFE4C4"/>
+                    <path d="M 23 38 L 28 50 L 35 42 Z" fill="#FFB6C1"/>
+                    <!-- 右耳 -->
+                    <path d="M 80 35 L 72 55 L 62 40 Z" fill="#FFE4C4"/>
+                    <path d="M 77 38 L 72 50 L 65 42 Z" fill="#FFB6C1"/>
+                    <!-- 眼睛 -->
+                    <ellipse cx="38" cy="52" rx="8" ry="9" fill="#fff"/>
+                    <ellipse cx="62" cy="52" rx="8" ry="9" fill="#fff"/>
+                    <ellipse cx="38" cy="52" rx="5" ry="6" fill="#4A4A6A"/>
+                    <ellipse cx="62" cy="52" rx="5" ry="6" fill="#4A4A6A"/>
+                    <circle cx="36" cy="50" r="2" fill="#fff"/>
+                    <circle cx="60" cy="50" r="2" fill="#fff"/>
+                    <!-- 鼻子 -->
+                    <ellipse cx="50" cy="62" rx="4" ry="3" fill="#FFB6C1"/>
+                    <!-- 嘴巴 -->
+                    <path d="M 50 65 Q 45 70 40 68" stroke="#FF9999" stroke-width="1.5" fill="none"/>
+                    <path d="M 50 65 Q 55 70 60 68" stroke="#FF9999" stroke-width="1.5" fill="none"/>
+                    <!-- 胡须 -->
+                    <line x1="20" y1="58" x2="32" y2="60" stroke="#666" stroke-width="1"/>
+                    <line x1="20" y1="64" x2="32" y2="64" stroke="#666" stroke-width="1"/>
+                    <line x1="68" y1="60" x2="80" y2="58" stroke="#666" stroke-width="1"/>
+                    <line x1="68" y1="64" x2="80" y2="64" stroke="#666" stroke-width="1"/>
+                    <!-- 腮红 -->
+                    <ellipse cx="28" cy="62" rx="5" ry="3" fill="#FFB6C1" opacity="0.5"/>
+                    <ellipse cx="72" cy="62" rx="5" ry="3" fill="#FFB6C1" opacity="0.5"/>
+                </svg>
+            </div>
+            <span class="cat-avatar-label">✦ About Me ✦</span>
+        </div>
+    </a>
+
+    <!-- 主要内容 -->
+    <div class="content">
+        <div class="tech-container">
+            <div class="system-status">
+                <span class="status-dot"></span>
+                <span>System Online</span>
+            </div>
+            <h1>李松松的AI编程之旅</h1>
+            <p class="subtitle">用AI改变产品开发的方式</p>
+            <p class="time-display" id="time"></p>
+            <button class="btn-start" onclick="startLearning()">▶ 开始学习</button>
+        </div>
+    </div>
+
+    <p class="hint">[ Move Mouse to Interact ] · [ Scroll to See Projects ]</p>
+
+    <!-- 作品集区域 -->
+    <section class="portfolio-section">
+        <div class="portfolio-header">
+            <h2 class="portfolio-title">我的作品集</h2>
+            <p class="portfolio-subtitle">// Projects Built with AI Coding</p>
+        </div>
+
+        <div class="portfolio-grid">
+            <!-- Todo List 项目卡片 -->
+            <a href="../02-projects/todo-app/index.html" class="project-card">
+                <div class="project-preview">
+                    <div class="project-preview-inner">
+                        <img src="images/todo-app.png" alt="Todo List 应用截图" class="preview-screenshot">
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">HTML</span>
+                        <span class="project-tag">CSS</span>
+                        <span class="project-tag">JavaScript</span>
+                    </div>
+                    <h3 class="project-name">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        Todo List 待办事项
+                    </h3>
+                    <p class="project-desc">
+                        一个精美的待办事项应用，支持添加、完成、删除任务，数据本地持久化存储，带有流畅的动画效果和智能时间显示。
+                    </p>
+                    <div class="project-features">
+                        <span class="project-feature">✓ 本地存储</span>
+                        <span class="project-feature">✓ 筛选功能</span>
+                        <span class="project-feature">✓ 进度统计</span>
+                        <span class="project-feature">✓ 响应式</span>
+                    </div>
+                </div>
+                <div class="project-link">
+                    <span>查看项目</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- 科技感计数器 -->
+            <a href="counter.html" class="project-card">
+                <div class="project-preview">
+                    <div class="project-preview-inner">
+                        <img src="images/counter-preview.png" alt="计数器应用截图" class="preview-screenshot">
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">HTML</span>
+                        <span class="project-tag">CSS</span>
+                        <span class="project-tag">JavaScript</span>
+                    </div>
+                    <h3 class="project-name">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        科技感计数器
+                    </h3>
+                    <p class="project-desc">
+                        学习 JavaScript 交互的经典练习项目，支持键盘快捷键、历史记录、状态提示，带有流畅的动画效果。
+                    </p>
+                    <div class="project-features">
+                        <span class="project-feature">✓ 键盘控制</span>
+                        <span class="project-feature">✓ 历史记录</span>
+                        <span class="project-feature">✓ 动画效果</span>
+                        <span class="project-feature">✓ 科技风格</span>
+                    </div>
+                </div>
+                <div class="project-link">
+                    <span>查看项目</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- FlowerCare 鲜花养护 App -->
+            <a href="../FlowerCare/index.html" class="project-card">
+                <div class="project-preview">
+                    <div class="project-preview-inner">
+                        <img src="images/flowercare-home.png" alt="FlowerCare 应用截图" class="preview-screenshot">
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">HTML</span>
+                        <span class="project-tag">CSS</span>
+                        <span class="project-tag">JavaScript</span>
+                    </div>
+                    <h3 class="project-name">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        FlowerCare 鲜花养护
+                    </h3>
+                    <p class="project-desc">
+                        小红书风格的鲜花养护 App Demo，包含12种花材图鉴、养护提醒日历、我的花管理，支持收藏和添加功能。
+                    </p>
+                    <div class="project-features">
+                        <span class="project-feature">✓ 12种花材</span>
+                        <span class="project-feature">✓ 养护指南</span>
+                        <span class="project-feature">✓ 日历提醒</span>
+                        <span class="project-feature">✓ 小红书风格</span>
+                    </div>
+                </div>
+                <div class="project-link">
+                    <span>查看项目</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- 更多项目占位 -->
+            <div class="project-card project-card-placeholder">
+                <div class="placeholder-icon">+</div>
+                <p class="placeholder-text">更多项目即将上线</p>
+                <p class="placeholder-hint">// Coming Soon...</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ========================================
+        // 科技感宇宙3D粒子动画系统
+        // ========================================
+
+        const canvas = document.getElementById('universe');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        let mouseX = width / 2;
+        let mouseY = height / 2;
+        let targetMouseX = mouseX;
+        let targetMouseY = mouseY;
+
+        // 网格参数
+        const gridSize = 60;
+
+        // 粒子数组
+        let particles = [];
+        const particleCount = 80;
+
+        // 六边形数组
+        let hexagons = [];
+        const hexagonCount = 8;
+
+        // 数据线数组
+        let dataLines = [];
+        const dataLineCount = 5;
+
+        // 粒子类
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.alpha = Math.random() * 0.5 + 0.2;
+                this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88';
+            }
+
+            update() {
+                const dx = mouseX - this.x;
+                const dy = mouseY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 150) {
+                    const angle = Math.atan2(dy, dx);
+                    const force = (150 - dist) / 150;
+                    this.x -= Math.cos(angle) * force * 2;
+                    this.y -= Math.sin(angle) * force * 2;
+                }
+
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136');
+                ctx.fill();
+            }
+        }
+
+        // 初始化粒子
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        // 绘制网格
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.03)';
+            ctx.lineWidth = 1;
+
+            for (let x = 0; x < width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+
+            for (let y = 0; y < height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+
+        // 绘制粒子连线
+        function drawConnections() {
+            const maxDist = 100;
+            ctx.lineWidth = 0.5;
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < maxDist) {
+                        const alpha = (1 - dist / maxDist) * 0.15;
+                        ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // 动画循环
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 5, 16, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            mouseX += (targetMouseX - mouseX) * 0.05;
+            mouseY += (targetMouseY - mouseY) * 0.05;
+
+            drawGrid();
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            drawConnections();
+
+            requestAnimationFrame(animate);
+        }
+
+        // 鼠标移动
+        document.addEventListener('mousemove', (e) => {
+            targetMouseX = e.clientX;
+            targetMouseY = e.clientY;
+        });
+
+        // 窗口大小改变
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        animate();
+
+        // ========================================
+        // 时间显示
+        // ========================================
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('time').textContent = timeStr;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // ========================================
+        // 开始学习按钮
+        // ========================================
+        function startLearning() {
+            window.location.href = 'guide.html';
+        }
+
+        // ========================================
+        // 猫咪头像游走动画
+        // ========================================
+        const catAvatar = document.getElementById('catAvatar');
+        let catX = window.innerWidth - 120;
+        let catY = 100;
+        let catTargetX = catX;
+        let catTargetY = catY;
+        let catDirection = 1;
+
+        function updateCatPosition() {
+            const margin = 100;
+            const speed = 0.3;
+            
+            if (Math.random() < 0.02) {
+                const side = Math.floor(Math.random() * 4);
+                switch(side) {
+                    case 0: // 上
+                        catTargetX = margin + Math.random() * (window.innerWidth - margin * 2);
+                        catTargetY = margin;
+                        break;
+                    case 1: // 右
+                        catTargetX = window.innerWidth - margin;
+                        catTargetY = margin + Math.random() * (window.innerHeight - margin * 2);
+                        break;
+                    case 2: // 下
+                        catTargetX = margin + Math.random() * (window.innerWidth - margin * 2);
+                        catTargetY = window.innerHeight - margin - 100;
+                        break;
+                    case 3: // 左
+                        catTargetX = margin;
+                        catTargetY = margin + Math.random() * (window.innerHeight - margin * 2);
+                        break;
+                }
+            }
+
+            catX += (catTargetX - catX) * speed * 0.05;
+            catY += (catTargetY - catY) * speed * 0.05;
+
+            catAvatar.style.left = catX + 'px';
+            catAvatar.style.top = catY + 'px';
+
+            requestAnimationFrame(updateCatPosition);
+        }
+
+        catAvatar.style.left = catX + 'px';
+        catAvatar.style.top = catY + 'px';
+        updateCatPosition();
+    </script>
+</body>
+</html>

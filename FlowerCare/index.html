@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>花养日常 FlowerCare</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --red: #FF2442;
+            --red-light: #FF6B7A;
+            --red-bg: #FFF0F1;
+            --bg: #FAFAFA;
+            --card: #FFFFFF;
+            --text: #333333;
+            --text-secondary: #999999;
+            --border: #F0F0F0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 返回首页 */
+        .back-to-home {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            background: rgba(255, 36, 66, 0.9);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(255, 36, 66, 0.3);
+        }
+
+        /* App容器 */
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            height: 100vh;
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(0,0,0,0.1);
+        }
+
+        /* 页面 */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 70px;
+            overflow-y: auto;
+            display: none;
+            background: var(--bg);
+        }
+
+        .page.active { display: block; }
+
+        /* Banner */
+        .hero-banner {
+            height: 200px;
+            background: linear-gradient(135deg, #FFE4EC, #FCE4EC);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+        }
+
+        .hero-banner-img {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-banner-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(transparent 40%, rgba(0,0,0,0.3));
+        }
+
+        .hero-banner-logo {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            background: var(--red);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            z-index: 2;
+        }
+
+        .hero-banner-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+
+        .hero-banner-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .hero-banner-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* 内容区 */
+        .page-content {
+            padding: 15px;
+        }
+
+        /* 卡片 */
+        .section-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-more {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        /* 任务列表 */
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .task-item:last-child { border-bottom: none; }
+
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--red-bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .task-content { flex: 1; }
+        .task-title { font-weight: 500; font-size: 0.95rem; }
+        .task-desc { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .task-check {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--red);
+            cursor: pointer;
+        }
+
+        /* 花卡片 */
+        .flower-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        .flower-scroll::-webkit-scrollbar { display: none; }
+
+        .flower-card {
+            min-width: 120px;
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .flower-card:hover { transform: translateY(-3px); }
+
+        .flower-card-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            background: var(--red-bg);
+        }
+
+        .flower-card-info {
+            padding: 10px;
+        }
+
+        .flower-card-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .flower-card-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* 底部导航 */
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--card);
+            display: flex;
+            border-top: 1px solid var(--border);
+            padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .tab-item.active { color: var(--red); }
+        .tab-item-icon { font-size: 1.3rem; }
+        .tab-item-text { font-size: 0.7rem; }
+
+        /* 图鉴页 */
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .library-card {
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .library-card-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+
+        .library-card-info {
+            padding: 10px;
+        }
+
+        .library-card-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .library-card-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* 详情弹窗 */
+        .detail-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg);
+            z-index: 200;
+            display: none;
+            overflow-y: auto;
+        }
+
+        .detail-modal.show { display: block; }
+
+        .detail-header {
+            display: flex;
+            padding: 12px 16px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .detail-back {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .detail-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .detail-meta {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-list {
+            list-style: none;
+        }
+
+        .detail-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .detail-buttons {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            position: sticky;
+            bottom: 0;
+        }
+
+        .detail-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .detail-btn-outline {
+            background: var(--card);
+            border: 2px solid var(--red);
+            color: var(--red);
+        }
+
+        .detail-btn-primary {
+            background: var(--red);
+            color: white;
+        }
+
+        /* 日历页 */
+        .calendar-item {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .calendar-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .calendar-task {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calendar-task-icon {
+            font-size: 1.5rem;
+        }
+
+        .calendar-task-text {
+            flex: 1;
+        }
+
+        .calendar-task-title { font-weight: 500; }
+        .calendar-task-flower { font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* 个人页 */
+        .profile-header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, var(--red), var(--red-light));
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .profile-name { font-size: 1.2rem; font-weight: 600; }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .profile-stat { text-align: center; }
+        .profile-stat-number { font-size: 1.5rem; font-weight: 700; }
+        .profile-stat-label { font-size: 0.8rem; opacity: 0.9; }
+
+        .profile-menu {
+            padding: 20px;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .profile-menu-icon { font-size: 1.3rem; }
+        .profile-menu-text { flex: 1; font-weight: 500; }
+        .profile-menu-arrow { color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <a href="../01-basics/hello.html" class="back-to-home">← 返回首页</a>
+
+    <div class="app-container">
+        <!-- 首页 -->
+        <div class="page active" id="page-home">
+            <div class="hero-banner">
+                <img class="hero-banner-img" src="https://images.unsplash.com/photo-1520763185298-1b434c919102?w=800" alt="鲜花">
+                <div class="hero-banner-overlay"></div>
+                <div class="hero-banner-logo">🌸 花养日常</div>
+                <div class="hero-banner-content">
+                    <h1 class="hero-banner-title" id="greeting">早安，花友</h1>
+                    <p class="hero-banner-subtitle">今天有 <span id="taskCount">2</span> 项养护任务等你完成</p>
+                </div>
+            </div>
+
+            <div class="page-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title">🔔 今日养护</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-icon">💧</div>
+                        <div class="task-content">
+                            <div class="task-title">给客厅玫瑰换水</div>
+                            <div class="task-desc">45°斜切根部1-2cm，水位1/3</div>
+                        </div>
+                        <div class="task-check" onclick="this.innerHTML='✓'">✓</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-icon">👀</div>
+                        <div class="task-content">
+                            <div class="task-title">检查餐桌绣球</div>
+                            <div class="task-desc">脱水可整株浸水30分钟急救</div>
+                        </div>
+                        <div class="task-check" onclick="this.innerHTML='✓'">✓</div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title">✨ 当季适合买</div>
+                        <a href="#" class="section-more" onclick="showTab(1);return false;">更多 ›</a>
+                    </div>
+                    <div class="flower-scroll">
+                        <div class="flower-card" onclick="showDetail(0)">
+                            <img class="flower-card-img" src="https://images.unsplash.com/photo-1518882605630-8ebode5e1c22?w=400" alt="玫瑰">
+                            <div class="flower-card-info">
+                                <div class="flower-card-name">🌹 玫瑰</div>
+                                <div class="flower-card-meta">7-14天 · 简单</div>
+                            </div>
+                        </div>
+                        <div class="flower-card" onclick="showDetail(1)">
+                            <img class="flower-card-img" src="https://images.unsplash.com/photo-1520763185298-1b434c919102?w=400" alt="郁金香">
+                            <div class="flower-card-info">
+                                <div class="flower-card-name">🌷 郁金香</div>
+                                <div class="flower-card-meta">5-10天 · 中等</div>
+                            </div>
+                        </div>
+                        <div class="flower-card" onclick="showDetail(2)">
+                            <img class="flower-card-img" src="https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=400" alt="康乃馨">
+                            <div class="flower-card-info">
+                                <div class="flower-card-name">🌸 康乃馨</div>
+                                <div class="flower-card-meta">14-21天 · 简单</div>
+                            </div>
+                        </div>
+                        <div class="flower-card" onclick="showDetail(3)">
+                            <img class="flower-card-img" src="https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=400" alt="绣球">
+                            <div class="flower-card-info">
+                                <div class="flower-card-name">💠 绣球</div>
+                                <div class="flower-card-meta">7-14天 · 中等</div>
+                            </div>
+                        </div>
+                        <div class="flower-card" onclick="showDetail(4)">
+                            <img class="flower-card-img" src="https://images.unsplash.com/photo-1562690868-60bbe7293e94?w=400" alt="百合">
+                            <div class="flower-card-info">
+                                <div class="flower-card-name">🌺 百合</div>
+                                <div class="flower-card-meta">10-14天 · 简单</div>
+                            </div>
+                        </div>
+                        <div class="flower-card" onclick="showDetail(5)">
+                            <img class="flower-card-img" src="https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=400" alt="向日葵">
+                            <div class="flower-card-info">
+                                <div class="flower-card-name">🌻 向日葵</div>
+                                <div class="flower-card-meta">7-10天 · 简单</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图鉴页 -->
+        <div class="page" id="page-library">
+            <div style="padding: 60px 15px 15px;">
+                <h2 style="margin-bottom: 15px;">📚 花材图鉴</h2>
+                <div class="library-grid" id="libraryGrid"></div>
+            </div>
+        </div>
+
+        <!-- 日历页 -->
+        <div class="page" id="page-calendar">
+            <div style="padding: 60px 15px 15px;">
+                <h2 style="margin-bottom: 15px;">📅 养护日历</h2>
+                <div class="calendar-item">
+                    <div class="calendar-date">今天 · 11月27日</div>
+                    <div class="calendar-task">
+                        <div class="calendar-task-icon">💧</div>
+                        <div class="calendar-task-text">
+                            <div class="calendar-task-title">换水</div>
+                            <div class="calendar-task-flower">客厅玫瑰</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="calendar-item">
+                    <div class="calendar-date">明天 · 11月28日</div>
+                    <div class="calendar-task">
+                        <div class="calendar-task-icon">✂️</div>
+                        <div class="calendar-task-text">
+                            <div class="calendar-task-title">修剪</div>
+                            <div class="calendar-task-flower">餐桌绣球</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 个人页 -->
+        <div class="page" id="page-profile">
+            <div class="profile-header">
+                <div class="profile-avatar">🌸</div>
+                <div class="profile-name">花友小松</div>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-number">3</div>
+                        <div class="profile-stat-label">正在养护</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-number">12</div>
+                        <div class="profile-stat-label">收藏花材</div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-menu">
+                <div class="profile-menu-item">
+                    <span class="profile-menu-icon">🌺</span>
+                    <span class="profile-menu-text">我的花</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+                <div class="profile-menu-item">
+                    <span class="profile-menu-icon">❤️</span>
+                    <span class="profile-menu-text">收藏的花材</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+                <div class="profile-menu-item">
+                    <span class="profile-menu-icon">⚙️</span>
+                    <span class="profile-menu-text">设置</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详情弹窗 -->
+        <div class="detail-modal" id="detailModal">
+            <div class="detail-header">
+                <button class="detail-back" onclick="hideDetail()">‹</button>
+            </div>
+            <img class="detail-image" id="detailImage" src="" alt="">
+            <div class="detail-content">
+                <h1 class="detail-title" id="detailTitle"></h1>
+                <div class="detail-meta" id="detailMeta"></div>
+                
+                <div class="detail-section">
+                    <div class="detail-section-title">🌿 基础养护</div>
+                    <ul class="detail-list" id="detailBasic"></ul>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-section-title">⭐ 进阶技巧</div>
+                    <ul class="detail-list" id="detailAdvanced"></ul>
+                </div>
+            </div>
+            <div class="detail-buttons">
+                <button class="detail-btn detail-btn-outline">♡ 收藏</button>
+                <button class="detail-btn detail-btn-primary">➕ 我正在养</button>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="tab-bar">
+            <div class="tab-item active" onclick="showTab(0)">
+                <span class="tab-item-icon">🏠</span>
+                <span class="tab-item-text">首页</span>
+            </div>
+            <div class="tab-item" onclick="showTab(1)">
+                <span class="tab-item-icon">📚</span>
+                <span class="tab-item-text">图鉴</span>
+            </div>
+            <div class="tab-item" onclick="showTab(2)">
+                <span class="tab-item-icon">📅</span>
+                <span class="tab-item-text">日历</span>
+            </div>
+            <div class="tab-item" onclick="showTab(3)">
+                <span class="tab-item-icon">👤</span>
+                <span class="tab-item-text">我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 花材数据
+        const flowers = [
+            {
+                name: '🌹 玫瑰',
+                duration: '7-14天',
+                difficulty: '简单',
+                image: 'https://images.unsplash.com/photo-1518882605630-8eb0de5e1c22?w=800',
+                likes: 128,
+                basic: ['每2-3天换水一次', '45°斜切根部1-2cm', '水位保持1/3花瓶高度', '避免阳光直射'],
+                advanced: ['加入保鲜剂延长花期', '去除水下叶片防腐烂', '晚上可套袋保湿']
+            },
+            {
+                name: '🌷 郁金香',
+                duration: '5-10天',
+                difficulty: '中等',
+                image: 'https://images.unsplash.com/photo-1520763185298-1b434c919102?w=800',
+                likes: 96,
+                basic: ['每天换水', '水位不要太深', '放在阴凉处', '花茎会继续生长'],
+                advanced: ['用冷水可延长花期', '避免与水果放一起', '花谢后还能种球']
+            },
+            {
+                name: '🌸 康乃馨',
+                duration: '14-21天',
+                difficulty: '简单',
+                image: 'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=800',
+                likes: 85,
+                basic: ['3-4天换水一次', '平切根部即可', '适合较深的水位', '喜欢通风环境'],
+                advanced: ['可加少量糖分', '花期最长的切花之一', '适合新手入门']
+            },
+            {
+                name: '💠 绣球',
+                duration: '7-14天',
+                difficulty: '中等',
+                image: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=800',
+                likes: 112,
+                basic: ['每天换水', '花头可喷水保湿', '脱水可整株浸水急救', '根部十字切开'],
+                advanced: ['明矾水可调色', '干花效果极佳', '喜欢高湿度环境']
+            },
+            {
+                name: '🌺 百合',
+                duration: '10-14天',
+                difficulty: '简单',
+                image: 'https://images.unsplash.com/photo-1562690868-60bbe7293e94?w=800',
+                likes: 78,
+                basic: ['2-3天换水', '去除花粉防污染', '花苞会陆续开放', '香味浓郁'],
+                advanced: ['摘除花粉延长花期', '花粉沾衣服用胶带粘', '不要放卧室']
+            },
+            {
+                name: '🌻 向日葵',
+                duration: '7-10天',
+                difficulty: '简单',
+                image: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=800',
+                likes: 145,
+                basic: ['每天换水', '根部斜切', '需要较大花瓶', '喜欢阳光'],
+                advanced: ['花头重需要支撑', '可做干花', '种子可以吃']
+            }
+        ];
+
+        // 更新问候语
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = '早安';
+            if (hour >= 12 && hour < 18) greeting = '下午好';
+            else if (hour >= 18 || hour < 6) greeting = '晚上好';
+            document.getElementById('greeting').textContent = greeting + '，花友';
+        }
+        updateGreeting();
+
+        // Tab切换
+        function showTab(index) {
+            const pages = document.querySelectorAll('.page');
+            const tabs = document.querySelectorAll('.tab-item');
+            pages.forEach(p => p.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
+            pages[index].classList.add('active');
+            tabs[index].classList.add('active');
+        }
+
+        // 渲染图鉴
+        function renderLibrary() {
+            const grid = document.getElementById('libraryGrid');
+            grid.innerHTML = flowers.map((f, i) => `
+                <div class="library-card" onclick="showDetail(${i})">
+                    <img class="library-card-img" src="${f.image}" alt="${f.name}">
+                    <div class="library-card-info">
+                        <div class="library-card-name">${f.name}</div>
+                        <div class="library-card-meta">${f.duration} · ${f.difficulty}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        renderLibrary();
+
+        // 显示详情
+        function showDetail(index) {
+            const f = flowers[index];
+            document.getElementById('detailImage').src = f.image;
+            document.getElementById('detailTitle').textContent = f.name;
+            document.getElementById('detailMeta').textContent = `🕐 ${f.duration} · ❤️ ${f.likes}`;
+            document.getElementById('detailBasic').innerHTML = f.basic.map(t => `<li>${t}</li>`).join('');
+            document.getElementById('detailAdvanced').innerHTML = f.advanced.map(t => `<li>${t}</li>`).join('');
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        // 隐藏详情
+        function hideDetail() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
+

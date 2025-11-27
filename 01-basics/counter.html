@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计数器 - AI Coding练习</title>
+    <style>
+        /* ==========================================
+           第一部分：全局样式重置
+           作用：让所有元素从零开始，保持浏览器一致性
+        ========================================== */
+        * {
+            margin: 0;           /* 清除默认外边距 */
+            padding: 0;          /* 清除默认内边距 */
+            box-sizing: border-box; /* 盒模型计算方式：宽高包含边框和内边距 */
+        }
+
+        /* ==========================================
+           第二部分：页面主体样式
+           作用：设置整个页面的背景、布局、字体
+        ========================================== */
+        body {
+            min-height: 100vh;   /* 最小高度 = 视口高度的100% */
+            display: flex;       /* 弹性布局 */
+            justify-content: center; /* 水平居中 */
+            align-items: center;     /* 垂直居中 */
+            /* 深蓝黑色渐变背景 */
+            background: linear-gradient(135deg, #000510 0%, #001030 50%, #000510 100%);
+            /* 字体设置：优先使用系统字体 */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;    /* 隐藏溢出内容 */
+            position: relative;  /* 为子元素定位做准备 */
+        }
+
+        /* ==========================================
+           第三部分：动态网格背景
+           作用：用CSS制作科技感网格线
+        ========================================== */
+        body::before {
+            content: '';         /* 伪元素必须有content */
+            position: fixed;     /* 固定定位，不随滚动 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 网格线效果：水平线 + 垂直线 */
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px; /* 网格大小 */
+            pointer-events: none; /* 不阻止鼠标事件 */
+            z-index: 0;          /* 在最底层 */
+        }
+
+        /* ==========================================
+           第四部分：扫描线效果
+           作用：模拟老式显示器的扫描线
+        ========================================== */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 重复的水平细线 */
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        /* ==========================================
+           第五部分：主卡片容器
+           作用：半透明玻璃拟态效果
+        ========================================== */
+        .card {
+            position: relative;
+            z-index: 10;         /* 确保在背景之上 */
+            background: rgba(0, 20, 40, 0.8); /* 半透明深蓝背景 */
+            padding: 3rem 4rem;  /* 内边距 */
+            border: 1px solid rgba(0, 212, 255, 0.3); /* 青色边框 */
+            text-align: center;
+            backdrop-filter: blur(20px); /* 毛玻璃模糊效果 */
+        }
+
+        /* 卡片顶部发光边框动画 */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            /* 渐变发光条 */
+            background: linear-gradient(90deg, transparent, #00d4ff, #00ff88, #00d4ff, transparent);
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+
+        /* 发光边框呼吸动画 */
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* 卡片内部装饰边框 */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           第六部分：标题样式
+        ========================================== */
+        .card-title {
+            font-size: 0.75rem;
+            color: rgba(0, 212, 255, 0.7);
+            text-transform: uppercase; /* 大写字母 */
+            letter-spacing: 4px;       /* 字母间距 */
+            font-family: 'SF Mono', Monaco, monospace; /* 等宽字体 */
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            font-size: 1.2rem;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+        }
+
+        /* ==========================================
+           第七部分：数字显示区域（最重要！）
+        ========================================== */
+        .counter-display {
+            font-size: 8rem;     /* 超大字体 */
+            font-weight: 700;
+            line-height: 1;
+            margin: 1.5rem 0 2.5rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            /* 渐变文字效果 */
+            background: linear-gradient(180deg, #00d4ff 0%, #00ff88 100%);
+            -webkit-background-clip: text;      /* 背景裁剪到文字 */
+            -webkit-text-fill-color: transparent; /* 文字填充透明 */
+            background-clip: text;
+            /* 过渡动画 */
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            /* 发光效果 */
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
+        }
+
+        /* 数字增加时的弹跳动画 */
+        .counter-display.bounce-up {
+            transform: scale(1.1) translateY(-5px);
+        }
+
+        /* 数字减少时的弹跳动画 */
+        .counter-display.bounce-down {
+            transform: scale(1.1) translateY(5px);
+        }
+
+        /* 负数时变红色 */
+        .counter-display.negative {
+            background: linear-gradient(180deg, #ff6b6b 0%, #ff3b30 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(255, 59, 48, 0.5));
+        }
+
+        /* ==========================================
+           第八部分：按钮样式
+        ========================================== */
+        .buttons {
+            display: flex;       /* 水平排列 */
+            gap: 1.5rem;         /* 按钮间距 */
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        /* 按钮基础样式 */
+        .btn {
+            width: 70px;
+            height: 70px;
+            border: 2px solid;
+            border-radius: 50%;  /* 圆形 */
+            font-size: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            font-family: 'SF Mono', Monaco, monospace;
+            background: transparent;
+        }
+
+        /* 按钮发光背景动画 */
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, currentColor 0%, transparent 70%);
+            transition: all 0.4s;
+            transform: translate(-50%, -50%);
+            opacity: 0.3;
+        }
+
+        .btn:hover::before {
+            width: 150%;
+            height: 150%;
+        }
+
+        /* 减少按钮 - 红色 */
+        .btn-decrease {
+            border-color: #ff3b30;
+            color: #ff3b30;
+        }
+
+        .btn-decrease:hover {
+            background: rgba(255, 59, 48, 0.15);
+            box-shadow: 0 0 30px rgba(255, 59, 48, 0.4);
+            transform: scale(1.1);
+        }
+
+        /* 重置按钮 - 灰色 */
+        .btn-reset {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .btn-reset:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* 增加按钮 - 青色 */
+        .btn-increase {
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        .btn-increase:hover {
+            background: rgba(0, 212, 255, 0.15);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        /* 按钮点击效果 */
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ==========================================
+           第九部分：状态提示和历史记录
+        ========================================== */
+        .status {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            min-height: 1.5rem;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .history {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .history-item {
+            display: inline-block;
+            margin: 0 0.3rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 4px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .history-item.positive { color: #00ff88; }
+        .history-item.negative { color: #ff6b6b; }
+        .history-item.zero { color: #00d4ff; }
+
+        /* ==========================================
+           第十部分：快捷键提示
+        ========================================== */
+        .shortcuts {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.3);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .shortcuts kbd {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin: 0 0.2rem;
+            color: #00d4ff;
+        }
+
+        /* ==========================================
+           第十一部分：返回按钮
+        ========================================== */
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: rgba(0, 212, 255, 0.7);
+            text-decoration: none;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .back-link:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回首页链接 -->
+    <a href="hello.html" class="back-link">← 返回首页</a>
+
+    <!-- 主卡片 -->
+    <div class="card">
+        <!-- 标题区域 -->
+        <p class="card-title">// Counter Demo</p>
+        <h1 class="card-subtitle">科技感计数器</h1>
+        
+        <!-- 数字显示区域 -->
+        <div class="counter-display" id="counter">0</div>
+        
+        <!-- 操作按钮 -->
+        <div class="buttons">
+            <button class="btn btn-decrease" onclick="decrease()">−</button>
+            <button class="btn btn-reset" onclick="reset()">RST</button>
+            <button class="btn btn-increase" onclick="increase()">+</button>
+        </div>
+        
+        <!-- 状态提示 -->
+        <p class="status" id="status">[ 等待操作 ]</p>
+
+        <!-- 历史记录 -->
+        <div class="history" id="history"></div>
+
+        <!-- 快捷键提示 -->
+        <div class="shortcuts">
+            <kbd>↑</kbd><kbd>→</kbd> 增加 · 
+            <kbd>↓</kbd><kbd>←</kbd> 减少 · 
+            <kbd>Space</kbd> 重置
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // JavaScript 部分：让页面"动起来"
+        // ==========================================
+
+        // ---------- 第一步：定义变量 ----------
+        // 变量就像一个"盒子"，用来存储数据
+        
+        let count = 0;  // 当前计数值，初始为0
+        // let = 声明一个可以改变的变量
+        
+        let history = [];  // 操作历史，初始为空数组
+        // [] = 空数组，可以存储多个值
+        
+        // ---------- 第二步：获取页面元素 ----------
+        // 用 document.getElementById() 获取 HTML 中的元素
+        
+        const counterDisplay = document.getElementById('counter');
+        // const = 声明一个不能重新赋值的常量
+        // document = 整个网页
+        // getElementById('counter') = 找到 id="counter" 的元素
+        
+        const statusText = document.getElementById('status');
+        const historyContainer = document.getElementById('history');
+
+        // ---------- 第三步：更新显示函数 ----------
+        // 函数 = 一段可以重复使用的代码
+        
+        function updateDisplay(direction) {
+            // 1. 更新数字显示
+            counterDisplay.textContent = count;
+            // textContent = 设置元素的文字内容
+            
+            // 2. 清除之前的动画类
+            counterDisplay.classList.remove('bounce-up', 'bounce-down', 'negative');
+            // classList = 元素的类名列表
+            // remove() = 移除类名
+            
+            // 3. 根据方向添加动画
+            if (direction === 'up') {
+                counterDisplay.classList.add('bounce-up');
+            } else if (direction === 'down') {
+                counterDisplay.classList.add('bounce-down');
+            }
+            // if-else = 条件判断
+            // === = 严格相等比较
+            
+            // 4. 负数时改变颜色
+            if (count < 0) {
+                counterDisplay.classList.add('negative');
+            }
+            
+            // 5. 100毫秒后移除动画类
+            setTimeout(() => {
+                counterDisplay.classList.remove('bounce-up', 'bounce-down');
+            }, 150);
+            // setTimeout(函数, 时间) = 延迟执行
+            // => = 箭头函数，一种简写方式
+            
+            // 6. 更新状态提示
+            updateStatus();
+            
+            // 7. 更新历史记录
+            updateHistory();
+        }
+
+        // ---------- 第四步：更新状态提示 ----------
+        function updateStatus() {
+            if (count > 10) {
+                statusText.textContent = '🚀 突破10了！继续加油';
+                statusText.style.color = '#00ff88';
+                // style.color = 设置文字颜色
+            } else if (count > 0) {
+                statusText.textContent = '📈 正数区间 +' + count;
+                // + 号可以连接字符串
+                statusText.style.color = '#00d4ff';
+            } else if (count < -10) {
+                statusText.textContent = '⚠️ 负得有点多了...';
+                statusText.style.color = '#ff6b6b';
+            } else if (count < 0) {
+                statusText.textContent = '📉 负数区间 ' + count;
+                statusText.style.color = '#ff6b6b';
+            } else {
+                statusText.textContent = '🎯 归零状态';
+                statusText.style.color = 'rgba(255, 255, 255, 0.5)';
+            }
+        }
+
+        // ---------- 第五步：更新历史记录 ----------
+        function updateHistory() {
+            // 1. 把当前值添加到历史数组开头
+            history.unshift(count);
+            // unshift() = 在数组开头添加元素
+            
+            // 2. 只保留最近5个
+            if (history.length > 5) {
+                history.pop();
+                // pop() = 移除数组最后一个元素
+                // length = 数组长度
+            }
+            
+            // 3. 渲染历史记录
+            historyContainer.innerHTML = history.map(num => {
+                // map() = 遍历数组，对每个元素执行函数
+                let className = 'history-item';
+                if (num > 0) className += ' positive';
+                else if (num < 0) className += ' negative';
+                else className += ' zero';
+                return `<span class="${className}">${num}</span>`;
+                // `` = 模板字符串，可以嵌入变量
+                // ${变量} = 在模板字符串中插入变量
+            }).join('');
+            // join('') = 把数组元素连接成字符串
+        }
+
+        // ---------- 第六步：三个核心操作函数 ----------
+        
+        // 增加函数
+        function increase() {
+            count++;  // count = count + 1 的简写
+            updateDisplay('up');
+        }
+
+        // 减少函数
+        function decrease() {
+            count--;  // count = count - 1 的简写
+            updateDisplay('down');
+        }
+
+        // 重置函数
+        function reset() {
+            count = 0;
+            history = [];
+            historyContainer.innerHTML = '';
+            // innerHTML = 设置元素的 HTML 内容
+            updateDisplay();
+        }
+
+        // ---------- 第七步：键盘快捷键支持 ----------
+        // addEventListener = 添加事件监听器
+        // 'keydown' = 按下键盘时触发
+        
+        document.addEventListener('keydown', function(event) {
+            // event = 事件对象，包含按键信息
+            // event.key = 按下的键名
+            
+            if (event.key === 'ArrowUp' || event.key === 'ArrowRight') {
+                increase();
+                event.preventDefault();
+                // preventDefault() = 阻止默认行为（如页面滚动）
+            }
+            
+            if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') {
+                decrease();
+                event.preventDefault();
+            }
+            
+            if (event.key === ' ') {  // 空格键
+                reset();
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
+

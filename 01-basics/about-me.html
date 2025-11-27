@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me - Songsong</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #000510 0%, #001030 50%, #000510 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 网格背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        /* 返回按钮 */
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: rgba(0, 212, 255, 0.7);
+            text-decoration: none;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .back-link:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        /* 主卡片 */
+        .profile-card {
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            position: relative;
+            backdrop-filter: blur(20px);
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00d4ff, #00ff88, #00d4ff, transparent);
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* 头像 */
+        .avatar-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 2rem;
+        }
+
+        .avatar-ring {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .avatar-ring::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: #00d4ff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00d4ff;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid rgba(0, 212, 255, 0.6);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            background: linear-gradient(135deg, #1a1a3a, #0a0a2a);
+            overflow: hidden;
+        }
+
+        .avatar svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 名字 */
+        .name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 状态指示器 */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: #00ff88;
+            font-family: 'SF Mono', Monaco, monospace;
+            margin-bottom: 1rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 职位 */
+        .title {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1.5rem;
+        }
+
+        /* 简介 */
+        .bio {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 3px solid #00d4ff;
+        }
+
+        /* 技能标签 */
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .skill-tag {
+            padding: 0.4rem 0.8rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            font-size: 0.8rem;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        /* 社交链接 */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00d4ff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .profile-card {
+                margin: 1rem;
+                padding: 2rem;
+            }
+            .name {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="hello.html" class="back-link">← 返回首页</a>
+
+    <div class="profile-card">
+        <div class="avatar-container">
+            <div class="avatar-ring"></div>
+            <div class="avatar">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="48" fill="#2a2a4a"/>
+                    <ellipse cx="50" cy="55" rx="30" ry="28" fill="#FFE4C4"/>
+                    <path d="M 20 35 L 28 55 L 38 40 Z" fill="#FFE4C4"/>
+                    <path d="M 23 38 L 28 50 L 35 42 Z" fill="#FFB6C1"/>
+                    <path d="M 80 35 L 72 55 L 62 40 Z" fill="#FFE4C4"/>
+                    <path d="M 77 38 L 72 50 L 65 42 Z" fill="#FFB6C1"/>
+                    <ellipse cx="38" cy="52" rx="8" ry="9" fill="#fff"/>
+                    <ellipse cx="62" cy="52" rx="8" ry="9" fill="#fff"/>
+                    <ellipse cx="38" cy="52" rx="5" ry="6" fill="#4A4A6A"/>
+                    <ellipse cx="62" cy="52" rx="5" ry="6" fill="#4A4A6A"/>
+                    <circle cx="36" cy="50" r="2" fill="#fff"/>
+                    <circle cx="60" cy="50" r="2" fill="#fff"/>
+                    <ellipse cx="50" cy="62" rx="4" ry="3" fill="#FFB6C1"/>
+                    <path d="M 50 65 Q 45 70 40 68" stroke="#FF9999" stroke-width="1.5" fill="none"/>
+                    <path d="M 50 65 Q 55 70 60 68" stroke="#FF9999" stroke-width="1.5" fill="none"/>
+                    <line x1="20" y1="58" x2="32" y2="60" stroke="#666" stroke-width="1"/>
+                    <line x1="20" y1="64" x2="32" y2="64" stroke="#666" stroke-width="1"/>
+                    <line x1="68" y1="60" x2="80" y2="58" stroke="#666" stroke-width="1"/>
+                    <line x1="68" y1="64" x2="80" y2="64" stroke="#666" stroke-width="1"/>
+                    <ellipse cx="28" cy="62" rx="5" ry="3" fill="#FFB6C1" opacity="0.5"/>
+                    <ellipse cx="72" cy="62" rx="5" ry="3" fill="#FFB6C1" opacity="0.5"/>
+                </svg>
+            </div>
+        </div>
+
+        <h1 class="name">Songsong</h1>
+        
+        <div class="status">
+            <span class="status-dot"></span>
+            <span>Online</span>
+        </div>
+
+        <p class="title">一枚搬砖的产品经理</p>
+
+        <div class="bio">
+            我想用好 AI，用 AI 改变世界 🌍
+        </div>
+
+        <div class="skills">
+            <span class="skill-tag">产品设计</span>
+            <span class="skill-tag">AI Coding</span>
+            <span class="skill-tag">用户体验</span>
+            <span class="skill-tag">数据分析</span>
+        </div>
+
+        <div class="social-links">
+            <a href="#" class="social-link" title="GitHub">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+            </a>
+            <a href="#" class="social-link" title="Twitter">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                </svg>
+            </a>
+            <a href="#" class="social-link" title="Email">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+

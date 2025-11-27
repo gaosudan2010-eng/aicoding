@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品经理的AI Coding学习指南</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #000510;
+            --accent: #00d4ff;
+            --accent-green: #00ff88;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.85);
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --border: rgba(0, 212, 255, 0.3);
+            --bg-card: rgba(0, 20, 40, 0.8);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.8;
+        }
+
+        /* 网格背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: rgba(0, 5, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-size: 1rem;
+            color: var(--accent);
+            font-family: 'SF Mono', Monaco, monospace;
+            letter-spacing: 2px;
+        }
+
+        .navbar-back {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .navbar-back:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* 页面布局 */
+        .page-wrapper {
+            position: relative;
+            z-index: 10;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 2rem 4rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        /* 主内容区 */
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* 侧边导航 */
+        .sidebar-nav {
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav-inner {
+            position: sticky;
+            top: 80px;
+            background: rgba(0, 10, 25, 0.8);
+            border: 1px solid var(--border);
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav-title {
+            padding: 0 1rem 0.75rem;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'SF Mono', Monaco, monospace;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.75rem;
+            transition: all 0.3s;
+            border-left: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent);
+            background: rgba(0, 212, 255, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        .nav-link-number {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.65rem;
+        }
+
+        /* Hero区域 */
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            background: linear-gradient(90deg, var(--accent), var(--accent-green), var(--accent));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-family: 'SF Mono', Monaco, monospace;
+            margin-top: 0.5rem;
+        }
+
+        /* 内容区块 */
+        .content-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .subsection-title {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.8rem;
+        }
+
+        p { margin-bottom: 1rem; color: var(--text-secondary); }
+
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li { margin-bottom: 0.6rem; }
+        li::marker { color: var(--accent); }
+
+        code {
+            font-family: 'SF Mono', Monaco, monospace;
+            background: rgba(0, 212, 255, 0.15);
+            padding: 0.2rem 0.5rem;
+            color: var(--accent);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        pre {
+            background: rgba(0, 10, 25, 0.9);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 1.2rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-secondary);
+            border: none;
+        }
+
+        .card {
+            background: rgba(0, 20, 50, 0.6);
+            border: 1px solid var(--border);
+            padding: 1.2rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent), var(--accent-green));
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--accent);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .tip {
+            background: rgba(0, 255, 136, 0.08);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-left: 3px solid var(--accent-green);
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+        }
+
+        kbd {
+            background: rgba(0, 15, 35, 0.9);
+            border: 1px solid var(--accent);
+            padding: 0.2rem 0.5rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8em;
+            color: var(--accent);
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: transparent;
+            color: var(--accent);
+            text-decoration: none;
+            border: 1px solid var(--accent);
+            font-family: 'SF Mono', Monaco, monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .cta-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-wrapper {
+                flex-direction: column;
+                padding: 80px 1rem 2rem;
+            }
+            .sidebar-nav { width: 100%; order: -1; }
+            .sidebar-nav-inner {
+                position: relative;
+                top: 0;
+                display: flex;
+                flex-wrap: wrap;
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
+            .sidebar-nav-title { width: 100%; padding: 0 0 0.5rem; border-bottom: none; }
+            .nav-link {
+                padding: 0.5rem 0.75rem;
+                border-left: none;
+                border-radius: 6px;
+                border: 1px solid var(--border);
+            }
+            .hero h1 { font-size: 1.5rem; }
+            .content-section { padding: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="hello.html" class="navbar-back">← BACK</a>
+        <span class="navbar-brand">// AI Coding Guide</span>
+    </nav>
+
+    <div class="page-wrapper">
+        <main class="main">
+            <div class="hero">
+                <h1>产品经理的AI Coding学习指南</h1>
+                <p class="hero-subtitle">> 从0到1掌握Cursor，独立开发简单网页和App产品_</p>
+            </div>
+
+            <!-- 阶段1 -->
+            <div class="content-section" id="phase1">
+                <h2 class="section-title">🎯 第一阶段：认识AI Coding</h2>
+                
+                <h3 class="subsection-title">1.1 什么是AI Coding？</h3>
+                <p>AI Coding 是利用人工智能辅助编程的新范式。<strong>你不是在学编程，而是在学如何指挥AI帮你编程。</strong></p>
+                
+                <div class="card">
+                    <div class="card-title">🎯 AI Coding 核心能力</div>
+                    <ul>
+                        <li>✅ <strong>清晰的需求表达能力</strong>（产品经理的核心优势！）</li>
+                        <li>✅ <strong>基本的代码阅读能力</strong>（能看懂AI写的代码在做什么）</li>
+                        <li>✅ <strong>调试和优化的耐心</strong>（AI不是完美的，需要迭代）</li>
+                        <li>✅ <strong>拆解问题的能力</strong>（把大需求拆成小任务）</li>
+                    </ul>
+                </div>
+
+                <div class="tip">
+                    <strong>💡 产品经理的优势：</strong> 你天天写PRD，这就是最好的Prompt训练！需求文档写得越清晰，AI生成的代码越准确。
+                </div>
+
+                <h3 class="subsection-title">1.2 Cursor 快捷键</h3>
+                <div class="card">
+                    <div class="card-title">⌨️ 必背快捷键</div>
+                    <ul>
+                        <li><kbd>Cmd + L</kbd>：<strong>打开AI对话面板</strong> - 最常用！</li>
+                        <li><kbd>Cmd + K</kbd>：<strong>在代码中呼出AI</strong> - 选中代码后按此键修改</li>
+                        <li><kbd>Cmd + I</kbd>：<strong>打开Composer</strong> - 多文件同时编辑</li>
+                        <li><kbd>Cmd + J</kbd>：<strong>打开/关闭终端</strong></li>
+                        <li><kbd>Cmd + S</kbd>：<strong>保存文件</strong></li>
+                        <li><kbd>Cmd + Z</kbd>：<strong>撤销</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 阶段2 -->
+            <div class="content-section" id="phase2">
+                <h2 class="section-title">📚 第二阶段：代码基础认知</h2>
+                
+                <h3 class="subsection-title">2.1 HTML基础</h3>
+                <p>HTML是网页的<strong>"骨架"</strong>，用标签告诉浏览器"这里是标题"、"这里是按钮"。</p>
+                
+                <pre><code>&lt;h1&gt;标题&lt;/h1&gt;        &lt;!-- 标题 --&gt;
+&lt;p&gt;段落&lt;/p&gt;          &lt;!-- 段落 --&gt;
+&lt;div&gt;容器&lt;/div&gt;      &lt;!-- 容器 --&gt;
+&lt;button&gt;按钮&lt;/button&gt; &lt;!-- 按钮 --&gt;</code></pre>
+
+                <h3 class="subsection-title">2.2 CSS基础</h3>
+                <p>CSS是网页的<strong>"皮肤"</strong>，决定颜色、大小、位置。</p>
+                
+                <pre><code>.card {
+  color: #333;           /* 文字颜色 */
+  background: #fff;      /* 背景色 */
+  padding: 20px;         /* 内边距 */
+  border-radius: 8px;    /* 圆角 */
+  display: flex;         /* 弹性布局 */
+}</code></pre>
+
+                <h3 class="subsection-title">2.3 JavaScript基础</h3>
+                <p>JS是网页的<strong>"大脑"</strong>，让页面能响应用户操作。</p>
+                
+                <pre><code>// 变量
+let count = 0;
+
+// 函数
+function increase() {
+    count++;
+}
+
+// 事件监听
+button.addEventListener('click', increase);</code></pre>
+            </div>
+
+            <!-- 阶段3 -->
+            <div class="content-section" id="phase3">
+                <h2 class="section-title">🛠️ 第三阶段：实战项目</h2>
+                
+                <h3 class="subsection-title">3.1 推荐项目</h3>
+                <ul>
+                    <li><strong>个人作品集网站</strong> - 展示你的作品</li>
+                    <li><strong>待办事项应用</strong> - 学习数据存储</li>
+                    <li><strong>计数器</strong> - 学习JS交互</li>
+                    <li><strong>番茄钟</strong> - 学习定时器</li>
+                </ul>
+
+                <div class="card">
+                    <div class="card-title">📝 示例Prompt</div>
+                    <pre><code>请帮我创建一个待办事项应用：
+1. 添加新任务（输入框+添加按钮）
+2. 标记任务完成（点击打勾）
+3. 删除任务
+4. 数据保存在本地
+5. 设计要好看，有动画效果</code></pre>
+                </div>
+            </div>
+
+            <!-- 阶段4 -->
+            <div class="content-section" id="phase4">
+                <h2 class="section-title">🚀 第四阶段：高效AI协作</h2>
+                
+                <h3 class="subsection-title">4.1 Prompt技巧</h3>
+                <div class="card">
+                    <div class="card-title">📐 万能Prompt模板</div>
+                    <pre><code>【背景】我是产品经理，正在做XX项目
+【目标】需要实现XX功能
+【具体要求】
+1. 功能点1
+2. 功能点2
+3. 设计要求
+【技术限制】只使用HTML/CSS/JS</code></pre>
+                </div>
+
+                <div class="tip">
+                    <strong>💡 黄金法则：</strong> 每次只提一个需求！改完测试没问题再提下一个。
+                </div>
+            </div>
+
+            <!-- 阶段5 -->
+            <div class="content-section" id="phase5">
+                <h2 class="section-title">📈 第五阶段：进阶学习</h2>
+                
+                <h3 class="subsection-title">5.1 进阶方向</h3>
+                <ul>
+                    <li><strong>更复杂的网页</strong> → React/Vue → Next.js</li>
+                    <li><strong>微信小程序</strong> → 小程序框架</li>
+                    <li><strong>手机App</strong> → React Native / Flutter</li>
+                    <li><strong>有后端的产品</strong> → Supabase / Firebase</li>
+                </ul>
+
+                <div class="tip">
+                    <strong>🎉 最后建议：</strong>
+                    <ol>
+                        <li>做真实项目 - 解决实际问题</li>
+                        <li>坚持练习 - 每周至少一个小项目</li>
+                        <li>分享交流 - 获得反馈和成就感</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h3 style="color: var(--accent-green); margin-bottom: 1rem;">✨ 准备好开始了吗？</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">返回首页，开始你的AI编程之旅！</p>
+                <a href="hello.html" class="back-btn">← 返回首页</a>
+            </div>
+        </main>
+
+        <aside class="sidebar-nav">
+            <div class="sidebar-nav-inner">
+                <div class="sidebar-nav-title">学习阶段</div>
+                <a href="#phase1" class="nav-link active">
+                    <span class="nav-link-number">01</span>
+                    认识AI Coding
+                </a>
+                <a href="#phase2" class="nav-link">
+                    <span class="nav-link-number">02</span>
+                    代码基础认知
+                </a>
+                <a href="#phase3" class="nav-link">
+                    <span class="nav-link-number">03</span>
+                    实战项目
+                </a>
+                <a href="#phase4" class="nav-link">
+                    <span class="nav-link-number">04</span>
+                    AI协作技巧
+                </a>
+                <a href="#phase5" class="nav-link">
+                    <span class="nav-link-number">05</span>
+                    进阶学习
+                </a>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // 导航高亮
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.content-section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
