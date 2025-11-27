@@ -358,6 +358,9 @@
     </div>
 
     <script>
+        // ========================================
+        // 弱化代码雨 + 鼠标交互
+        // ========================================
         const bgCanvas = document.getElementById('bgCanvas');
         const bgCtx = bgCanvas.getContext('2d');
         const trailCanvas = document.getElementById('trailCanvas');
@@ -369,91 +372,131 @@
         let height = bgCanvas.height = trailCanvas.height = window.innerHeight;
         let mouseX = width / 2, mouseY = height / 2, mouseSpeed = 0, lastMouseX = mouseX, lastMouseY = mouseY;
 
-        const codeChars = '01アイウエオカキクケコサシスセソ</>{}[];=+-*&|';
-        const columns = Math.floor(width / 20);
+        const codeChars = '01アイウエオカキクケコ</>{}[];=+-*';
+        const columnGap = 35;
+        const columns = Math.floor(width / columnGap);
         const drops = [];
+        
         for (let i = 0; i < columns; i++) {
-            drops[i] = { y: Math.random() * height, speed: Math.random() * 3 + 2, chars: [], length: Math.floor(Math.random() * 15 + 8) };
-            for (let j = 0; j < drops[i].length; j++) drops[i].chars.push(codeChars[Math.floor(Math.random() * codeChars.length)]);
+            drops[i] = {
+                x: i * columnGap,
+                y: Math.random() * height,
+                baseSpeed: Math.random() * 1.5 + 0.8,
+                speed: 0,
+                chars: [],
+                length: Math.floor(Math.random() * 10 + 5),
+                baseAlpha: Math.random() * 0.15 + 0.05,
+                alpha: 0,
+                mouseInfluence: 0
+            };
+            for (let j = 0; j < drops[i].length; j++) {
+                drops[i].chars.push(codeChars[Math.floor(Math.random() * codeChars.length)]);
+            }
         }
 
-        const particles = [];
-        for (let i = 0; i < 40; i++) particles.push({ x: Math.random() * width, y: Math.random() * height, size: Math.random() * 2 + 0.5, speedX: (Math.random() - 0.5) * 0.5, speedY: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.2 });
-
-        const trailPoints = [], maxTrailPoints = 50, sparks = [];
-
-        class Spark {
-            constructor(x, y) { this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * 8; this.vy = (Math.random() - 0.5) * 8; this.life = 1; this.decay = Math.random() * 0.03 + 0.02; this.size = Math.random() * 3 + 1; this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88'; }
-            update() { this.x += this.vx; this.y += this.vy; this.vx *= 0.95; this.vy *= 0.95; this.life -= this.decay; }
-            draw() { trailCtx.beginPath(); trailCtx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2); trailCtx.fillStyle = this.color.replace(')', `, ${this.life})`).replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136'); trailCtx.fill(); }
+        const trailChars = [];
+        
+        class TrailChar {
+            constructor(x, y) {
+                this.x = x + (Math.random() - 0.5) * 30;
+                this.y = y + (Math.random() - 0.5) * 30;
+                this.char = codeChars[Math.floor(Math.random() * codeChars.length)];
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+                this.vy = Math.random() * 2 + 1;
+                this.size = Math.random() * 6 + 12;
+                this.color = Math.random() > 0.3 ? '#00d4ff' : '#00ff88';
+            }
+            update() { this.y += this.vy; this.life -= this.decay; }
+            draw() {
+                if (this.life <= 0) return;
+                trailCtx.font = `${this.size}px "SF Mono", Monaco, monospace`;
+                trailCtx.fillStyle = this.color === '#00d4ff' ? `rgba(0, 212, 255, ${this.life * 0.8})` : `rgba(0, 255, 136, ${this.life * 0.8})`;
+                trailCtx.fillText(this.char, this.x, this.y);
+            }
             isDead() { return this.life <= 0; }
         }
 
-        function animateBg() {
-            bgCtx.fillStyle = 'rgba(0, 5, 16, 0.15)';
-            bgCtx.fillRect(0, 0, width, height);
-
-            bgCtx.font = '14px "SF Mono", Monaco, monospace';
+        function drawCodeRain() {
+            bgCtx.font = '12px "SF Mono", Monaco, monospace';
             for (let i = 0; i < drops.length; i++) {
-                const drop = drops[i], x = i * 20;
-                for (let j = 0; j < drop.chars.length; j++) {
-                    const y = drop.y - j * 20;
-                    if (y < 0 || y > height) continue;
-                    const alpha = j === 0 ? 1 : (1 - j / drop.length) * 0.5;
-                    bgCtx.fillStyle = (j === 0 ? 'rgba(0, 255, 136' : 'rgba(0, 212, 255') + `, ${alpha})`;
-                    bgCtx.fillText(drop.chars[j], x, y);
+                const drop = drops[i];
+                const dx = mouseX - drop.x, dy = mouseY - drop.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 150) {
+                    drop.mouseInfluence = Math.min(drop.mouseInfluence + (1 - dist / 150) * 0.1, 1);
+                } else {
+                    drop.mouseInfluence *= 0.95;
                 }
+                
+                drop.speed = drop.baseSpeed + drop.mouseInfluence * 4;
+                drop.alpha = drop.baseAlpha + drop.mouseInfluence * 0.5;
+                
+                for (let j = 0; j < drop.chars.length; j++) {
+                    const y = drop.y - j * 18;
+                    if (y < -20 || y > height + 20) continue;
+                    const charAlpha = j === 0 ? drop.alpha : drop.alpha * (1 - j / drop.length) * 0.6;
+                    bgCtx.fillStyle = j === 0 ? `rgba(0, 255, 136, ${charAlpha})` : `rgba(0, 212, 255, ${charAlpha})`;
+                    bgCtx.fillText(drop.chars[j], drop.x, y);
+                }
+                
                 drop.y += drop.speed;
-                if (Math.random() < 0.02) drop.chars[Math.floor(Math.random() * drop.chars.length)] = codeChars[Math.floor(Math.random() * codeChars.length)];
-                if (drop.y > height + drop.length * 20) { drop.y = -drop.length * 20; drop.speed = Math.random() * 3 + 2; }
+                if (Math.random() < 0.01 + drop.mouseInfluence * 0.05) {
+                    drop.chars[Math.floor(Math.random() * drop.chars.length)] = codeChars[Math.floor(Math.random() * codeChars.length)];
+                }
+                if (drop.y > height + drop.length * 18) {
+                    drop.y = -drop.length * 18;
+                    drop.baseSpeed = Math.random() * 1.5 + 0.8;
+                }
             }
+        }
 
-            particles.forEach(p => {
-                p.x += p.speedX; p.y += p.speedY;
-                const dx = mouseX - p.x, dy = mouseY - p.y, dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 100) { p.x -= dx * 0.02; p.y -= dy * 0.02; }
-                if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) { p.x = Math.random() * width; p.y = Math.random() * height; }
-                bgCtx.beginPath(); bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                bgCtx.fillStyle = `rgba(0, 212, 255, ${p.alpha})`; bgCtx.fill();
-            });
+        function drawTrail() {
+            trailCtx.fillStyle = 'rgba(0, 5, 16, 0.08)';
+            trailCtx.fillRect(0, 0, width, height);
+            for (let i = trailChars.length - 1; i >= 0; i--) {
+                trailChars[i].update();
+                trailChars[i].draw();
+                if (trailChars[i].isDead()) trailChars.splice(i, 1);
+            }
+            const gradient = trailCtx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 100);
+            gradient.addColorStop(0, 'rgba(0, 212, 255, 0.1)');
+            gradient.addColorStop(1, 'transparent');
+            trailCtx.fillStyle = gradient;
+            trailCtx.beginPath();
+            trailCtx.arc(mouseX, mouseY, 100, 0, Math.PI * 2);
+            trailCtx.fill();
+        }
 
+        function animateBg() {
+            bgCtx.fillStyle = 'rgba(0, 5, 16, 0.12)';
+            bgCtx.fillRect(0, 0, width, height);
+            drawCodeRain();
             requestAnimationFrame(animateBg);
         }
 
         function animateTrail() {
-            trailCtx.fillStyle = 'rgba(0, 5, 16, 0.1)';
-            trailCtx.fillRect(0, 0, width, height);
-
-            if (trailPoints.length > 2) {
-                trailCtx.beginPath();
-                trailCtx.moveTo(trailPoints[0].x, trailPoints[0].y);
-                for (let i = 1; i < trailPoints.length - 1; i++) {
-                    const xc = (trailPoints[i].x + trailPoints[i + 1].x) / 2;
-                    const yc = (trailPoints[i].y + trailPoints[i + 1].y) / 2;
-                    trailCtx.quadraticCurveTo(trailPoints[i].x, trailPoints[i].y, xc, yc);
-                }
-                const gradient = trailCtx.createLinearGradient(trailPoints[0].x, trailPoints[0].y, trailPoints[trailPoints.length - 1].x, trailPoints[trailPoints.length - 1].y);
-                gradient.addColorStop(0, 'rgba(0, 212, 255, 0)');
-                gradient.addColorStop(0.5, 'rgba(0, 255, 136, 0.5)');
-                gradient.addColorStop(1, 'rgba(0, 212, 255, 0.8)');
-                trailCtx.strokeStyle = gradient;
-                trailCtx.lineWidth = 2;
-                trailCtx.lineCap = 'round';
-                trailCtx.stroke();
-            }
-
-            sparks.forEach((spark, i) => { spark.update(); spark.draw(); if (spark.isDead()) sparks.splice(i, 1); });
+            drawTrail();
             requestAnimationFrame(animateTrail);
         }
 
+        let charSpawnCounter = 0;
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX; mouseY = e.clientY;
             mouseSpeed = Math.sqrt(Math.pow(mouseX - lastMouseX, 2) + Math.pow(mouseY - lastMouseY, 2));
             cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
             cursorDot.style.left = mouseX + 'px'; cursorDot.style.top = mouseY + 'px';
-            trailPoints.push({ x: mouseX, y: mouseY });
-            if (trailPoints.length > maxTrailPoints) trailPoints.shift();
-            if (mouseSpeed > 15) for (let i = 0; i < 3; i++) sparks.push(new Spark(mouseX, mouseY));
+            
+            charSpawnCounter++;
+            if (charSpawnCounter > 3 && mouseSpeed > 5) {
+                charSpawnCounter = 0;
+                trailChars.push(new TrailChar(mouseX, mouseY));
+                if (trailChars.length > 100) trailChars.shift();
+            }
+            if (mouseSpeed > 20) {
+                for (let i = 0; i < 2; i++) trailChars.push(new TrailChar(mouseX, mouseY));
+            }
             lastMouseX = mouseX; lastMouseY = mouseY;
         });
 
@@ -461,8 +504,6 @@
             el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
             el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
         });
-
-        document.addEventListener('click', (e) => { for (let i = 0; i < 20; i++) sparks.push(new Spark(e.clientX, e.clientY)); });
 
         window.addEventListener('resize', () => { width = bgCanvas.width = trailCanvas.width = window.innerWidth; height = bgCanvas.height = trailCanvas.height = window.innerHeight; });
 
