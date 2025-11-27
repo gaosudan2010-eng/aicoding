@@ -427,134 +427,48 @@
             margin-top: 3rem;
         }
 
-        /* 猫咪头像 */
+        /* 猫咪头像（简化实心黄色小猫） */
         .cat-avatar-link {
             position: fixed;
             z-index: 100;
             text-decoration: none;
-            cursor: none;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: all 0.5s ease;
         }
 
-        .cat-avatar-container { position: relative; width: 100px; height: 100px; }
-
-        .hex-frame {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            animation: hexPulse 4s ease-in-out infinite;
-        }
-
-        @keyframes hexPulse {
-            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.05); }
-        }
-
-        .cat-avatar-ring {
-            position: absolute;
-            top: -12px; left: -12px; right: -12px; bottom: -12px;
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            border-radius: 50%;
-            animation: rotate 8s linear infinite;
-        }
-
-        .cat-avatar-ring::before,
-        .cat-avatar-ring::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #FFD700;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #FFD700;
-        }
-
-        .cat-avatar-ring::before { top: -3px; left: 50%; transform: translateX(-50%); }
-        .cat-avatar-ring::after { bottom: -3px; left: 50%; transform: translateX(-50%); }
-
-        .cat-avatar-ring-inner {
-            position: absolute;
-            top: -6px; left: -6px; right: -6px; bottom: -6px;
-            border: 1px dashed rgba(255, 165, 0, 0.4);
-            border-radius: 50%;
-            animation: rotateReverse 12s linear infinite;
-        }
-
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes rotateReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+        .cat-avatar-container { position: relative; width: 65px; height: 65px; }
 
         .cat-avatar {
-            width: 100px;
-            height: 100px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             overflow: hidden;
-            border: 2px solid rgba(255, 215, 0, 0.8);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            border: none;
+            box-shadow: 0 0 12px rgba(255, 213, 79, 0.15);
             transition: all 0.3s ease;
-            background: linear-gradient(135deg, #1a1400, #2a2000);
-            position: relative;
+            background: #000510;
         }
-
-        .cat-avatar::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #FFD700, transparent);
-            animation: scanline 2s linear infinite;
-            z-index: 10;
-        }
-
-        @keyframes scanline { 0% { top: 0; opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
         .cat-avatar svg { width: 100%; height: 100%; }
 
         .cat-avatar-label {
             position: absolute;
-            bottom: -40px;
+            bottom: -22px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.7rem;
-            color: #FFD700;
+            font-size: 0.5rem;
+            color: #FFD54F;
             font-family: 'SF Mono', Monaco, monospace;
             white-space: nowrap;
             opacity: 0;
             transition: all 0.3s;
-            padding: 4px 12px;
-            background: rgba(26, 20, 0, 0.9);
-            border: 1px solid rgba(255, 215, 0, 0.5);
+            letter-spacing: 1px;
         }
 
-        .cat-avatar-label::before { content: '>'; margin-right: 6px; animation: blink 1s step-end infinite; }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        .avatar-status {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 12px;
-            height: 12px;
-            background: #FFA500;
-            border-radius: 50%;
-            border: 2px solid #1a1400;
-            box-shadow: 0 0 10px #FFA500;
-            animation: statusPulse 2s ease-in-out infinite;
-            z-index: 20;
-        }
-
-        @keyframes statusPulse {
-            0%, 100% { box-shadow: 0 0 5px #FFA500; }
-            50% { box-shadow: 0 0 15px #FFA500, 0 0 25px #FFA500; }
-        }
-
-        .cat-avatar-link:hover .cat-avatar-label { opacity: 1; bottom: -45px; }
+        .cat-avatar-link:hover .cat-avatar-label { opacity: 1; bottom: -26px; }
         .cat-avatar-link:hover .cat-avatar {
-            transform: scale(1.08);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            transform: scale(1.12);
+            box-shadow: 0 0 25px rgba(255, 213, 79, 0.4);
         }
 
         @media (max-width: 768px) {
@@ -580,37 +494,53 @@
     <div class="cursor" id="cursor"></div>
     <div class="cursor-dot" id="cursorDot"></div>
 
-    <!-- 猫咪头像（黄色科技风格） -->
+    <!-- 猫咪头像（实心黄色小猫） -->
     <a href="about-me.html" class="cat-avatar-link" id="catAvatar">
         <div class="cat-avatar-container">
-            <div class="hex-frame">
-                <svg viewBox="0 0 100 100"><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" fill="none" stroke="#FFD700" stroke-width="0.5" opacity="0.5"/></svg>
-            </div>
-            <div class="cat-avatar-ring"></div>
-            <div class="cat-avatar-ring-inner"></div>
-            <div class="avatar-status"></div>
             <div class="cat-avatar">
                 <svg viewBox="0 0 100 100">
-                    <defs><linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1a1400"/><stop offset="100%" style="stop-color:#2a2000"/></linearGradient></defs>
-                    <circle cx="50" cy="50" r="48" fill="url(#techGrad)"/>
-                    <g stroke="#FFD700" stroke-width="0.3" opacity="0.2"><line x1="10" y1="25" x2="90" y2="25"/><line x1="10" y1="50" x2="90" y2="50"/><line x1="10" y1="75" x2="90" y2="75"/><line x1="25" y1="10" x2="25" y2="90"/><line x1="50" y1="10" x2="50" y2="90"/><line x1="75" y1="10" x2="75" y2="90"/></g>
-                    <ellipse cx="50" cy="55" rx="28" ry="26" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.8"/>
-                    <path d="M 22 38 L 30 52 L 38 42" fill="none" stroke="#FFD700" stroke-width="1.5"/>
-                    <path d="M 25 40 L 30 48 L 35 43" fill="none" stroke="#FFA500" stroke-width="1"/>
-                    <path d="M 78 38 L 70 52 L 62 42" fill="none" stroke="#FFD700" stroke-width="1.5"/>
-                    <path d="M 75 40 L 70 48 L 65 43" fill="none" stroke="#FFA500" stroke-width="1"/>
-                    <ellipse cx="38" cy="52" rx="8" ry="8" fill="none" stroke="#FFD700" stroke-width="1"/>
-                    <ellipse cx="62" cy="52" rx="8" ry="8" fill="none" stroke="#FFD700" stroke-width="1"/>
-                    <circle cx="38" cy="52" r="4" fill="#FFA500"/><circle cx="62" cy="52" r="4" fill="#FFA500"/>
-                    <circle cx="38" cy="52" r="2" fill="#fff"/><circle cx="62" cy="52" r="2" fill="#fff"/>
-                    <polygon points="50,60 46,66 54,66" fill="none" stroke="#FFD700" stroke-width="1"/>
-                    <path d="M 44 70 Q 47 73 50 70 Q 53 73 56 70" stroke="#FFA500" stroke-width="1" fill="none"/>
-                    <g stroke="#FFD700" stroke-width="0.8" opacity="0.7">
-                        <line x1="20" y1="55" x2="32" y2="58"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
-                        <line x1="18" y1="62" x2="32" y2="62"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></line>
-                        <line x1="68" y1="58" x2="80" y2="55"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
-                        <line x1="68" y1="62" x2="82" y2="62"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></line>
+                    <!-- 背景圆（与页面背景一致） -->
+                    <circle cx="50" cy="50" r="48" fill="#000510"/>
+                    
+                    <!-- 实心黄色猫咪 -->
+                    <!-- 脸部 -->
+                    <ellipse cx="50" cy="56" rx="26" ry="24" fill="#FFD54F"/>
+                    
+                    <!-- 左耳 -->
+                    <path d="M 24 42 L 32 55 L 40 44 Z" fill="#FFD54F"/>
+                    <path d="M 27 44 L 32 52 L 37 46 Z" fill="#FFAB40"/>
+                    
+                    <!-- 右耳 -->
+                    <path d="M 76 42 L 68 55 L 60 44 Z" fill="#FFD54F"/>
+                    <path d="M 73 44 L 68 52 L 63 46 Z" fill="#FFAB40"/>
+                    
+                    <!-- 眼睛 -->
+                    <ellipse cx="38" cy="52" rx="7" ry="8" fill="#fff"/>
+                    <ellipse cx="62" cy="52" rx="7" ry="8" fill="#fff"/>
+                    <circle cx="38" cy="52" r="4" fill="#333"/>
+                    <circle cx="62" cy="52" r="4" fill="#333"/>
+                    <circle cx="40" cy="50" r="2" fill="#fff"/>
+                    <circle cx="64" cy="50" r="2" fill="#fff"/>
+                    
+                    <!-- 鼻子 -->
+                    <ellipse cx="50" cy="62" rx="3" ry="2.5" fill="#FF8A65"/>
+                    
+                    <!-- 嘴巴 -->
+                    <path d="M 44 66 Q 47 70 50 66 Q 53 70 56 66" stroke="#FF8A65" stroke-width="1.5" fill="none"/>
+                    
+                    <!-- 胡须 -->
+                    <g stroke="#FFA726" stroke-width="1" opacity="0.8">
+                        <line x1="20" y1="56" x2="32" y2="58"/>
+                        <line x1="18" y1="62" x2="32" y2="62"/>
+                        <line x1="20" y1="68" x2="32" y2="66"/>
+                        <line x1="68" y1="58" x2="80" y2="56"/>
+                        <line x1="68" y1="62" x2="82" y2="62"/>
+                        <line x1="68" y1="66" x2="80" y2="68"/>
                     </g>
+                    
+                    <!-- 腮红 -->
+                    <circle cx="30" cy="60" r="4" fill="#FFAB91" opacity="0.5"/>
+                    <circle cx="70" cy="60" r="4" fill="#FFAB91" opacity="0.5"/>
                 </svg>
             </div>
             <span class="cat-avatar-label">ABOUT_ME</span>
@@ -840,12 +770,149 @@
         }
 
         // ========================================
+        // 科技感粒子（用于连接线）
+        // ========================================
+        const techParticles = [];
+        for (let i = 0; i < 30; i++) {
+            techParticles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                size: Math.random() * 2 + 1
+            });
+        }
+
+        // 绘制网格
+        function drawGrid() {
+            bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.03)';
+            bgCtx.lineWidth = 1;
+            const gridSize = 80;
+            for (let x = 0; x < width; x += gridSize) {
+                bgCtx.beginPath();
+                bgCtx.moveTo(x, 0);
+                bgCtx.lineTo(x, height);
+                bgCtx.stroke();
+            }
+            for (let y = 0; y < height; y += gridSize) {
+                bgCtx.beginPath();
+                bgCtx.moveTo(0, y);
+                bgCtx.lineTo(width, y);
+                bgCtx.stroke();
+            }
+        }
+
+        // 绘制六边形
+        function drawHexagons() {
+            const hexSize = 40;
+            const hexHeight = hexSize * Math.sqrt(3);
+            bgCtx.strokeStyle = 'rgba(0, 255, 136, 0.04)';
+            bgCtx.lineWidth = 1;
+            
+            for (let row = 0; row < height / hexHeight + 1; row++) {
+                for (let col = 0; col < width / (hexSize * 1.5) + 1; col++) {
+                    const x = col * hexSize * 1.5;
+                    const y = row * hexHeight + (col % 2 ? hexHeight / 2 : 0);
+                    
+                    bgCtx.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        const angle = Math.PI / 3 * i - Math.PI / 6;
+                        const px = x + hexSize * 0.4 * Math.cos(angle);
+                        const py = y + hexSize * 0.4 * Math.sin(angle);
+                        if (i === 0) bgCtx.moveTo(px, py);
+                        else bgCtx.lineTo(px, py);
+                    }
+                    bgCtx.closePath();
+                    bgCtx.stroke();
+                }
+            }
+        }
+
+        // 绘制粒子和连接线
+        function drawTechParticles() {
+            // 更新粒子位置
+            techParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+            });
+            
+            // 绘制连接线
+            bgCtx.lineWidth = 0.5;
+            for (let i = 0; i < techParticles.length; i++) {
+                for (let j = i + 1; j < techParticles.length; j++) {
+                    const dx = techParticles[i].x - techParticles[j].x;
+                    const dy = techParticles[i].y - techParticles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 200) {
+                        const alpha = (1 - dist / 200) * 0.15;
+                        bgCtx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(techParticles[i].x, techParticles[i].y);
+                        bgCtx.lineTo(techParticles[j].x, techParticles[j].y);
+                        bgCtx.stroke();
+                    }
+                }
+            }
+            
+            // 绘制粒子
+            techParticles.forEach(p => {
+                bgCtx.beginPath();
+                bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                bgCtx.fillStyle = 'rgba(0, 255, 136, 0.3)';
+                bgCtx.fill();
+            });
+        }
+
+        // 绘制电路线条
+        let circuitTime = 0;
+        function drawCircuits() {
+            circuitTime += 0.02;
+            bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.06)';
+            bgCtx.lineWidth = 1;
+            
+            // 从四角向中心的电路线
+            const corners = [
+                { x: 0, y: 0 },
+                { x: width, y: 0 },
+                { x: 0, y: height },
+                { x: width, y: height }
+            ];
+            
+            corners.forEach((corner, idx) => {
+                const progress = (Math.sin(circuitTime + idx) + 1) / 2;
+                const cx = width / 2, cy = height / 2;
+                
+                bgCtx.beginPath();
+                bgCtx.moveTo(corner.x, corner.y);
+                const midX = corner.x + (cx - corner.x) * 0.3;
+                const midY = corner.y + (cy - corner.y) * 0.3;
+                bgCtx.lineTo(midX, corner.y);
+                bgCtx.lineTo(midX, midY);
+                bgCtx.stroke();
+                
+                // 流动的点
+                const dotX = corner.x + (midX - corner.x) * progress;
+                bgCtx.beginPath();
+                bgCtx.arc(dotX, corner.y, 2, 0, Math.PI * 2);
+                bgCtx.fillStyle = 'rgba(0, 255, 136, 0.5)';
+                bgCtx.fill();
+            });
+        }
+
+        // ========================================
         // 背景动画
         // ========================================
         function animateBg() {
             bgCtx.fillStyle = 'rgba(0, 5, 16, 0.12)';
             bgCtx.fillRect(0, 0, width, height);
 
+            // 绘制科技感背景元素
+            drawGrid();
+            drawHexagons();
+            drawTechParticles();
+            drawCircuits();
             drawCodeRain();
             
             requestAnimationFrame(animateBg);
@@ -935,26 +1002,28 @@
 
         function startLearning() { window.location.href = 'guide.html'; }
 
-        // 猫咪游走
+        // 猫咪游走（慢速漂浮）
         const catAvatar = document.getElementById('catAvatar');
-        let catX = window.innerWidth - 140, catY = 120, catTargetX = catX, catTargetY = catY, isHovered = false;
+        let catX = window.innerWidth - 100, catY = 80, catTargetX = catX, catTargetY = catY, isHovered = false;
 
         catAvatar.addEventListener('mouseenter', () => { isHovered = true; });
         catAvatar.addEventListener('mouseleave', () => { isHovered = false; });
 
         function updateCatPosition() {
             if (!isHovered) {
-                if (Math.random() < 0.008) {
-                    const margin = 120, side = Math.floor(Math.random() * 4);
+                // 更低的概率改变目标位置
+                if (Math.random() < 0.002) {
+                    const margin = 80, side = Math.floor(Math.random() * 4);
                     switch(side) {
                         case 0: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = margin; break;
                         case 1: catTargetX = window.innerWidth - margin; catTargetY = margin + Math.random() * (window.innerHeight - margin * 2); break;
-                        case 2: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = window.innerHeight - margin - 120; break;
+                        case 2: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = window.innerHeight - margin - 80; break;
                         case 3: catTargetX = margin; catTargetY = margin + Math.random() * (window.innerHeight - margin * 2); break;
                     }
                 }
-                catX += (catTargetX - catX) * 0.02;
-                catY += (catTargetY - catY) * 0.02;
+                // 更慢的移动速度
+                catX += (catTargetX - catX) * 0.005;
+                catY += (catTargetY - catY) * 0.005;
                 catAvatar.style.left = catX + 'px';
                 catAvatar.style.top = catY + 'px';
             }
