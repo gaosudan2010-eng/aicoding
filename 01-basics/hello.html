@@ -456,7 +456,7 @@
         .cat-avatar-ring {
             position: absolute;
             top: -12px; left: -12px; right: -12px; bottom: -12px;
-            border: 1px solid rgba(0, 212, 255, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             border-radius: 50%;
             animation: rotate 8s linear infinite;
         }
@@ -467,9 +467,9 @@
             position: absolute;
             width: 6px;
             height: 6px;
-            background: var(--cyan);
+            background: #FFD700;
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--cyan);
+            box-shadow: 0 0 10px #FFD700;
         }
 
         .cat-avatar-ring::before { top: -3px; left: 50%; transform: translateX(-50%); }
@@ -478,7 +478,7 @@
         .cat-avatar-ring-inner {
             position: absolute;
             top: -6px; left: -6px; right: -6px; bottom: -6px;
-            border: 1px dashed rgba(0, 255, 136, 0.4);
+            border: 1px dashed rgba(255, 165, 0, 0.4);
             border-radius: 50%;
             animation: rotateReverse 12s linear infinite;
         }
@@ -491,10 +491,10 @@
             height: 100px;
             border-radius: 50%;
             overflow: hidden;
-            border: 2px solid rgba(0, 212, 255, 0.8);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            border: 2px solid rgba(255, 215, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
             transition: all 0.3s ease;
-            background: linear-gradient(135deg, #0a1628, #0d2040);
+            background: linear-gradient(135deg, #1a1400, #2a2000);
             position: relative;
         }
 
@@ -503,7 +503,7 @@
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
             animation: scanline 2s linear infinite;
             z-index: 10;
         }
@@ -518,14 +518,14 @@
             left: 50%;
             transform: translateX(-50%);
             font-size: 0.7rem;
-            color: var(--cyan);
+            color: #FFD700;
             font-family: 'SF Mono', Monaco, monospace;
             white-space: nowrap;
             opacity: 0;
             transition: all 0.3s;
             padding: 4px 12px;
-            background: rgba(0, 20, 40, 0.9);
-            border: 1px solid rgba(0, 212, 255, 0.5);
+            background: rgba(26, 20, 0, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.5);
         }
 
         .cat-avatar-label::before { content: '>'; margin-right: 6px; animation: blink 1s step-end infinite; }
@@ -538,23 +538,23 @@
             right: 5px;
             width: 12px;
             height: 12px;
-            background: var(--green);
+            background: #FFA500;
             border-radius: 50%;
-            border: 2px solid #0a1628;
-            box-shadow: 0 0 10px var(--green);
+            border: 2px solid #1a1400;
+            box-shadow: 0 0 10px #FFA500;
             animation: statusPulse 2s ease-in-out infinite;
             z-index: 20;
         }
 
         @keyframes statusPulse {
-            0%, 100% { box-shadow: 0 0 5px var(--green); }
-            50% { box-shadow: 0 0 15px var(--green), 0 0 25px var(--green); }
+            0%, 100% { box-shadow: 0 0 5px #FFA500; }
+            50% { box-shadow: 0 0 15px #FFA500, 0 0 25px #FFA500; }
         }
 
         .cat-avatar-link:hover .cat-avatar-label { opacity: 1; bottom: -45px; }
         .cat-avatar-link:hover .cat-avatar {
             transform: scale(1.08);
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
         }
 
         @media (max-width: 768px) {
@@ -580,32 +580,32 @@
     <div class="cursor" id="cursor"></div>
     <div class="cursor-dot" id="cursorDot"></div>
 
-    <!-- 猫咪头像 -->
+    <!-- 猫咪头像（黄色科技风格） -->
     <a href="about-me.html" class="cat-avatar-link" id="catAvatar">
         <div class="cat-avatar-container">
             <div class="hex-frame">
-                <svg viewBox="0 0 100 100"><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.5"/></svg>
+                <svg viewBox="0 0 100 100"><polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" fill="none" stroke="#FFD700" stroke-width="0.5" opacity="0.5"/></svg>
             </div>
             <div class="cat-avatar-ring"></div>
             <div class="cat-avatar-ring-inner"></div>
             <div class="avatar-status"></div>
             <div class="cat-avatar">
                 <svg viewBox="0 0 100 100">
-                    <defs><linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0a1628"/><stop offset="100%" style="stop-color:#1a3050"/></linearGradient></defs>
+                    <defs><linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1a1400"/><stop offset="100%" style="stop-color:#2a2000"/></linearGradient></defs>
                     <circle cx="50" cy="50" r="48" fill="url(#techGrad)"/>
-                    <g stroke="#00d4ff" stroke-width="0.3" opacity="0.15"><line x1="10" y1="25" x2="90" y2="25"/><line x1="10" y1="50" x2="90" y2="50"/><line x1="10" y1="75" x2="90" y2="75"/><line x1="25" y1="10" x2="25" y2="90"/><line x1="50" y1="10" x2="50" y2="90"/><line x1="75" y1="10" x2="75" y2="90"/></g>
-                    <ellipse cx="50" cy="55" rx="28" ry="26" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.8"/>
-                    <path d="M 22 38 L 30 52 L 38 42" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-                    <path d="M 25 40 L 30 48 L 35 43" fill="none" stroke="#00ff88" stroke-width="1"/>
-                    <path d="M 78 38 L 70 52 L 62 42" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-                    <path d="M 75 40 L 70 48 L 65 43" fill="none" stroke="#00ff88" stroke-width="1"/>
-                    <ellipse cx="38" cy="52" rx="8" ry="8" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                    <ellipse cx="62" cy="52" rx="8" ry="8" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                    <circle cx="38" cy="52" r="4" fill="#00ff88"/><circle cx="62" cy="52" r="4" fill="#00ff88"/>
+                    <g stroke="#FFD700" stroke-width="0.3" opacity="0.2"><line x1="10" y1="25" x2="90" y2="25"/><line x1="10" y1="50" x2="90" y2="50"/><line x1="10" y1="75" x2="90" y2="75"/><line x1="25" y1="10" x2="25" y2="90"/><line x1="50" y1="10" x2="50" y2="90"/><line x1="75" y1="10" x2="75" y2="90"/></g>
+                    <ellipse cx="50" cy="55" rx="28" ry="26" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.8"/>
+                    <path d="M 22 38 L 30 52 L 38 42" fill="none" stroke="#FFD700" stroke-width="1.5"/>
+                    <path d="M 25 40 L 30 48 L 35 43" fill="none" stroke="#FFA500" stroke-width="1"/>
+                    <path d="M 78 38 L 70 52 L 62 42" fill="none" stroke="#FFD700" stroke-width="1.5"/>
+                    <path d="M 75 40 L 70 48 L 65 43" fill="none" stroke="#FFA500" stroke-width="1"/>
+                    <ellipse cx="38" cy="52" rx="8" ry="8" fill="none" stroke="#FFD700" stroke-width="1"/>
+                    <ellipse cx="62" cy="52" rx="8" ry="8" fill="none" stroke="#FFD700" stroke-width="1"/>
+                    <circle cx="38" cy="52" r="4" fill="#FFA500"/><circle cx="62" cy="52" r="4" fill="#FFA500"/>
                     <circle cx="38" cy="52" r="2" fill="#fff"/><circle cx="62" cy="52" r="2" fill="#fff"/>
-                    <polygon points="50,60 46,66 54,66" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                    <path d="M 44 70 Q 47 73 50 70 Q 53 73 56 70" stroke="#00ff88" stroke-width="1" fill="none"/>
-                    <g stroke="#00d4ff" stroke-width="0.8" opacity="0.7">
+                    <polygon points="50,60 46,66 54,66" fill="none" stroke="#FFD700" stroke-width="1"/>
+                    <path d="M 44 70 Q 47 73 50 70 Q 53 73 56 70" stroke="#FFA500" stroke-width="1" fill="none"/>
+                    <g stroke="#FFD700" stroke-width="0.8" opacity="0.7">
                         <line x1="20" y1="55" x2="32" y2="58"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
                         <line x1="18" y1="62" x2="32" y2="62"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></line>
                         <line x1="68" y1="58" x2="80" y2="55"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
