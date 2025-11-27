@@ -28,6 +28,104 @@
             cursor: none;
         }
 
+        /* 科技感静态背景 */
+        .tech-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            /* 网格背景 - 更明显 */
+            background-image: 
+                /* 主网格 */
+                linear-gradient(rgba(0, 212, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.15) 1px, transparent 1px),
+                /* 细网格 */
+                linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+            background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+        }
+        
+        /* 中心放射渐变 */
+        .tech-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 5, 16, 0.8) 70%);
+        }
+
+        /* 角落装饰 */
+        .corner-decor {
+            position: fixed;
+            width: 150px;
+            height: 150px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .corner-decor::before,
+        .corner-decor::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 212, 255, 0.3);
+        }
+        .corner-top-left { top: 0; left: 0; }
+        .corner-top-left::before { top: 0; left: 0; width: 80px; height: 2px; }
+        .corner-top-left::after { top: 0; left: 0; width: 2px; height: 80px; }
+        .corner-top-right { top: 0; right: 0; }
+        .corner-top-right::before { top: 0; right: 0; width: 80px; height: 2px; }
+        .corner-top-right::after { top: 0; right: 0; width: 2px; height: 80px; }
+        .corner-bottom-left { bottom: 0; left: 0; }
+        .corner-bottom-left::before { bottom: 0; left: 0; width: 80px; height: 2px; }
+        .corner-bottom-left::after { bottom: 0; left: 0; width: 2px; height: 80px; }
+        .corner-bottom-right { bottom: 0; right: 0; }
+        .corner-bottom-right::before { bottom: 0; right: 0; width: 80px; height: 2px; }
+        .corner-bottom-right::after { bottom: 0; right: 0; width: 2px; height: 80px; }
+
+        /* 发光粒子动画 */
+        .glow-particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--green), 0 0 20px var(--green);
+            z-index: 2;
+            pointer-events: none;
+            animation: float-particle 15s infinite ease-in-out;
+        }
+        .glow-particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .glow-particle:nth-child(2) { top: 60%; left: 85%; animation-delay: -3s; }
+        .glow-particle:nth-child(3) { top: 80%; left: 30%; animation-delay: -6s; }
+        .glow-particle:nth-child(4) { top: 30%; left: 70%; animation-delay: -9s; }
+        .glow-particle:nth-child(5) { top: 50%; left: 50%; animation-delay: -12s; }
+
+        @keyframes float-particle {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+            25% { transform: translate(30px, -20px) scale(1.2); opacity: 1; }
+            50% { transform: translate(-20px, -40px) scale(0.8); opacity: 0.6; }
+            75% { transform: translate(40px, -10px) scale(1.1); opacity: 1; }
+        }
+
+        /* 边缘发光线 */
+        .edge-glow {
+            position: fixed;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .edge-glow-top {
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            animation: edge-pulse 3s ease-in-out infinite;
+        }
+        .edge-glow-bottom {
+            bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+            animation: edge-pulse 3s ease-in-out infinite 1.5s;
+        }
+        @keyframes edge-pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
         /* 背景画布 */
         #bgCanvas {
             position: fixed;
@@ -488,6 +586,27 @@
     <canvas id="bgCanvas"></canvas>
     <!-- 鼠标轨迹画布 -->
     <canvas id="trailCanvas"></canvas>
+    
+    <!-- 科技感静态背景 -->
+    <div class="tech-bg"></div>
+    
+    <!-- 角落装饰 -->
+    <div class="corner-decor corner-top-left"></div>
+    <div class="corner-decor corner-top-right"></div>
+    <div class="corner-decor corner-bottom-left"></div>
+    <div class="corner-decor corner-bottom-right"></div>
+    
+    <!-- 边缘发光线 -->
+    <div class="edge-glow edge-glow-top"></div>
+    <div class="edge-glow edge-glow-bottom"></div>
+    
+    <!-- 发光粒子 -->
+    <div class="glow-particle"></div>
+    <div class="glow-particle"></div>
+    <div class="glow-particle"></div>
+    <div class="glow-particle"></div>
+    <div class="glow-particle"></div>
+    
     <!-- 扫描线 -->
     <div class="scanlines"></div>
     <!-- 自定义光标 -->
@@ -783,11 +902,12 @@
             });
         }
 
-        // 绘制网格
+        // 绘制网格（更明显）
         function drawGrid() {
-            bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.03)';
+            // 主网格
+            bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.08)';
             bgCtx.lineWidth = 1;
-            const gridSize = 80;
+            const gridSize = 60;
             for (let x = 0; x < width; x += gridSize) {
                 bgCtx.beginPath();
                 bgCtx.moveTo(x, 0);
@@ -800,25 +920,42 @@
                 bgCtx.lineTo(width, y);
                 bgCtx.stroke();
             }
+            
+            // 网格交叉点发光
+            bgCtx.fillStyle = 'rgba(0, 212, 255, 0.15)';
+            for (let x = 0; x < width; x += gridSize) {
+                for (let y = 0; y < height; y += gridSize) {
+                    bgCtx.beginPath();
+                    bgCtx.arc(x, y, 2, 0, Math.PI * 2);
+                    bgCtx.fill();
+                }
+            }
         }
 
-        // 绘制六边形
+        // 绘制六边形（更大更亮）
+        let hexTime = 0;
         function drawHexagons() {
-            const hexSize = 40;
+            hexTime += 0.01;
+            const hexSize = 80;
             const hexHeight = hexSize * Math.sqrt(3);
-            bgCtx.strokeStyle = 'rgba(0, 255, 136, 0.04)';
-            bgCtx.lineWidth = 1;
             
             for (let row = 0; row < height / hexHeight + 1; row++) {
                 for (let col = 0; col < width / (hexSize * 1.5) + 1; col++) {
                     const x = col * hexSize * 1.5;
                     const y = row * hexHeight + (col % 2 ? hexHeight / 2 : 0);
                     
+                    // 随机闪烁
+                    const flicker = Math.sin(hexTime + row * 0.5 + col * 0.3) * 0.5 + 0.5;
+                    const alpha = 0.03 + flicker * 0.08;
+                    
+                    bgCtx.strokeStyle = `rgba(0, 255, 136, ${alpha})`;
+                    bgCtx.lineWidth = 1;
+                    
                     bgCtx.beginPath();
                     for (let i = 0; i < 6; i++) {
                         const angle = Math.PI / 3 * i - Math.PI / 6;
-                        const px = x + hexSize * 0.4 * Math.cos(angle);
-                        const py = y + hexSize * 0.4 * Math.sin(angle);
+                        const px = x + hexSize * 0.35 * Math.cos(angle);
+                        const py = y + hexSize * 0.35 * Math.sin(angle);
                         if (i === 0) bgCtx.moveTo(px, py);
                         else bgCtx.lineTo(px, py);
                     }
@@ -828,7 +965,7 @@
             }
         }
 
-        // 绘制粒子和连接线
+        // 绘制粒子和连接线（更明显）
         function drawTechParticles() {
             // 更新粒子位置
             techParticles.forEach(p => {
@@ -839,14 +976,14 @@
             });
             
             // 绘制连接线
-            bgCtx.lineWidth = 0.5;
+            bgCtx.lineWidth = 1;
             for (let i = 0; i < techParticles.length; i++) {
                 for (let j = i + 1; j < techParticles.length; j++) {
                     const dx = techParticles[i].x - techParticles[j].x;
                     const dy = techParticles[i].y - techParticles[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 200) {
-                        const alpha = (1 - dist / 200) * 0.15;
+                    if (dist < 250) {
+                        const alpha = (1 - dist / 250) * 0.4;
                         bgCtx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
                         bgCtx.beginPath();
                         bgCtx.moveTo(techParticles[i].x, techParticles[i].y);
@@ -856,49 +993,110 @@
                 }
             }
             
-            // 绘制粒子
+            // 绘制粒子（更大更亮）
             techParticles.forEach(p => {
+                // 外圈光晕
+                const gradient = bgCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+                gradient.addColorStop(0, 'rgba(0, 255, 136, 0.5)');
+                gradient.addColorStop(0.5, 'rgba(0, 212, 255, 0.2)');
+                gradient.addColorStop(1, 'transparent');
+                bgCtx.fillStyle = gradient;
+                bgCtx.beginPath();
+                bgCtx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+                bgCtx.fill();
+                
+                // 核心点
                 bgCtx.beginPath();
                 bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                bgCtx.fillStyle = 'rgba(0, 255, 136, 0.3)';
+                bgCtx.fillStyle = 'rgba(0, 255, 136, 0.8)';
                 bgCtx.fill();
             });
         }
 
-        // 绘制电路线条
+        // 绘制电路线条（更明显）
         let circuitTime = 0;
         function drawCircuits() {
             circuitTime += 0.02;
-            bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.06)';
+            
+            // 四角电路装饰
+            const cornerSize = 150;
+            bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.2)';
             bgCtx.lineWidth = 1;
             
-            // 从四角向中心的电路线
-            const corners = [
-                { x: 0, y: 0 },
-                { x: width, y: 0 },
-                { x: 0, y: height },
-                { x: width, y: height }
-            ];
+            // 左上角
+            bgCtx.beginPath();
+            bgCtx.moveTo(0, cornerSize);
+            bgCtx.lineTo(0, 30);
+            bgCtx.lineTo(30, 0);
+            bgCtx.lineTo(cornerSize, 0);
+            bgCtx.stroke();
             
-            corners.forEach((corner, idx) => {
-                const progress = (Math.sin(circuitTime + idx) + 1) / 2;
-                const cx = width / 2, cy = height / 2;
-                
-                bgCtx.beginPath();
-                bgCtx.moveTo(corner.x, corner.y);
-                const midX = corner.x + (cx - corner.x) * 0.3;
-                const midY = corner.y + (cy - corner.y) * 0.3;
-                bgCtx.lineTo(midX, corner.y);
-                bgCtx.lineTo(midX, midY);
-                bgCtx.stroke();
-                
-                // 流动的点
-                const dotX = corner.x + (midX - corner.x) * progress;
-                bgCtx.beginPath();
-                bgCtx.arc(dotX, corner.y, 2, 0, Math.PI * 2);
-                bgCtx.fillStyle = 'rgba(0, 255, 136, 0.5)';
-                bgCtx.fill();
-            });
+            // 右上角
+            bgCtx.beginPath();
+            bgCtx.moveTo(width - cornerSize, 0);
+            bgCtx.lineTo(width - 30, 0);
+            bgCtx.lineTo(width, 30);
+            bgCtx.lineTo(width, cornerSize);
+            bgCtx.stroke();
+            
+            // 左下角
+            bgCtx.beginPath();
+            bgCtx.moveTo(0, height - cornerSize);
+            bgCtx.lineTo(0, height - 30);
+            bgCtx.lineTo(30, height);
+            bgCtx.lineTo(cornerSize, height);
+            bgCtx.stroke();
+            
+            // 右下角
+            bgCtx.beginPath();
+            bgCtx.moveTo(width - cornerSize, height);
+            bgCtx.lineTo(width - 30, height);
+            bgCtx.lineTo(width, height - 30);
+            bgCtx.lineTo(width, height - cornerSize);
+            bgCtx.stroke();
+            
+            // 流动的数据点
+            const flowProgress = (circuitTime % (Math.PI * 2)) / (Math.PI * 2);
+            bgCtx.fillStyle = 'rgba(0, 255, 136, 0.8)';
+            
+            // 顶部流动
+            const topX = flowProgress * width;
+            bgCtx.beginPath();
+            bgCtx.arc(topX, 0, 3, 0, Math.PI * 2);
+            bgCtx.fill();
+            
+            // 底部流动（反向）
+            const bottomX = (1 - flowProgress) * width;
+            bgCtx.beginPath();
+            bgCtx.arc(bottomX, height, 3, 0, Math.PI * 2);
+            bgCtx.fill();
+            
+            // 左边流动
+            const leftY = flowProgress * height;
+            bgCtx.beginPath();
+            bgCtx.arc(0, leftY, 3, 0, Math.PI * 2);
+            bgCtx.fill();
+            
+            // 右边流动（反向）
+            const rightY = (1 - flowProgress) * height;
+            bgCtx.beginPath();
+            bgCtx.arc(width, rightY, 3, 0, Math.PI * 2);
+            bgCtx.fill();
+        }
+        
+        // 绘制扫描线效果
+        let scanY = 0;
+        function drawScanLine() {
+            scanY += 1.5;
+            if (scanY > height) scanY = 0;
+            
+            const gradient = bgCtx.createLinearGradient(0, scanY - 50, 0, scanY + 50);
+            gradient.addColorStop(0, 'transparent');
+            gradient.addColorStop(0.5, 'rgba(0, 212, 255, 0.08)');
+            gradient.addColorStop(1, 'transparent');
+            
+            bgCtx.fillStyle = gradient;
+            bgCtx.fillRect(0, scanY - 50, width, 100);
         }
 
         // ========================================
@@ -913,6 +1111,7 @@
             drawHexagons();
             drawTechParticles();
             drawCircuits();
+            drawScanLine();
             drawCodeRain();
             
             requestAnimationFrame(animateBg);
