@@ -6,10 +6,16 @@
     <title>Hello AI Coding</title>
     <style>
         /* ========== 全局重置 ========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ========== 颜色变量 ========== */
+        :root {
+            --gold: #FFD700;
+            --gold-light: #FFEB3B;
+            --gold-dark: #FFA000;
+            --orange: #FF8C00;
+            --cyan: #00CED1;
+            --bg-dark: #0a0a0f;
         }
 
         /* ========== 页面主体样式 ========== */
@@ -19,15 +25,15 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            background: #000;
+            background: var(--bg-dark);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #fff;
             overflow-x: hidden;
             overflow-y: auto;
-            padding: 0;
+            cursor: crosshair;
         }
 
-        /* ========== 背景画布 ========== */
+        /* ========== 3D宇宙背景画布 ========== */
         #universe {
             position: fixed;
             top: 0;
@@ -40,20 +46,30 @@
         /* ========== 扫描线效果 ========== */
         .scanlines {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             z-index: 5;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 0, 0, 0.1) 0px,
-                rgba(0, 0, 0, 0.1) 1px,
+                rgba(0, 0, 0, 0.08) 0px,
+                rgba(0, 0, 0, 0.08) 1px,
                 transparent 1px,
                 transparent 3px
             );
-            opacity: 0.3;
+            opacity: 0.4;
+        }
+
+        /* ========== 鼠标光晕跟随 ========== */
+        .mouse-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 2;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s;
         }
 
         /* ========== 内容容器 ========== */
@@ -83,7 +99,7 @@
         .portfolio-title {
             font-size: 1.8rem;
             font-weight: 600;
-            color: #00d4ff;
+            color: var(--gold);
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
@@ -96,16 +112,16 @@
             content: '';
             width: 60px;
             height: 1px;
-            background: linear-gradient(90deg, transparent, #00d4ff);
+            background: linear-gradient(90deg, transparent, var(--gold));
         }
 
         .portfolio-title::after {
-            background: linear-gradient(90deg, #00d4ff, transparent);
+            background: linear-gradient(90deg, var(--gold), transparent);
         }
 
         .portfolio-subtitle {
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 215, 0, 0.5);
             font-family: 'SF Mono', Monaco, monospace;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -120,8 +136,8 @@
 
         /* ========== 作品卡片 ========== */
         .project-card {
-            background: rgba(0, 20, 40, 0.6);
-            border: 1px solid rgba(0, 212, 255, 0.2);
+            background: rgba(20, 15, 5, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.2);
             backdrop-filter: blur(10px);
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -133,11 +149,9 @@
         .project-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #00d4ff, #00ff88, #00d4ff);
+            background: linear-gradient(90deg, var(--gold), var(--orange), var(--gold));
             background-size: 200% 100%;
             animation: gradientMove 3s ease infinite;
             opacity: 0;
@@ -151,20 +165,17 @@
 
         .project-card:hover {
             transform: translateY(-8px);
-            border-color: rgba(0, 212, 255, 0.5);
-            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15),
-                        0 0 60px rgba(0, 212, 255, 0.1);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15),
+                        0 0 60px rgba(255, 215, 0, 0.1);
         }
 
-        .project-card:hover::before {
-            opacity: 1;
-        }
+        .project-card:hover::before { opacity: 1; }
 
-        /* 卡片预览图 */
         .project-preview {
             width: 100%;
             height: 200px;
-            background: linear-gradient(135deg, #0a0a1a, #1a1a3a);
+            background: linear-gradient(135deg, #0a0a15, #15150a);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -182,11 +193,8 @@
             transition: transform 0.4s;
         }
 
-        .project-card:hover .project-preview-inner {
-            transform: scale(1.02);
-        }
+        .project-card:hover .project-preview-inner { transform: scale(1.02); }
 
-        /* 截图预览样式 */
         .preview-screenshot {
             width: 100%;
             height: 100%;
@@ -195,39 +203,29 @@
             transition: transform 0.4s;
         }
 
-        .project-card:hover .preview-screenshot {
-            transform: scale(1.05);
-        }
+        .project-card:hover .preview-screenshot { transform: scale(1.05); }
 
-        /* 科技装饰角 */
         .project-preview::before,
         .project-preview::after {
             content: '';
             position: absolute;
             width: 30px;
             height: 30px;
-            border: 2px solid rgba(0, 212, 255, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.3);
             z-index: 2;
         }
 
         .project-preview::before {
-            top: 10px;
-            left: 10px;
-            border-right: none;
-            border-bottom: none;
+            top: 10px; left: 10px;
+            border-right: none; border-bottom: none;
         }
 
         .project-preview::after {
-            bottom: 10px;
-            right: 10px;
-            border-left: none;
-            border-top: none;
+            bottom: 10px; right: 10px;
+            border-left: none; border-top: none;
         }
 
-        /* 项目信息 */
-        .project-info {
-            padding: 1.5rem;
-        }
+        .project-info { padding: 1.5rem; }
 
         .project-tags {
             display: flex;
@@ -239,9 +237,9 @@
         .project-tag {
             font-size: 0.7rem;
             padding: 0.3rem 0.6rem;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            color: #00d4ff;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: var(--gold);
             font-family: 'SF Mono', Monaco, monospace;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -260,7 +258,7 @@
         .project-name svg {
             width: 20px;
             height: 20px;
-            color: #00d4ff;
+            color: var(--gold);
         }
 
         .project-desc {
@@ -279,35 +277,30 @@
         .project-feature {
             font-size: 0.7rem;
             padding: 0.25rem 0.5rem;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            color: var(--orange);
             border-radius: 4px;
         }
 
-        /* 查看链接 */
         .project-link {
             padding: 1rem 1.5rem;
-            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            color: #00d4ff;
+            color: var(--gold);
             font-size: 0.85rem;
             font-family: 'SF Mono', Monaco, monospace;
         }
 
         .project-link svg {
-            width: 16px;
-            height: 16px;
+            width: 16px; height: 16px;
             transition: transform 0.3s;
         }
 
-        .project-card:hover .project-link svg {
-            transform: translateX(5px);
-        }
+        .project-card:hover .project-link svg { transform: translateX(5px); }
 
-        /* 占位卡片 */
         .project-card-placeholder {
             display: flex;
             flex-direction: column;
@@ -319,7 +312,7 @@
 
         .placeholder-icon {
             font-size: 3rem;
-            color: rgba(0, 212, 255, 0.3);
+            color: rgba(255, 215, 0, 0.3);
             margin-bottom: 1rem;
         }
 
@@ -337,8 +330,8 @@
 
         /* ========== 科技边框容器 ========== */
         .tech-container {
-            background: rgba(0, 20, 40, 0.6);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(20, 15, 5, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             padding: 3rem;
             position: relative;
             backdrop-filter: blur(10px);
@@ -348,23 +341,19 @@
         .tech-container::after {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #00d4ff;
+            width: 25px;
+            height: 25px;
+            border: 2px solid var(--gold);
         }
 
         .tech-container::before {
-            top: -1px;
-            left: -1px;
-            border-right: none;
-            border-bottom: none;
+            top: -1px; left: -1px;
+            border-right: none; border-bottom: none;
         }
 
         .tech-container::after {
-            bottom: -1px;
-            right: -1px;
-            border-left: none;
-            border-top: none;
+            bottom: -1px; right: -1px;
+            border-left: none; border-top: none;
         }
 
         /* ========== 系统状态指示器 ========== */
@@ -375,7 +364,7 @@
             margin-bottom: 1rem;
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 0.75rem;
-            color: #00ff88;
+            color: var(--orange);
             text-transform: uppercase;
             letter-spacing: 2px;
         }
@@ -383,14 +372,14 @@
         .status-dot {
             width: 8px;
             height: 8px;
-            background: #00ff88;
+            background: var(--orange);
             border-radius: 50%;
-            animation: blink 2s ease-in-out infinite;
+            animation: statusBlink 2s ease-in-out infinite;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        @keyframes statusBlink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--orange); }
+            50% { opacity: 0.4; box-shadow: none; }
         }
 
         /* ========== 主标题 ========== */
@@ -398,32 +387,31 @@
             font-size: 3.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            background: linear-gradient(90deg, #00d4ff, #00ff88, #00d4ff);
-            background-size: 200% auto;
+            background: linear-gradient(90deg, var(--gold), var(--orange), var(--gold-light), var(--gold));
+            background-size: 300% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: gradient 4s ease infinite;
+            animation: titleGlow 5s ease infinite;
             letter-spacing: 2px;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
         }
 
-        @keyframes gradient {
+        @keyframes titleGlow {
             0%, 100% { background-position: 0% center; }
-            50% { background-position: 200% center; }
+            50% { background-position: 100% center; }
         }
 
-        /* ========== 副标题 ========== */
         .subtitle {
             font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.7);
             margin-bottom: 1.5rem;
         }
 
-        /* ========== 时间显示 ========== */
         .time-display {
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 1rem;
-            color: rgba(0, 212, 255, 0.8);
+            color: rgba(255, 215, 0, 0.8);
             margin-bottom: 2rem;
             letter-spacing: 1px;
         }
@@ -434,7 +422,7 @@
             font-size: 1rem;
             font-weight: 600;
             color: #000;
-            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            background: linear-gradient(90deg, var(--gold), var(--orange));
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -457,27 +445,24 @@
         }
 
         .btn-start:hover {
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5),
-                        0 0 60px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5),
+                        0 0 60px rgba(255, 140, 0, 0.3);
             transform: translateY(-2px);
         }
 
-        .btn-start:hover::before {
-            left: 100%;
-        }
+        .btn-start:hover::before { left: 100%; }
 
-        /* ========== 提示文字 ========== */
         .hint {
             position: relative;
             z-index: 10;
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 215, 0, 0.4);
             font-family: 'SF Mono', Monaco, monospace;
             letter-spacing: 2px;
             margin-top: 3rem;
         }
 
-        /* ========== 科技感头像入口 ========== */
+        /* ========== 黄色科技猫咪头像入口 ========== */
         .cat-avatar-link {
             position: fixed;
             z-index: 100;
@@ -486,24 +471,31 @@
             transition: all 0.3s ease;
         }
 
-        .cat-avatar-link.hovered {
-            /* 悬停时停止移动 */
-        }
-
         .cat-avatar-container {
             position: relative;
             width: 100px;
             height: 100px;
         }
 
-        /* 外圈旋转轨道 */
+        .hex-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            animation: hexPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes hexPulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.05); }
+        }
+
         .cat-avatar-ring {
             position: absolute;
-            top: -12px;
-            left: -12px;
-            right: -12px;
-            bottom: -12px;
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            top: -12px; left: -12px; right: -12px; bottom: -12px;
+            border: 1px solid rgba(255, 215, 0, 0.4);
             border-radius: 50%;
             animation: rotate 8s linear infinite;
         }
@@ -514,9 +506,9 @@
             position: absolute;
             width: 6px;
             height: 6px;
-            background: #00d4ff;
+            background: var(--gold);
             border-radius: 50%;
-            box-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff;
+            box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
         }
 
         .cat-avatar-ring::before {
@@ -531,73 +523,37 @@
             transform: translateX(-50%);
         }
 
-        /* 内圈反向旋转 */
         .cat-avatar-ring-inner {
             position: absolute;
-            top: -6px;
-            left: -6px;
-            right: -6px;
-            bottom: -6px;
-            border: 1px dashed rgba(0, 255, 136, 0.4);
+            top: -6px; left: -6px; right: -6px; bottom: -6px;
+            border: 1px dashed rgba(255, 140, 0, 0.4);
             border-radius: 50%;
             animation: rotateReverse 12s linear infinite;
         }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes rotateReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
-        @keyframes rotateReverse {
-            from { transform: rotate(360deg); }
-            to { transform: rotate(0deg); }
-        }
-
-        /* 六边形框架 */
-        .hex-frame {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 110px;
-            height: 110px;
-        }
-
-        .hex-frame svg {
-            width: 100%;
-            height: 100%;
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.05); }
-        }
-
-        /* 头像主体 */
         .cat-avatar {
             width: 100px;
             height: 100px;
             border-radius: 50%;
             overflow: hidden;
-            border: 2px solid rgba(0, 212, 255, 0.8);
+            border: 2px solid rgba(255, 215, 0, 0.8);
             box-shadow: 
-                0 0 20px rgba(0, 212, 255, 0.4),
-                inset 0 0 30px rgba(0, 212, 255, 0.1);
+                0 0 20px rgba(255, 215, 0, 0.4),
+                inset 0 0 30px rgba(255, 215, 0, 0.1);
             transition: all 0.3s ease;
-            background: linear-gradient(135deg, #0a1628, #0d2040);
+            background: linear-gradient(135deg, #1a1508, #0f0a02);
             position: relative;
         }
 
-        /* 扫描线效果 */
         .cat-avatar::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
             animation: scanline 2s linear infinite;
             z-index: 10;
         }
@@ -607,43 +563,15 @@
             100% { top: 100%; opacity: 0; }
         }
 
-        /* 全息闪烁效果 */
-        .cat-avatar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-                135deg,
-                rgba(0, 212, 255, 0.1) 0%,
-                transparent 50%,
-                rgba(0, 255, 136, 0.1) 100%
-            );
-            animation: hologram 4s ease-in-out infinite;
-        }
+        .cat-avatar svg { width: 100%; height: 100%; }
 
-        @keyframes hologram {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.7; }
-        }
-
-        .cat-avatar svg {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            z-index: 5;
-        }
-
-        /* 数据标签 */
         .cat-avatar-label {
             position: absolute;
             bottom: -40px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 0.7rem;
-            color: #00d4ff;
+            color: var(--gold);
             font-family: 'SF Mono', Monaco, monospace;
             white-space: nowrap;
             opacity: 0;
@@ -651,8 +579,8 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             padding: 4px 12px;
-            background: rgba(0, 20, 40, 0.9);
-            border: 1px solid rgba(0, 212, 255, 0.5);
+            background: rgba(20, 15, 5, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.5);
         }
 
         .cat-avatar-label::before {
@@ -661,27 +589,30 @@
             animation: blink 1s step-end infinite;
         }
 
-        /* 状态指示器 */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
         .avatar-status {
             position: absolute;
             top: 5px;
             right: 5px;
             width: 12px;
             height: 12px;
-            background: #00ff88;
+            background: var(--orange);
             border-radius: 50%;
-            border: 2px solid #0a1628;
-            box-shadow: 0 0 10px #00ff88;
+            border: 2px solid #1a1508;
+            box-shadow: 0 0 10px var(--orange);
             animation: statusPulse 2s ease-in-out infinite;
             z-index: 20;
         }
 
         @keyframes statusPulse {
-            0%, 100% { box-shadow: 0 0 5px #00ff88; }
-            50% { box-shadow: 0 0 15px #00ff88, 0 0 25px #00ff88; }
+            0%, 100% { box-shadow: 0 0 5px var(--orange); }
+            50% { box-shadow: 0 0 15px var(--orange), 0 0 25px var(--orange); }
         }
 
-        /* 悬停效果 */
         .cat-avatar-link:hover .cat-avatar-label {
             opacity: 1;
             bottom: -45px;
@@ -689,87 +620,62 @@
 
         .cat-avatar-link:hover .cat-avatar {
             transform: scale(1.08);
-            border-color: #00ff88;
+            border-color: var(--gold);
             box-shadow: 
-                0 0 30px rgba(0, 255, 136, 0.6),
-                0 0 60px rgba(0, 212, 255, 0.3),
-                inset 0 0 30px rgba(0, 255, 136, 0.2);
+                0 0 30px rgba(255, 215, 0, 0.6),
+                0 0 60px rgba(255, 140, 0, 0.3),
+                inset 0 0 30px rgba(255, 215, 0, 0.2);
         }
 
         .cat-avatar-link:hover .cat-avatar-ring {
-            border-color: rgba(0, 255, 136, 0.5);
+            border-color: rgba(255, 215, 0, 0.6);
             animation-duration: 4s;
-        }
-
-        .cat-avatar-link:hover .hex-frame svg {
-            opacity: 0.8;
         }
 
         /* ========== 响应式 ========== */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            .tech-container {
-                padding: 2rem 1.5rem;
-                margin: 0 1rem;
-            }
-            .portfolio-section {
-                padding: 0 1rem 2rem;
-            }
-            .portfolio-grid {
-                grid-template-columns: 1fr;
-            }
-            .cat-avatar-container {
-                width: 70px;
-                height: 70px;
-            }
-            .cat-avatar {
-                width: 70px;
-                height: 70px;
-            }
+            h1 { font-size: 2rem; }
+            .tech-container { padding: 2rem 1.5rem; margin: 0 1rem; }
+            .portfolio-section { padding: 0 1rem 2rem; }
+            .portfolio-grid { grid-template-columns: 1fr; }
+            .cat-avatar-container { width: 80px; height: 80px; }
+            .cat-avatar { width: 80px; height: 80px; }
         }
     </style>
 </head>
 <body>
-    <!-- 背景画布 -->
+    <!-- 3D宇宙大爆炸背景画布 -->
     <canvas id="universe"></canvas>
     
     <!-- 扫描线 -->
     <div class="scanlines"></div>
 
-    <!-- 科技感头像入口 -->
+    <!-- 鼠标光晕跟随 -->
+    <div class="mouse-glow" id="mouseGlow"></div>
+
+    <!-- 黄色科技猫咪头像入口 -->
     <a href="about-me.html" class="cat-avatar-link" id="catAvatar">
         <div class="cat-avatar-container">
-            <!-- 六边形框架 -->
             <div class="hex-frame">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" 
-                             fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.5"/>
+                             fill="none" stroke="#FFD700" stroke-width="0.5" opacity="0.5"/>
                 </svg>
             </div>
-            <!-- 旋转轨道 -->
             <div class="cat-avatar-ring"></div>
             <div class="cat-avatar-ring-inner"></div>
-            <!-- 状态指示器 -->
             <div class="avatar-status"></div>
-            <!-- 头像主体 - 科技风格猫咪 -->
             <div class="cat-avatar">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <!-- 深色科技背景 -->
                     <defs>
                         <linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#0a1628"/>
-                            <stop offset="100%" style="stop-color:#1a3050"/>
-                        </linearGradient>
-                        <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.3"/>
-                            <stop offset="100%" style="stop-color:#00ff88;stop-opacity:0.3"/>
+                            <stop offset="0%" style="stop-color:#1a1508"/>
+                            <stop offset="100%" style="stop-color:#2a2010"/>
                         </linearGradient>
                     </defs>
                     <circle cx="50" cy="50" r="48" fill="url(#techGrad)"/>
                     <!-- 网格背景 -->
-                    <g stroke="#00d4ff" stroke-width="0.3" opacity="0.2">
+                    <g stroke="#FFD700" stroke-width="0.3" opacity="0.15">
                         <line x1="10" y1="25" x2="90" y2="25"/>
                         <line x1="10" y1="50" x2="90" y2="50"/>
                         <line x1="10" y1="75" x2="90" y2="75"/>
@@ -777,27 +683,27 @@
                         <line x1="50" y1="10" x2="50" y2="90"/>
                         <line x1="75" y1="10" x2="75" y2="90"/>
                     </g>
-                    <!-- 科技感猫脸轮廓 -->
-                    <ellipse cx="50" cy="55" rx="28" ry="26" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.8"/>
-                    <!-- 左耳 - 线条风格 -->
-                    <path d="M 22 38 L 30 52 L 38 42" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-                    <path d="M 25 40 L 30 48 L 35 43" fill="none" stroke="#00ff88" stroke-width="1"/>
+                    <!-- 科技猫脸 - 黄色主题 -->
+                    <ellipse cx="50" cy="55" rx="28" ry="26" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.8"/>
+                    <!-- 左耳 -->
+                    <path d="M 22 38 L 30 52 L 38 42" fill="none" stroke="#FFD700" stroke-width="1.5"/>
+                    <path d="M 25 40 L 30 48 L 35 43" fill="none" stroke="#FF8C00" stroke-width="1"/>
                     <!-- 右耳 -->
-                    <path d="M 78 38 L 70 52 L 62 42" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-                    <path d="M 75 40 L 70 48 L 65 43" fill="none" stroke="#00ff88" stroke-width="1"/>
-                    <!-- 眼睛 - 科技风格 -->
-                    <ellipse cx="38" cy="52" rx="8" ry="8" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                    <ellipse cx="62" cy="52" rx="8" ry="8" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                    <circle cx="38" cy="52" r="4" fill="#00ff88"/>
-                    <circle cx="62" cy="52" r="4" fill="#00ff88"/>
+                    <path d="M 78 38 L 70 52 L 62 42" fill="none" stroke="#FFD700" stroke-width="1.5"/>
+                    <path d="M 75 40 L 70 48 L 65 43" fill="none" stroke="#FF8C00" stroke-width="1"/>
+                    <!-- 眼睛 -->
+                    <ellipse cx="38" cy="52" rx="8" ry="8" fill="none" stroke="#FFD700" stroke-width="1"/>
+                    <ellipse cx="62" cy="52" rx="8" ry="8" fill="none" stroke="#FFD700" stroke-width="1"/>
+                    <circle cx="38" cy="52" r="4" fill="#FF8C00"/>
+                    <circle cx="62" cy="52" r="4" fill="#FF8C00"/>
                     <circle cx="38" cy="52" r="2" fill="#fff"/>
                     <circle cx="62" cy="52" r="2" fill="#fff"/>
                     <!-- 鼻子 -->
-                    <polygon points="50,60 46,66 54,66" fill="none" stroke="#00d4ff" stroke-width="1"/>
-                    <!-- 嘴巴 - 数据线风格 -->
-                    <path d="M 44 70 Q 47 73 50 70 Q 53 73 56 70" stroke="#00ff88" stroke-width="1" fill="none"/>
-                    <!-- 胡须 - 数据流 -->
-                    <g stroke="#00d4ff" stroke-width="0.8" opacity="0.7">
+                    <polygon points="50,60 46,66 54,66" fill="none" stroke="#FFD700" stroke-width="1"/>
+                    <!-- 嘴巴 -->
+                    <path d="M 44 70 Q 47 73 50 70 Q 53 73 56 70" stroke="#FF8C00" stroke-width="1" fill="none"/>
+                    <!-- 胡须 - 数据流动画 -->
+                    <g stroke="#FFD700" stroke-width="0.8" opacity="0.7">
                         <line x1="20" y1="55" x2="32" y2="58"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></line>
                         <line x1="18" y1="62" x2="32" y2="62"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></line>
                         <line x1="20" y1="69" x2="32" y2="66"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></line>
@@ -806,9 +712,9 @@
                         <line x1="68" y1="66" x2="80" y2="69"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></line>
                     </g>
                     <!-- 装饰数据点 -->
-                    <circle cx="15" cy="30" r="2" fill="#00ff88" opacity="0.6"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle>
-                    <circle cx="85" cy="30" r="2" fill="#00d4ff" opacity="0.6"><animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/></circle>
-                    <circle cx="50" cy="85" r="2" fill="#00ff88" opacity="0.6"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></circle>
+                    <circle cx="15" cy="30" r="2" fill="#FF8C00" opacity="0.6"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle>
+                    <circle cx="85" cy="30" r="2" fill="#FFD700" opacity="0.6"><animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/></circle>
+                    <circle cx="50" cy="85" r="2" fill="#FF8C00" opacity="0.6"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/></circle>
                 </svg>
             </div>
             <span class="cat-avatar-label">ABOUT_ME</span>
@@ -829,7 +735,7 @@
         </div>
     </div>
 
-    <p class="hint">[ Move Mouse to Interact ] · [ Scroll to See Projects ]</p>
+    <p class="hint">[ 移动鼠标与宇宙互动 ] · [ 向下滚动查看作品 ]</p>
 
     <!-- 作品集区域 -->
     <section class="portfolio-section">
@@ -839,11 +745,10 @@
         </div>
 
         <div class="portfolio-grid">
-            <!-- Todo List 项目卡片 -->
             <a href="../02-projects/todo-app/index.html" class="project-card">
                 <div class="project-preview">
                     <div class="project-preview-inner">
-                        <img src="images/todo-app.png" alt="Todo List 应用截图" class="preview-screenshot">
+                        <img src="images/todo-app.png" alt="Todo List" class="preview-screenshot">
                     </div>
                 </div>
                 <div class="project-info">
@@ -854,34 +759,27 @@
                     </div>
                     <h3 class="project-name">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 11l3 3L22 4"/>
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                         </svg>
                         Todo List 待办事项
                     </h3>
-                    <p class="project-desc">
-                        一个精美的待办事项应用，支持添加、完成、删除任务，数据本地持久化存储，带有流畅的动画效果和智能时间显示。
-                    </p>
+                    <p class="project-desc">精美的待办事项应用，支持添加、完成、删除任务，数据本地持久化存储。</p>
                     <div class="project-features">
                         <span class="project-feature">✓ 本地存储</span>
                         <span class="project-feature">✓ 筛选功能</span>
                         <span class="project-feature">✓ 进度统计</span>
-                        <span class="project-feature">✓ 响应式</span>
                     </div>
                 </div>
                 <div class="project-link">
                     <span>查看项目</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
             </a>
 
-            <!-- 科技感计数器 -->
             <a href="counter.html" class="project-card">
                 <div class="project-preview">
                     <div class="project-preview-inner">
-                        <img src="images/counter-preview.png" alt="计数器应用截图" class="preview-screenshot">
+                        <img src="images/counter-preview.png" alt="计数器" class="preview-screenshot">
                     </div>
                 </div>
                 <div class="project-info">
@@ -892,34 +790,27 @@
                     </div>
                     <h3 class="project-name">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
+                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
                         </svg>
                         科技感计数器
                     </h3>
-                    <p class="project-desc">
-                        学习 JavaScript 交互的经典练习项目，支持键盘快捷键、历史记录、状态提示，带有流畅的动画效果。
-                    </p>
+                    <p class="project-desc">学习 JavaScript 交互的经典练习项目，支持键盘快捷键、历史记录。</p>
                     <div class="project-features">
                         <span class="project-feature">✓ 键盘控制</span>
                         <span class="project-feature">✓ 历史记录</span>
                         <span class="project-feature">✓ 动画效果</span>
-                        <span class="project-feature">✓ 科技风格</span>
                     </div>
                 </div>
                 <div class="project-link">
                     <span>查看项目</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
             </a>
 
-            <!-- FlowerCare 鲜花养护 App -->
             <a href="../FlowerCare/index.html" class="project-card">
                 <div class="project-preview">
                     <div class="project-preview-inner">
-                        <img src="images/flowercare-home.png" alt="FlowerCare 应用截图" class="preview-screenshot">
+                        <img src="images/flowercare-home.png" alt="FlowerCare" class="preview-screenshot">
                     </div>
                 </div>
                 <div class="project-info">
@@ -930,30 +821,23 @@
                     </div>
                     <h3 class="project-name">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
+                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
                         </svg>
                         FlowerCare 鲜花养护
                     </h3>
-                    <p class="project-desc">
-                        小红书风格的鲜花养护 App Demo，包含12种花材图鉴、养护提醒日历、我的花管理，支持收藏和添加功能。
-                    </p>
+                    <p class="project-desc">小红书风格的鲜花养护 App Demo，包含花材图鉴、养护提醒。</p>
                     <div class="project-features">
                         <span class="project-feature">✓ 12种花材</span>
                         <span class="project-feature">✓ 养护指南</span>
                         <span class="project-feature">✓ 日历提醒</span>
-                        <span class="project-feature">✓ 小红书风格</span>
                     </div>
                 </div>
                 <div class="project-link">
                     <span>查看项目</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
             </a>
 
-            <!-- 更多项目占位 -->
             <div class="project-card project-card-placeholder">
                 <div class="placeholder-icon">+</div>
                 <p class="placeholder-text">更多项目即将上线</p>
@@ -964,88 +848,237 @@
 
     <script>
         // ========================================
-        // 科技感宇宙3D粒子动画系统
+        // 宇宙大爆炸3D粒子动画系统 + 鼠标交互
         // ========================================
-
         const canvas = document.getElementById('universe');
         const ctx = canvas.getContext('2d');
+        const mouseGlow = document.getElementById('mouseGlow');
 
         let width = canvas.width = window.innerWidth;
         let height = canvas.height = window.innerHeight;
+        let centerX = width / 2;
+        let centerY = height / 2;
 
-        let mouseX = width / 2;
-        let mouseY = height / 2;
+        let mouseX = centerX;
+        let mouseY = centerY;
         let targetMouseX = mouseX;
         let targetMouseY = mouseY;
 
-        // 网格参数
-        const gridSize = 60;
+        // 星星粒子
+        const stars = [];
+        const starCount = 300;
 
-        // 粒子数组
-        let particles = [];
-        const particleCount = 80;
+        // 星云粒子
+        const nebulas = [];
+        const nebulaCount = 50;
 
-        // 六边形数组
-        let hexagons = [];
-        const hexagonCount = 8;
+        // 流星
+        const meteors = [];
 
-        // 数据线数组
-        let dataLines = [];
-        const dataLineCount = 5;
+        // 能量波
+        let energyWaves = [];
 
-        // 粒子类
-        class Particle {
+        // 星星类
+        class Star {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                // 3D位置（从中心向外）
+                this.angle = Math.random() * Math.PI * 2;
+                this.distance = Math.random() * 800 + 100;
+                this.z = Math.random() * 1000;
+                this.speed = Math.random() * 2 + 0.5;
+                this.size = Math.random() * 2 + 0.5;
+                
+                // 颜色变化
+                const colors = ['#FFD700', '#FF8C00', '#FFEB3B', '#FFA500', '#FFE4B5', '#FFFFFF'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.alpha = Math.random() * 0.8 + 0.2;
+                this.twinkle = Math.random() * 0.02;
+            }
+
+            update() {
+                // 向观察者移动（大爆炸扩张效果）
+                this.z -= this.speed;
+                
+                // 鼠标引力效果
+                const dx = mouseX - centerX;
+                const dy = mouseY - centerY;
+                this.angle += dx * 0.00001;
+
+                // 重置远离的星星
+                if (this.z < 1) {
+                    this.z = 1000;
+                    this.distance = Math.random() * 800 + 100;
+                }
+
+                // 闪烁
+                this.alpha += Math.sin(Date.now() * this.twinkle) * 0.01;
+                this.alpha = Math.max(0.1, Math.min(1, this.alpha));
+            }
+
+            draw() {
+                // 3D投影
+                const scale = 500 / this.z;
+                const x = centerX + Math.cos(this.angle) * this.distance * scale;
+                const y = centerY + Math.sin(this.angle) * this.distance * scale;
+                const size = this.size * scale;
+
+                if (x < -50 || x > width + 50 || y < -50 || y > height + 50) return;
+
+                ctx.beginPath();
+                ctx.arc(x, y, Math.max(0.5, size), 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.alpha * (1 - this.z / 1000);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                // 星星光晕
+                if (size > 1.5) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, size * 2, 0, Math.PI * 2);
+                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2);
+                    gradient.addColorStop(0, this.color.replace(')', ', 0.3)').replace('rgb', 'rgba').replace('#FFD700', 'rgba(255, 215, 0').replace('#FF8C00', 'rgba(255, 140, 0').replace('#FFEB3B', 'rgba(255, 235, 59').replace('#FFA500', 'rgba(255, 165, 0').replace('#FFE4B5', 'rgba(255, 228, 181').replace('#FFFFFF', 'rgba(255, 255, 255'));
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+            }
+        }
+
+        // 星云类
+        class Nebula {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 200 + 100;
+                this.alpha = Math.random() * 0.1 + 0.02;
+                this.color = Math.random() > 0.5 ? '#FFD700' : '#FF8C00';
+                this.speedX = (Math.random() - 0.5) * 0.2;
+                this.speedY = (Math.random() - 0.5) * 0.2;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // 边界循环
+                if (this.x < -this.size) this.x = width + this.size;
+                if (this.x > width + this.size) this.x = -this.size;
+                if (this.y < -this.size) this.y = height + this.size;
+                if (this.y > height + this.size) this.y = -this.size;
+            }
+
+            draw() {
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+                gradient.addColorStop(0, this.color.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('#FFD700', 'rgba(255, 215, 0').replace('#FF8C00', 'rgba(255, 140, 0'));
+                gradient.addColorStop(0.5, this.color.replace(')', `, ${this.alpha * 0.3})`).replace('rgb', 'rgba').replace('#FFD700', 'rgba(255, 215, 0').replace('#FF8C00', 'rgba(255, 140, 0'));
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 流星类
+        class Meteor {
             constructor() {
                 this.reset();
             }
 
             reset() {
                 this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.5;
-                this.speedY = (Math.random() - 0.5) * 0.5;
-                this.alpha = Math.random() * 0.5 + 0.2;
-                this.color = Math.random() > 0.5 ? '#00d4ff' : '#00ff88';
+                this.y = -50;
+                this.length = Math.random() * 80 + 40;
+                this.speed = Math.random() * 15 + 10;
+                this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.3;
+                this.alpha = 1;
+                this.active = true;
             }
 
             update() {
-                const dx = mouseX - this.x;
-                const dy = mouseY - this.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.alpha -= 0.02;
 
-                if (dist < 150) {
-                    const angle = Math.atan2(dy, dx);
-                    const force = (150 - dist) / 150;
-                    this.x -= Math.cos(angle) * force * 2;
-                    this.y -= Math.sin(angle) * force * 2;
-                }
-
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
-                    this.reset();
+                if (this.y > height + 50 || this.alpha <= 0) {
+                    this.active = false;
                 }
             }
 
             draw() {
+                if (!this.active) return;
+                
+                const tailX = this.x - Math.cos(this.angle) * this.length;
+                const tailY = this.y - Math.sin(this.angle) * this.length;
+
+                const gradient = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
+                gradient.addColorStop(0, 'transparent');
+                gradient.addColorStop(1, `rgba(255, 215, 0, ${this.alpha})`);
+
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color.replace(')', `, ${this.alpha})`).replace('rgb', 'rgba').replace('#00d4ff', 'rgba(0, 212, 255').replace('#00ff88', 'rgba(0, 255, 136');
+                ctx.moveTo(tailX, tailY);
+                ctx.lineTo(this.x, this.y);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // 流星头部发光
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
                 ctx.fill();
             }
         }
 
-        // 初始化粒子
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
+        // 能量波类（鼠标点击效果）
+        class EnergyWave {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                this.maxRadius = 300;
+                this.alpha = 0.8;
+            }
+
+            update() {
+                this.radius += 8;
+                this.alpha -= 0.02;
+            }
+
+            draw() {
+                if (this.alpha <= 0) return;
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(255, 215, 0, ${this.alpha})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // 内圈
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * 0.7, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(255, 140, 0, ${this.alpha * 0.5})`;
+                ctx.stroke();
+            }
+
+            isDead() {
+                return this.alpha <= 0;
+            }
         }
+
+        // 初始化
+        for (let i = 0; i < starCount; i++) stars.push(new Star());
+        for (let i = 0; i < nebulaCount; i++) nebulas.push(new Nebula());
 
         // 绘制网格
         function drawGrid() {
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.03)';
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.02)';
             ctx.lineWidth = 1;
+            const gridSize = 80;
 
             for (let x = 0; x < width; x += gridSize) {
                 ctx.beginPath();
@@ -1062,59 +1095,79 @@
             }
         }
 
-        // 绘制粒子连线
-        function drawConnections() {
-            const maxDist = 100;
-            ctx.lineWidth = 0.5;
-
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < maxDist) {
-                        const alpha = (1 - dist / maxDist) * 0.15;
-                        ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        // 动画循环
+        // 主动画循环
         function animate() {
-            ctx.fillStyle = 'rgba(0, 5, 16, 0.1)';
+            // 渐变清除（拖尾效果）
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
             ctx.fillRect(0, 0, width, height);
 
+            // 平滑鼠标跟随
             mouseX += (targetMouseX - mouseX) * 0.05;
             mouseY += (targetMouseY - mouseY) * 0.05;
 
+            // 更新中心点（轻微偏移）
+            centerX = width / 2 + (mouseX - width / 2) * 0.1;
+            centerY = height / 2 + (mouseY - height / 2) * 0.1;
+
+            // 绘制网格
             drawGrid();
 
-            particles.forEach(p => {
-                p.update();
-                p.draw();
+            // 星云
+            nebulas.forEach(n => {
+                n.update();
+                n.draw();
             });
 
-            drawConnections();
+            // 星星
+            stars.forEach(s => {
+                s.update();
+                s.draw();
+            });
+
+            // 流星（随机生成）
+            if (Math.random() < 0.01) {
+                meteors.push(new Meteor());
+            }
+
+            meteors.forEach((m, i) => {
+                m.update();
+                m.draw();
+                if (!m.active) meteors.splice(i, 1);
+            });
+
+            // 能量波
+            energyWaves = energyWaves.filter(w => !w.isDead());
+            energyWaves.forEach(w => {
+                w.update();
+                w.draw();
+            });
 
             requestAnimationFrame(animate);
         }
 
-        // 鼠标移动
+        // 事件监听
         document.addEventListener('mousemove', (e) => {
             targetMouseX = e.clientX;
             targetMouseY = e.clientY;
+            mouseGlow.style.left = e.clientX + 'px';
+            mouseGlow.style.top = e.clientY + 'px';
         });
 
-        // 窗口大小改变
+        document.addEventListener('click', (e) => {
+            // 点击产生能量波
+            energyWaves.push(new EnergyWave(e.clientX, e.clientY));
+            
+            // 点击产生爆发效果
+            for (let i = 0; i < 5; i++) {
+                meteors.push(new Meteor());
+            }
+        });
+
         window.addEventListener('resize', () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
         });
 
         animate();
@@ -1132,7 +1185,6 @@
                 String(now.getSeconds()).padStart(2, '0');
             document.getElementById('time').textContent = timeStr;
         }
-
         updateTime();
         setInterval(updateTime, 1000);
 
@@ -1144,56 +1196,45 @@
         }
 
         // ========================================
-        // 科技头像游走动画（悬停时停止）
+        // 猫咪头像游走动画（悬停停止）
         // ========================================
         const catAvatar = document.getElementById('catAvatar');
         let catX = window.innerWidth - 140;
         let catY = 120;
         let catTargetX = catX;
         let catTargetY = catY;
-        let isHovered = false; // 悬停状态
+        let isHovered = false;
 
-        // 鼠标悬停时停止移动
-        catAvatar.addEventListener('mouseenter', () => {
-            isHovered = true;
-            catAvatar.classList.add('hovered');
-        });
-
-        catAvatar.addEventListener('mouseleave', () => {
-            isHovered = false;
-            catAvatar.classList.remove('hovered');
-        });
+        catAvatar.addEventListener('mouseenter', () => { isHovered = true; });
+        catAvatar.addEventListener('mouseleave', () => { isHovered = false; });
 
         function updateCatPosition() {
-            // 如果悬停则不更新位置
             if (!isHovered) {
                 const margin = 120;
                 const speed = 0.02;
                 
-                // 降低随机移动频率
                 if (Math.random() < 0.008) {
                     const side = Math.floor(Math.random() * 4);
                     switch(side) {
-                        case 0: // 上
+                        case 0:
                             catTargetX = margin + Math.random() * (window.innerWidth - margin * 2);
                             catTargetY = margin;
                             break;
-                        case 1: // 右
+                        case 1:
                             catTargetX = window.innerWidth - margin;
                             catTargetY = margin + Math.random() * (window.innerHeight - margin * 2);
                             break;
-                        case 2: // 下
+                        case 2:
                             catTargetX = margin + Math.random() * (window.innerWidth - margin * 2);
                             catTargetY = window.innerHeight - margin - 120;
                             break;
-                        case 3: // 左
+                        case 3:
                             catTargetX = margin;
                             catTargetY = margin + Math.random() * (window.innerHeight - margin * 2);
                             break;
                     }
                 }
 
-                // 更平滑的移动
                 catX += (catTargetX - catX) * speed;
                 catY += (catTargetY - catY) * speed;
 
