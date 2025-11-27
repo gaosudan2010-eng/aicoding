@@ -1,0 +1,59 @@
+/**
+ * 🍅 番茄钟小程序 - 全局样式
+ * iOS 设计规范
+ */
+
+/* ==================== 全局变量 ==================== */
+page {
+  /* 主色调 */
+  --tomato: #FF6B6B;
+  --tomato-dark: #E85555;
+  --tomato-light: #FF8A8A;
+  --green: #34C759;
+  --green-dark: #28A745;
+  --green-light: #4CD964;
+  
+  /* 中性色 - iOS 风格 */
+  --bg-primary: #F2F2F7;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #E5E5EA;
+  --text-primary: #1C1C1E;
+  --text-secondary: #8E8E93;
+  --text-tertiary: #C7C7CC;
+  
+  /* 圆角 */
+  --radius-sm: 16rpx;
+  --radius-md: 24rpx;
+  --radius-lg: 32rpx;
+  --radius-xl: 48rpx;
+  
+  /* 字体 */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: linear-gradient(180deg, #FFF5F0 0%, #FFE8DD 100%);
+  min-height: 100vh;
+}
+
+/* 休息模式背景 */
+page.rest-mode {
+  background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 100%);
+}
+
+/* ==================== 通用工具类 ==================== */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text-center {
+  text-align: center;
+}

@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>// MARKDOWN.exe - Geek Editor</title>
+    <style>
+        /* ==================== 基础样式重置 ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            /* 极客终端配色 - 暗黑主题 */
+            --bg-primary: #0a0e14;
+            --bg-secondary: #0d1117;
+            --bg-tertiary: #161b22;
+            --bg-card: #1c2128;
+            --border: #30363d;
+            --border-active: #58a6ff;
+            
+            /* 霓虹色彩 */
+            --neon-green: #39ff14;
+            --neon-cyan: #00ffff;
+            --neon-pink: #ff006e;
+            --neon-purple: #bc13fe;
+            --neon-yellow: #ffff00;
+            --neon-orange: #ff6600;
+            
+            /* 文字颜色 */
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            
+            /* 代码高亮 */
+            --code-keyword: #ff7b72;
+            --code-string: #a5d6ff;
+            --code-comment: #8b949e;
+            --code-function: #d2a8ff;
+            --code-number: #79c0ff;
+            
+            /* 字体 */
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        /* 亮色主题 */
+        body.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f6f8fa;
+            --bg-tertiary: #eaeef2;
+            --bg-card: #ffffff;
+            --border: #d0d7de;
+            --border-active: #0969da;
+            --text-primary: #1f2328;
+            --text-secondary: #656d76;
+            --text-muted: #8c959f;
+            --neon-green: #1a7f37;
+            --neon-cyan: #0969da;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 扫描线效果 ==================== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 255, 0.03) 0px,
+                rgba(0, 255, 255, 0.03) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.5;
+        }
+
+        body.light-theme::before {
+            opacity: 0;
+        }
+
+        /* ==================== 顶部导航栏 ==================== */
+        .navbar {
+            height: 48px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .navbar-logo {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--neon-green);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-logo::before {
+            content: '>';
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .navbar-status {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--neon-green); }
+            50% { opacity: 0.5; box-shadow: 0 0 15px var(--neon-green); }
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        .nav-btn.primary {
+            background: var(--neon-green);
+            border-color: var(--neon-green);
+            color: var(--bg-primary);
+        }
+
+        .nav-btn.primary:hover {
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+        }
+
+        /* ==================== 工具栏 ==================== */
+        .toolbar {
+            height: 40px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            gap: 0.25rem;
+        }
+
+        .tool-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tool-btn:hover {
+            background: var(--bg-card);
+            color: var(--neon-cyan);
+        }
+
+        .tool-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            border: 1px solid var(--border);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 50;
+        }
+
+        .tool-btn:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tool-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+            margin: 0 0.5rem;
+        }
+
+        .toolbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .word-count {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* ==================== 主编辑区域 ==================== */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .editor-pane, .preview-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .pane-header {
+            height: 36px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .pane-header .icon {
+            margin-right: 0.5rem;
+        }
+
+        .pane-header .filename {
+            color: var(--neon-cyan);
+        }
+
+        .editor-pane {
+            border-right: 1px solid var(--border);
+        }
+
+        /* 编辑器 */
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 1rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: right;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .line-number {
+            padding-right: 1rem;
+            height: 1.6rem;
+            line-height: 1.6rem;
+        }
+
+        .line-number.active {
+            color: var(--neon-cyan);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        #editor {
+            position: absolute;
+            left: 50px;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.6rem;
+            color: var(--text-primary);
+            tab-size: 4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #editor::placeholder {
+            color: var(--text-muted);
+        }
+
+        #editor::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #editor::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        #editor::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 5px;
+        }
+
+        #editor::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* 预览区域 */
+        .preview-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem 2rem;
+            background: var(--bg-primary);
+        }
+
+        .preview-wrapper::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .preview-wrapper::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .preview-wrapper::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 5px;
+        }
+
+        /* ==================== Markdown预览样式 ==================== */
+        .preview-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .preview-content h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--neon-cyan);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .preview-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neon-green);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.3rem;
+            margin: 1.5rem 0 0.8rem;
+        }
+
+        .preview-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--neon-purple);
+            margin: 1.2rem 0 0.6rem;
+        }
+
+        .preview-content h4, .preview-content h5, .preview-content h6 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 1rem 0 0.5rem;
+        }
+
+        .preview-content p {
+            margin: 0.8rem 0;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .preview-content a {
+            color: var(--neon-cyan);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--neon-cyan);
+        }
+
+        .preview-content a:hover {
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .preview-content strong {
+            color: var(--neon-pink);
+            font-weight: 600;
+        }
+
+        .preview-content em {
+            color: var(--neon-yellow);
+            font-style: italic;
+        }
+
+        .preview-content code {
+            font-family: var(--font-mono);
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: var(--neon-orange);
+            border: 1px solid var(--border);
+        }
+
+        .preview-content pre {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--neon-green);
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .preview-content pre::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--neon-green);
+            color: var(--bg-primary);
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            border-radius: 0 6px 0 6px;
+        }
+
+        .preview-content pre code {
+            background: none;
+            padding: 0;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .preview-content blockquote {
+            border-left: 4px solid var(--neon-purple);
+            background: rgba(188, 19, 254, 0.1);
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .preview-content ul, .preview-content ol {
+            margin: 0.8rem 0;
+            padding-left: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .preview-content li {
+            margin: 0.4rem 0;
+            line-height: 1.6;
+        }
+
+        .preview-content li::marker {
+            color: var(--neon-cyan);
+        }
+
+        .preview-content hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            margin: 2rem 0;
+        }
+
+        .preview-content img {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .preview-content th, .preview-content td {
+            border: 1px solid var(--border);
+            padding: 0.6rem 1rem;
+            text-align: left;
+        }
+
+        .preview-content th {
+            background: var(--bg-tertiary);
+            color: var(--neon-cyan);
+            font-weight: 600;
+        }
+
+        .preview-content tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        /* 任务列表 */
+        .preview-content .task-list-item {
+            list-style: none;
+            margin-left: -1.5rem;
+        }
+
+        .preview-content .task-list-item input {
+            margin-right: 0.5rem;
+            accent-color: var(--neon-green);
+        }
+
+        /* ==================== 状态栏 ==================== */
+        .statusbar {
+            height: 24px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .statusbar-left, .statusbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .statusbar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .statusbar-item.clickable {
+            cursor: pointer;
+        }
+
+        .statusbar-item.clickable:hover {
+            color: var(--neon-cyan);
+        }
+
+        /* ==================== 快捷键提示面板 ==================== */
+        .shortcuts-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            z-index: 200;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            min-width: 400px;
+        }
+
+        .shortcuts-panel.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .shortcuts-panel h3 {
+            font-family: var(--font-mono);
+            color: var(--neon-cyan);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .shortcut-item:last-child {
+            border-bottom: none;
+        }
+
+        .shortcut-keys {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .shortcut-key {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--neon-green);
+        }
+
+        .shortcut-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .panel-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 199;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .panel-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ==================== Toast提示 ==================== */
+        .toast {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%) translateY(50px);
+            background: var(--bg-card);
+            color: var(--neon-green);
+            padding: 0.8rem 1.5rem;
+            border: 1px solid var(--neon-green);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            z-index: 300;
+            opacity: 0;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* ==================== 响应式 ==================== */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .editor-pane {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            .navbar-status { display: none; }
+            .toolbar { overflow-x: auto; }
+            .shortcuts-panel { min-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <a href="hello.html" class="nav-btn" style="margin-right: 0.5rem;">← ESC</a>
+            <span class="navbar-logo">MARKDOWN.exe</span>
+        </div>
+        
+        <div class="navbar-status">
+            <span class="status-dot"></span>
+            <span id="saveStatus">已保存</span>
+        </div>
+        
+        <div class="navbar-actions">
+            <button class="nav-btn" onclick="toggleTheme()" data-tooltip="切换主题">
+                <span id="themeIcon">🌙</span>
+            </button>
+            <button class="nav-btn" onclick="showShortcuts()">
+                ⌨️ 快捷键
+            </button>
+            <button class="nav-btn" onclick="exportMarkdown()">
+                📄 导出MD
+            </button>
+            <button class="nav-btn primary" onclick="exportHTML()">
+                🌐 导出HTML
+            </button>
+        </div>
+    </nav>
+
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <button class="tool-btn" onclick="insertFormat('**', '**')" data-tooltip="粗体 Ctrl+B">𝐁</button>
+        <button class="tool-btn" onclick="insertFormat('*', '*')" data-tooltip="斜体 Ctrl+I">𝐼</button>
+        <button class="tool-btn" onclick="insertFormat('~~', '~~')" data-tooltip="删除线">S̶</button>
+        <button class="tool-btn" onclick="insertFormat('`', '`')" data-tooltip="行内代码">&lt;/&gt;</button>
+        
+        <div class="tool-divider"></div>
+        
+        <button class="tool-btn" onclick="insertLine('# ')" data-tooltip="标题1">H1</button>
+        <button class="tool-btn" onclick="insertLine('## ')" data-tooltip="标题2">H2</button>
+        <button class="tool-btn" onclick="insertLine('### ')" data-tooltip="标题3">H3</button>
+        
+        <div class="tool-divider"></div>
+        
+        <button class="tool-btn" onclick="insertLine('- ')" data-tooltip="无序列表">•</button>
+        <button class="tool-btn" onclick="insertLine('1. ')" data-tooltip="有序列表">1.</button>
+        <button class="tool-btn" onclick="insertLine('- [ ] ')" data-tooltip="任务列表">☐</button>
+        <button class="tool-btn" onclick="insertLine('> ')" data-tooltip="引用">❝</button>
+        
+        <div class="tool-divider"></div>
+        
+        <button class="tool-btn" onclick="insertCodeBlock()" data-tooltip="代码块">{}</button>
+        <button class="tool-btn" onclick="insertLine('---\n')" data-tooltip="分割线">—</button>
+        <button class="tool-btn" onclick="insertLink()" data-tooltip="链接">🔗</button>
+        <button class="tool-btn" onclick="insertImage()" data-tooltip="图片">🖼️</button>
+        <button class="tool-btn" onclick="insertTable()" data-tooltip="表格">▦</button>
+        
+        <div class="toolbar-right">
+            <span class="word-count">
+                <span id="charCount">0</span> 字符 | <span id="wordCount">0</span> 词 | <span id="lineCount">0</span> 行
+            </span>
+        </div>
+    </div>
+
+    <!-- 主编辑区域 -->
+    <div class="main-container">
+        <!-- 编辑器面板 -->
+        <div class="editor-pane">
+            <div class="pane-header">
+                <span class="icon">📝</span>
+                <span>编辑器</span>
+                <span style="margin-left: 0.5rem; color: var(--text-muted);">|</span>
+                <span class="filename" style="margin-left: 0.5rem;">untitled.md</span>
+            </div>
+            <div class="editor-wrapper">
+                <div class="line-numbers" id="lineNumbers"></div>
+                <textarea id="editor" placeholder="// 开始编写你的 Markdown...
+
+# 欢迎使用 MARKDOWN.exe
+
+这是一个极客风格的 Markdown 编辑器。
+
+## 快速开始
+
+- 在左侧输入 Markdown
+- 右侧实时预览效果
+- 使用工具栏快速插入格式
+
+## 快捷键
+
+- `Ctrl + B` 粗体
+- `Ctrl + I` 斜体
+- `Ctrl + S` 保存
+- `Ctrl + /` 快捷键帮助
+
+Happy Coding! 🚀"></textarea>
+            </div>
+        </div>
+
+        <!-- 预览面板 -->
+        <div class="preview-pane">
+            <div class="pane-header">
+                <span class="icon">👁️</span>
+                <span>预览</span>
+                <span style="margin-left: 0.5rem; color: var(--text-muted);">|</span>
+                <span style="margin-left: 0.5rem; color: var(--neon-green);">LIVE</span>
+            </div>
+            <div class="preview-wrapper">
+                <div class="preview-content" id="preview"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 状态栏 -->
+    <div class="statusbar">
+        <div class="statusbar-left">
+            <span class="statusbar-item">
+                <span>📍</span>
+                <span>行 <span id="cursorLine">1</span>, 列 <span id="cursorCol">1</span></span>
+            </span>
+            <span class="statusbar-item">
+                <span>📄</span>
+                <span>Markdown</span>
+            </span>
+            <span class="statusbar-item">
+                <span>🔤</span>
+                <span>UTF-8</span>
+            </span>
+        </div>
+        <div class="statusbar-right">
+            <span class="statusbar-item clickable" onclick="toggleTheme()">
+                <span id="themeName">🌙 Dark Mode</span>
+            </span>
+            <span class="statusbar-item">
+                <span>⚡</span>
+                <span>Ready</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- 快捷键面板 -->
+    <div class="panel-overlay" id="panelOverlay" onclick="hideShortcuts()"></div>
+    <div class="shortcuts-panel" id="shortcutsPanel">
+        <h3>⌨️ 快捷键列表</h3>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">粗体</span>
+            <div class="shortcut-keys">
+                <span class="shortcut-key">Ctrl</span>
+                <span class="shortcut-key">B</span>
+            </div>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">斜体</span>
+            <div class="shortcut-keys">
+                <span class="shortcut-key">Ctrl</span>
+                <span class="shortcut-key">I</span>
+            </div>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">保存</span>
+            <div class="shortcut-keys">
+                <span class="shortcut-key">Ctrl</span>
+                <span class="shortcut-key">S</span>
+            </div>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">撤销</span>
+            <div class="shortcut-keys">
+                <span class="shortcut-key">Ctrl</span>
+                <span class="shortcut-key">Z</span>
+            </div>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">重做</span>
+            <div class="shortcut-keys">
+                <span class="shortcut-key">Ctrl</span>
+                <span class="shortcut-key">Y</span>
+            </div>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">快捷键帮助</span>
+            <div class="shortcut-keys">
+                <span class="shortcut-key">Ctrl</span>
+                <span class="shortcut-key">/</span>
+            </div>
+        </div>
+        <div class="shortcut-item">
+            <span class="shortcut-desc">切换主题</span>
+            <div class="shortcut-keys">
+                <span class="shortcut-key">Ctrl</span>
+                <span class="shortcut-key">Shift</span>
+                <span class="shortcut-key">L</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        /* ==================== DOM元素 ==================== */
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const lineNumbers = document.getElementById('lineNumbers');
+
+        /* ==================== 状态变量 ==================== */
+        let isDarkTheme = true;
+        let saveTimeout = null;
+
+        /* ==================== 初始化 ==================== */
+        function init() {
+            loadFromStorage();
+            updatePreview();
+            updateLineNumbers();
+            updateWordCount();
+            setupEventListeners();
+        }
+
+        /* ==================== 事件监听 ==================== */
+        function setupEventListeners() {
+            // 编辑器输入
+            editor.addEventListener('input', () => {
+                updatePreview();
+                updateLineNumbers();
+                updateWordCount();
+                autoSave();
+            });
+
+            // 滚动同步
+            editor.addEventListener('scroll', () => {
+                lineNumbers.scrollTop = editor.scrollTop;
+            });
+
+            // 光标位置
+            editor.addEventListener('click', updateCursorPosition);
+            editor.addEventListener('keyup', updateCursorPosition);
+
+            // Tab键支持
+            editor.addEventListener('keydown', handleTab);
+
+            // 快捷键
+            document.addEventListener('keydown', handleShortcuts);
+        }
+
+        /* ==================== Markdown解析 ==================== */
+        function parseMarkdown(text) {
+            let html = text;
+
+            // 转义HTML
+            html = html.replace(/&/g, '&amp;')
+                       .replace(/</g, '&lt;')
+                       .replace(/>/g, '&gt;');
+
+            // 代码块（需要先处理）
+            html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<pre data-lang="${lang || 'code'}"><code>${code.trim()}</code></pre>`;
+            });
+
+            // 行内代码
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // 标题
+            html = html.replace(/^###### (.+)$/gm, '<h6>$1</h6>');
+            html = html.replace(/^##### (.+)$/gm, '<h5>$1</h5>');
+            html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+            html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+            // 粗体和斜体
+            html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+
+            // 链接和图片
+            html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+            // 引用
+            html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+            // 合并连续引用
+            html = html.replace(/<\/blockquote>\n<blockquote>/g, '\n');
+
+            // 任务列表
+            html = html.replace(/^- \[x\] (.+)$/gm, '<li class="task-list-item"><input type="checkbox" checked disabled> $1</li>');
+            html = html.replace(/^- \[ \] (.+)$/gm, '<li class="task-list-item"><input type="checkbox" disabled> $1</li>');
+
+            // 无序列表
+            html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+            html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
+            // 有序列表
+            html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+            // 分割线
+            html = html.replace(/^---$/gm, '<hr>');
+            html = html.replace(/^\*\*\*$/gm, '<hr>');
+
+            // 表格
+            html = html.replace(/^\|(.+)\|$/gm, (match, content) => {
+                const cells = content.split('|').map(c => c.trim());
+                if (cells.every(c => /^-+$/.test(c))) {
+                    return ''; // 分隔行
+                }
+                const isHeader = html.indexOf(match) < html.indexOf('|---|');
+                const tag = isHeader ? 'th' : 'td';
+                return '<tr>' + cells.map(c => `<${tag}>${c}</${tag}>`).join('') + '</tr>';
+            });
+            html = html.replace(/(<tr>.*<\/tr>\n?)+/g, '<table>$&</table>');
+
+            // 段落
+            html = html.replace(/^(?!<[a-z]|$)(.+)$/gm, '<p>$1</p>');
+
+            // 清理多余空行
+            html = html.replace(/<p><\/p>/g, '');
+            html = html.replace(/\n{3,}/g, '\n\n');
+
+            return html;
+        }
+
+        /* ==================== 更新预览 ==================== */
+        function updatePreview() {
+            const markdown = editor.value;
+            preview.innerHTML = parseMarkdown(markdown);
+        }
+
+        /* ==================== 行号 ==================== */
+        function updateLineNumbers() {
+            const lines = editor.value.split('\n');
+            const currentLine = editor.value.substring(0, editor.selectionStart).split('\n').length;
+            
+            let html = '';
+            for (let i = 1; i <= lines.length; i++) {
+                html += `<div class="line-number ${i === currentLine ? 'active' : ''}">${i}</div>`;
+            }
+            lineNumbers.innerHTML = html;
+        }
+
+        /* ==================== 字数统计 ==================== */
+        function updateWordCount() {
+            const text = editor.value;
+            document.getElementById('charCount').textContent = text.length;
+            document.getElementById('wordCount').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+            document.getElementById('lineCount').textContent = text.split('\n').length;
+        }
+
+        /* ==================== 光标位置 ==================== */
+        function updateCursorPosition() {
+            const text = editor.value.substring(0, editor.selectionStart);
+            const lines = text.split('\n');
+            document.getElementById('cursorLine').textContent = lines.length;
+            document.getElementById('cursorCol').textContent = lines[lines.length - 1].length + 1;
+            updateLineNumbers();
+        }
+
+        /* ==================== 工具栏功能 ==================== */
+        
+        // 插入格式（包裹选中文本）
+        function insertFormat(before, after) {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const text = editor.value;
+            const selected = text.substring(start, end) || '文本';
+            
+            editor.value = text.substring(0, start) + before + selected + after + text.substring(end);
+            editor.selectionStart = start + before.length;
+            editor.selectionEnd = start + before.length + selected.length;
+            editor.focus();
+            
+            updatePreview();
+            updateLineNumbers();
+            autoSave();
+        }
+
+        // 插入行首格式
+        function insertLine(prefix) {
+            const start = editor.selectionStart;
+            const text = editor.value;
+            
+            // 找到当前行的开始位置
+            const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+            
+            editor.value = text.substring(0, lineStart) + prefix + text.substring(lineStart);
+            editor.selectionStart = editor.selectionEnd = lineStart + prefix.length;
+            editor.focus();
+            
+            updatePreview();
+            updateLineNumbers();
+            autoSave();
+        }
+
+        // 插入代码块
+        function insertCodeBlock() {
+            const start = editor.selectionStart;
+            const text = editor.value;
+            const selected = text.substring(start, editor.selectionEnd) || 'code';
+            const codeBlock = '\n```javascript\n' + selected + '\n```\n';
+            
+            editor.value = text.substring(0, start) + codeBlock + text.substring(editor.selectionEnd);
+            editor.selectionStart = start + 15;
+            editor.selectionEnd = start + 15 + selected.length;
+            editor.focus();
+            
+            updatePreview();
+            updateLineNumbers();
+            autoSave();
+        }
+
+        // 插入链接
+        function insertLink() {
+            const url = prompt('请输入链接地址：', 'https://');
+            if (url) {
+                const start = editor.selectionStart;
+                const text = editor.value;
+                const selected = text.substring(start, editor.selectionEnd) || '链接文字';
+                const link = `[${selected}](${url})`;
+                
+                editor.value = text.substring(0, start) + link + text.substring(editor.selectionEnd);
+                editor.focus();
+                
+                updatePreview();
+                autoSave();
+            }
+        }
+
+        // 插入图片
+        function insertImage() {
+            const url = prompt('请输入图片地址：', 'https://');
+            if (url) {
+                const start = editor.selectionStart;
+                const text = editor.value;
+                const alt = text.substring(start, editor.selectionEnd) || '图片描述';
+                const img = `![${alt}](${url})`;
+                
+                editor.value = text.substring(0, start) + img + text.substring(editor.selectionEnd);
+                editor.focus();
+                
+                updatePreview();
+                autoSave();
+            }
+        }
+
+        // 插入表格
+        function insertTable() {
+            const start = editor.selectionStart;
+            const text = editor.value;
+            const table = '\n| 标题1 | 标题2 | 标题3 |\n|-------|-------|-------|\n| 内容1 | 内容2 | 内容3 |\n| 内容4 | 内容5 | 内容6 |\n';
+            
+            editor.value = text.substring(0, start) + table + text.substring(editor.selectionEnd);
+            editor.focus();
+            
+            updatePreview();
+            updateLineNumbers();
+            autoSave();
+        }
+
+        /* ==================== Tab键处理 ==================== */
+        function handleTab(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = editor.selectionStart;
+                const text = editor.value;
+                
+                editor.value = text.substring(0, start) + '    ' + text.substring(editor.selectionEnd);
+                editor.selectionStart = editor.selectionEnd = start + 4;
+                
+                updatePreview();
+                updateLineNumbers();
+            }
+        }
+
+        /* ==================== 快捷键处理 ==================== */
+        function handleShortcuts(e) {
+            // Ctrl + B: 粗体
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                insertFormat('**', '**');
+            }
+            // Ctrl + I: 斜体
+            if (e.ctrlKey && e.key === 'i') {
+                e.preventDefault();
+                insertFormat('*', '*');
+            }
+            // Ctrl + S: 保存
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveToStorage();
+                showToast('💾 已保存到本地');
+            }
+            // Ctrl + /: 显示快捷键
+            if (e.ctrlKey && e.key === '/') {
+                e.preventDefault();
+                showShortcuts();
+            }
+            // Ctrl + Shift + L: 切换主题
+            if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+                e.preventDefault();
+                toggleTheme();
+            }
+            // Esc: 关闭面板
+            if (e.key === 'Escape') {
+                hideShortcuts();
+            }
+        }
+
+        /* ==================== 主题切换 ==================== */
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('light-theme', !isDarkTheme);
+            document.getElementById('themeIcon').textContent = isDarkTheme ? '🌙' : '☀️';
+            document.getElementById('themeName').textContent = isDarkTheme ? '🌙 Dark Mode' : '☀️ Light Mode';
+            saveToStorage();
+        }
+
+        /* ==================== 导出功能 ==================== */
+        function exportMarkdown() {
+            const content = editor.value;
+            const blob = new Blob([content], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'document.md';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('📄 Markdown 已导出');
+        }
+
+        function exportHTML() {
+            const previewHTML = preview.innerHTML;
+            const fullHTML = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Export</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #333; }
+        h1, h2, h3 { color: #1a1a1a; margin-top: 1.5rem; }
+        h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
+        h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3rem; }
+        code { background: #f5f5f5; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
+        pre { background: #f5f5f5; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+        pre code { background: none; padding: 0; }
+        blockquote { border-left: 4px solid #ddd; padding-left: 1rem; color: #666; margin: 1rem 0; }
+        a { color: #0066cc; }
+        img { max-width: 100%; }
+        table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+        th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+        th { background: #f5f5f5; }
+    </style>
+</head>
+<body>
+${previewHTML}
+</body>
+</html>`;
+            
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'document.html';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('🌐 HTML 已导出');
+        }
+
+        /* ==================== 快捷键面板 ==================== */
+        function showShortcuts() {
+            document.getElementById('shortcutsPanel').classList.add('show');
+            document.getElementById('panelOverlay').classList.add('show');
+        }
+
+        function hideShortcuts() {
+            document.getElementById('shortcutsPanel').classList.remove('show');
+            document.getElementById('panelOverlay').classList.remove('show');
+        }
+
+        /* ==================== 本地存储 ==================== */
+        function autoSave() {
+            document.getElementById('saveStatus').textContent = '保存中...';
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                saveToStorage();
+                document.getElementById('saveStatus').textContent = '已保存';
+            }, 1000);
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('markdownEditorData', JSON.stringify({
+                content: editor.value,
+                isDarkTheme: isDarkTheme
+            }));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('markdownEditorData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data.content) {
+                    editor.value = data.content;
+                }
+                if (data.isDarkTheme !== undefined) {
+                    isDarkTheme = data.isDarkTheme;
+                    document.body.classList.toggle('light-theme', !isDarkTheme);
+                    document.getElementById('themeIcon').textContent = isDarkTheme ? '🌙' : '☀️';
+                    document.getElementById('themeName').textContent = isDarkTheme ? '🌙 Dark Mode' : '☀️ Light Mode';
+                }
+            }
+        }
+
+        /* ==================== Toast提示 ==================== */
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>
+

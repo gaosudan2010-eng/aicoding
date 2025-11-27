@@ -465,22 +465,164 @@ button.addEventListener('click', increase);</code></pre>
 
             <!-- 阶段5 -->
             <div class="content-section" id="phase5">
-                <h2 class="section-title">📈 第五阶段：进阶学习</h2>
+                <h2 class="section-title">📈 第五阶段：进阶学习路线</h2>
                 
-                <h3 class="subsection-title">5.1 进阶方向</h3>
+                <p>恭喜你完成了基础阶段！接下来有多个进阶方向可以选择，根据你的兴趣和目标选择适合的路线。</p>
+
+                <!-- 方向A: React -->
+                <h3 class="subsection-title">🅰️ 方向A：React 前端框架</h3>
+                <div class="card">
+                    <div class="card-title">⚛️ React 入门</div>
+                    <p><strong>适合人群：</strong>想做更复杂的Web应用、想进入大厂的同学</p>
+                    <p><strong>学习周期：</strong>2-4周</p>
+                    <p><strong>学习路线：</strong></p>
+                    <ol>
+                        <li><strong>JSX语法</strong> - 在JS中写HTML</li>
+                        <li><strong>组件化思维</strong> - 把页面拆成可复用的组件</li>
+                        <li><strong>Props & State</strong> - 组件间传递数据</li>
+                        <li><strong>Hooks</strong> - useState、useEffect等</li>
+                        <li><strong>路由</strong> - React Router多页面</li>
+                        <li><strong>状态管理</strong> - Redux / Zustand</li>
+                    </ol>
+                    <p><strong>推荐项目：</strong>用React重构你之前做的Todo List或天气App</p>
+                </div>
+
+                <!-- 方向B: 小程序 -->
+                <h3 class="subsection-title">🅱️ 方向B：微信小程序</h3>
+                <div class="card">
+                    <div class="card-title">📱 微信小程序开发</div>
+                    <p><strong>适合人群：</strong>想做能分享给朋友使用的产品</p>
+                    <p><strong>学习周期：</strong>1-2周</p>
+                    <p><strong>学习路线：</strong></p>
+                    <ol>
+                        <li><strong>注册小程序账号</strong> - 微信公众平台</li>
+                        <li><strong>安装开发工具</strong> - 微信开发者工具</li>
+                        <li><strong>WXML/WXSS</strong> - 类似HTML/CSS的语法</li>
+                        <li><strong>小程序API</strong> - 微信特有的能力（扫码、支付等）</li>
+                        <li><strong>云开发</strong> - 无需后端，直接用云数据库</li>
+                    </ol>
+                    <p><strong>推荐项目：</strong>做一个记账小程序或打卡小程序</p>
+                </div>
+
+                <!-- 方向C: Node.js -->
+                <h3 class="subsection-title">🅲 方向C：Node.js 后端开发</h3>
+                <div class="card">
+                    <div class="card-title">🖥️ Node.js 后端入门</div>
+                    <p><strong>适合人群：</strong>想了解后端、想做全栈的同学</p>
+                    <p><strong>学习周期：</strong>3-4周</p>
+                    <p><strong>学习路线：</strong></p>
+                    <ol>
+                        <li><strong>Node.js基础</strong> - 用JS写后端</li>
+                        <li><strong>Express框架</strong> - 快速搭建API服务</li>
+                        <li><strong>数据库</strong> - MongoDB或MySQL基础</li>
+                        <li><strong>RESTful API</strong> - 设计规范的接口</li>
+                        <li><strong>用户认证</strong> - JWT登录系统</li>
+                        <li><strong>部署上线</strong> - Vercel / Railway</li>
+                    </ol>
+                    <p><strong>推荐项目：</strong>给你的Todo List加上后端，支持多设备同步</p>
+                </div>
+
+                <!-- 方向D: Chrome插件 -->
+                <h3 class="subsection-title">🅳 方向D：Chrome 插件开发</h3>
+                <div class="card">
+                    <div class="card-title">🧩 浏览器插件开发</div>
+                    <p><strong>适合人群：</strong>想做实用小工具、提升效率的同学</p>
+                    <p><strong>学习周期：</strong>1周</p>
+                    <p><strong>学习路线：</strong></p>
+                    <ol>
+                        <li><strong>manifest.json</strong> - 插件配置文件</li>
+                        <li><strong>Popup页面</strong> - 点击图标弹出的界面</li>
+                        <li><strong>Content Script</strong> - 注入到网页中的脚本</li>
+                        <li><strong>Background Script</strong> - 后台运行的服务</li>
+                        <li><strong>Chrome API</strong> - 标签页、存储、通知等</li>
+                    </ol>
+                    <p><strong>推荐项目：</strong>网页截图工具、划词翻译、网页美化插件</p>
+                </div>
+
+                <!-- 方向E: Electron -->
+                <h3 class="subsection-title">🅴 方向E：Electron 桌面应用</h3>
+                <div class="card">
+                    <div class="card-title">💻 桌面应用开发</div>
+                    <p><strong>适合人群：</strong>想做桌面软件的同学</p>
+                    <p><strong>学习周期：</strong>2-3周</p>
+                    <p><strong>学习路线：</strong></p>
+                    <ol>
+                        <li><strong>Electron基础</strong> - 用Web技术做桌面App</li>
+                        <li><strong>主进程/渲染进程</strong> - 理解Electron架构</li>
+                        <li><strong>IPC通信</strong> - 进程间通信</li>
+                        <li><strong>原生功能</strong> - 系统托盘、菜单、快捷键</li>
+                        <li><strong>打包发布</strong> - 生成Mac/Windows安装包</li>
+                    </ol>
+                    <p><strong>知名案例：</strong>VSCode、Discord、Slack、Notion都是用Electron做的</p>
+                    <p><strong>推荐项目：</strong>把你的Markdown编辑器打包成桌面应用</p>
+                </div>
+
+                <!-- 方向F: 数据可视化 -->
+                <h3 class="subsection-title">🅵 方向F：数据可视化</h3>
+                <div class="card">
+                    <div class="card-title">📊 数据可视化开发</div>
+                    <p><strong>适合人群：</strong>经常需要做数据展示、汇报的产品经理</p>
+                    <p><strong>学习周期：</strong>1-2周</p>
+                    <p><strong>学习路线：</strong></p>
+                    <ol>
+                        <li><strong>ECharts入门</strong> - 百度开源的图表库</li>
+                        <li><strong>常用图表</strong> - 折线图、柱状图、饼图、地图</li>
+                        <li><strong>数据大屏</strong> - 全屏展示的数据看板</li>
+                        <li><strong>D3.js进阶</strong> - 更灵活的可视化库</li>
+                        <li><strong>动态数据</strong> - 实时更新的图表</li>
+                    </ol>
+                    <p><strong>推荐项目：</strong>做一个产品数据大屏，展示用户增长、活跃度等</p>
+                </div>
+
+                <div class="tip">
+                    <strong>💡 选择建议：</strong>
+                    <ul>
+                        <li>想<strong>找工作/跳槽</strong> → 选 React</li>
+                        <li>想<strong>快速做产品</strong> → 选 微信小程序</li>
+                        <li>想<strong>理解全栈</strong> → 选 Node.js</li>
+                        <li>想<strong>提升效率</strong> → 选 Chrome插件</li>
+                        <li>想<strong>做桌面软件</strong> → 选 Electron</li>
+                        <li>想<strong>数据展示</strong> → 选 数据可视化</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 阶段6: 学习资源 -->
+            <div class="content-section" id="phase6">
+                <h2 class="section-title">📚 第六阶段：学习资源推荐</h2>
+                
+                <h3 class="subsection-title">6.1 官方文档（最权威）</h3>
                 <ul>
-                    <li><strong>更复杂的网页</strong> → React/Vue → Next.js</li>
-                    <li><strong>微信小程序</strong> → 小程序框架</li>
-                    <li><strong>手机App</strong> → React Native / Flutter</li>
-                    <li><strong>有后端的产品</strong> → Supabase / Firebase</li>
+                    <li><strong>React</strong> - react.dev（新版官方文档，有中文）</li>
+                    <li><strong>微信小程序</strong> - developers.weixin.qq.com</li>
+                    <li><strong>Node.js</strong> - nodejs.org</li>
+                    <li><strong>Electron</strong> - electronjs.org</li>
+                    <li><strong>ECharts</strong> - echarts.apache.org</li>
+                </ul>
+
+                <h3 class="subsection-title">6.2 学习平台</h3>
+                <ul>
+                    <li><strong>MDN Web Docs</strong> - 前端知识百科全书</li>
+                    <li><strong>freeCodeCamp</strong> - 免费的编程学习平台</li>
+                    <li><strong>掘金/思否</strong> - 中文技术社区</li>
+                    <li><strong>B站</strong> - 大量免费视频教程</li>
+                </ul>
+
+                <h3 class="subsection-title">6.3 AI辅助工具</h3>
+                <ul>
+                    <li><strong>Cursor</strong> - 你正在用的AI编程IDE</li>
+                    <li><strong>Claude/ChatGPT</strong> - 遇到问题随时问</li>
+                    <li><strong>v0.dev</strong> - AI生成UI组件</li>
+                    <li><strong>Bolt.new</strong> - AI全栈开发</li>
                 </ul>
 
                 <div class="tip">
                     <strong>🎉 最后建议：</strong>
                     <ol>
-                        <li>做真实项目 - 解决实际问题</li>
-                        <li>坚持练习 - 每周至少一个小项目</li>
-                        <li>分享交流 - 获得反馈和成就感</li>
+                        <li><strong>做真实项目</strong> - 解决实际问题比刷教程更有效</li>
+                        <li><strong>坚持练习</strong> - 每周至少一个小项目</li>
+                        <li><strong>善用AI</strong> - 遇到问题先问AI，效率翻倍</li>
+                        <li><strong>分享交流</strong> - 获得反馈和成就感</li>
                     </ol>
                 </div>
             </div>
@@ -513,7 +655,11 @@ button.addEventListener('click', increase);</code></pre>
                 </a>
                 <a href="#phase5" class="nav-link">
                     <span class="nav-link-number">05</span>
-                    进阶学习
+                    进阶路线
+                </a>
+                <a href="#phase6" class="nav-link">
+                    <span class="nav-link-number">06</span>
+                    学习资源
                 </a>
             </div>
         </aside>

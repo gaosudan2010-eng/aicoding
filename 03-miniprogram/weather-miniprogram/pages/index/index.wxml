@@ -1,0 +1,107 @@
+<!--pages/index/index.wxml-->
+<view class="page {{bgClass}}">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <input 
+        class="search-input" 
+        placeholder="搜索城市，如：北京、上海" 
+        value="{{searchText}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearch"
+      />
+      <view class="search-btn" bindtap="onSearch">🔍</view>
+    </view>
+    <view class="location-btn" bindtap="onGetLocation">📍</view>
+  </view>
+
+  <!-- 搜索结果列表 -->
+  <view class="search-results" wx:if="{{searchResults.length > 0}}">
+    <view 
+      class="search-result-item" 
+      wx:for="{{searchResults}}" 
+      wx:key="id"
+      bindtap="onSelectCity"
+      data-city="{{item}}"
+    >
+      <text class="city-name">{{item.name}}</text>
+      <text class="city-country">{{item.admin1 || ''}} {{item.country}}</text>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <view class="loading-icon">⏳</view>
+    <text>加载中...</text>
+  </view>
+
+  <!-- 天气内容 -->
+  <view class="weather-content" wx:if="{{weatherData && !loading}}">
+    <!-- 当前天气卡片 -->
+    <view class="current-weather card">
+      <view class="city-info">
+        <text class="city-name">{{currentCity.name}}</text>
+        <text class="update-time">更新于 {{updateTime}}</text>
+      </view>
+      
+      <view class="weather-main">
+        <view class="weather-icon">{{weatherInfo.icon}}</view>
+        <view class="temperature">{{currentTemp}}°</view>
+      </view>
+      
+      <view class="weather-desc">{{weatherInfo.desc}}</view>
+      
+      <view class="weather-details">
+        <view class="detail-item">
+          <text class="detail-label">体感</text>
+          <text class="detail-value">{{feelsLike}}°</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">湿度</text>
+          <text class="detail-value">{{humidity}}%</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">风速</text>
+          <text class="detail-value">{{windSpeed}} km/h</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 7天预报 -->
+    <view class="forecast card">
+      <view class="card-title">7天预报</view>
+      <view class="forecast-list">
+        <view class="forecast-item" wx:for="{{forecast}}" wx:key="date">
+          <text class="forecast-date">{{item.dateStr}}</text>
+          <text class="forecast-icon">{{item.icon}}</text>
+          <view class="forecast-temp">
+            <text class="temp-high">{{item.maxTemp}}°</text>
+            <text class="temp-low">{{item.minTemp}}°</text>
+          </view>
+          <text class="forecast-rain" wx:if="{{item.rainChance > 0}}">💧{{item.rainChance}}%</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 温度单位切换 -->
+    <view class="unit-toggle">
+      <view 
+        class="unit-btn {{tempUnit === 'celsius' ? 'active' : ''}}" 
+        bindtap="onToggleUnit"
+        data-unit="celsius"
+      >°C</view>
+      <view 
+        class="unit-btn {{tempUnit === 'fahrenheit' ? 'active' : ''}}" 
+        bindtap="onToggleUnit"
+        data-unit="fahrenheit"
+      >°F</view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!weatherData && !loading}}">
+    <view class="empty-icon">🌤️</view>
+    <text class="empty-text">搜索城市或点击定位查看天气</text>
+  </view>
+</view>
+

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF5F0"/>
+      <stop offset="100%" style="stop-color:#FFE0D0"/>
+    </linearGradient>
+    <radialGradient id="tomato" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#FF8A8A"/>
+      <stop offset="50%" style="stop-color:#FF6B6B"/>
+      <stop offset="100%" style="stop-color:#E85555"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- 圆角背景 -->
+  <rect x="0" y="0" width="144" height="144" rx="32" fill="url(#bg)"/>
+  
+  <!-- 番茄阴影 -->
+  <ellipse cx="72" cy="95" rx="45" ry="10" fill="rgba(255, 107, 107, 0.2)"/>
+  
+  <!-- 番茄身体 -->
+  <ellipse cx="72" cy="79" rx="50" ry="44" fill="url(#tomato)"/>
+  
+  <!-- 番茄高光 -->
+  <ellipse cx="52" cy="65" rx="18" ry="13" fill="rgba(255, 255, 255, 0.4)" transform="rotate(-15 52 65)"/>
+  <ellipse cx="45" cy="58" rx="7" ry="5" fill="rgba(255, 255, 255, 0.6)" transform="rotate(-15 45 58)"/>
+  
+  <!-- 左叶子 -->
+  <path d="M72,40 Q52,25 42,42 Q58,45 72,40" fill="#34C759"/>
+  
+  <!-- 右叶子 -->
+  <path d="M72,40 Q92,25 102,42 Q86,45 72,40" fill="#34C759"/>
+  
+  <!-- 茎 -->
+  <rect x="68" y="28" width="8" height="16" rx="4" fill="#28A745"/>
+</svg>
+

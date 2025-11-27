@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "🍅 番茄钟",
+    "navigationBarBackgroundColor": "#FFF5F0",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFE8DD",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

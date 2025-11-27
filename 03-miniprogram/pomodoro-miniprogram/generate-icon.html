@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成番茄钟图标</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            gap: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .canvas-container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .icon-box {
+            text-align: center;
+        }
+        canvas {
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .label {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        button {
+            padding: 12px 24px;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #E85555;
+            transform: translateY(-2px);
+        }
+        .instructions {
+            max-width: 500px;
+            text-align: center;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍅 番茄钟小程序图标</h1>
+    
+    <div class="canvas-container">
+        <div class="icon-box">
+            <canvas id="icon144" width="144" height="144"></canvas>
+            <div class="label">144 x 144 (推荐)</div>
+        </div>
+        <div class="icon-box">
+            <canvas id="icon200" width="200" height="200"></canvas>
+            <div class="label">200 x 200 (预览)</div>
+        </div>
+    </div>
+    
+    <button onclick="downloadIcon()">📥 下载图标 (144x144 PNG)</button>
+    
+    <div class="instructions">
+        <p>点击上方按钮下载图标，然后在微信公众平台上传即可。</p>
+        <p>图标特点：简洁的番茄造型，暖色调背景，符合 iOS 设计规范。</p>
+    </div>
+
+    <script>
+        // 绘制番茄图标
+        function drawTomatoIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const scale = size / 144;
+            
+            // 清除画布
+            ctx.clearRect(0, 0, size, size);
+            
+            // 背景 - 圆角矩形渐变
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#FFF5F0');
+            gradient.addColorStop(1, '#FFE0D0');
+            
+            // 绘制圆角矩形背景
+            const radius = size * 0.22;
+            ctx.beginPath();
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // 番茄中心位置
+            const centerX = size / 2;
+            const centerY = size / 2 + size * 0.05;
+            const tomatoRadius = size * 0.35;
+            
+            // 番茄阴影
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY + tomatoRadius * 0.15, tomatoRadius * 0.9, tomatoRadius * 0.2, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 107, 107, 0.2)';
+            ctx.fill();
+            
+            // 番茄身体
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, tomatoRadius, tomatoRadius * 0.88, 0, 0, Math.PI * 2);
+            
+            // 番茄渐变
+            const tomatoGradient = ctx.createRadialGradient(
+                centerX - tomatoRadius * 0.3, centerY - tomatoRadius * 0.3, 0,
+                centerX, centerY, tomatoRadius
+            );
+            tomatoGradient.addColorStop(0, '#FF8A8A');
+            tomatoGradient.addColorStop(0.5, '#FF6B6B');
+            tomatoGradient.addColorStop(1, '#E85555');
+            ctx.fillStyle = tomatoGradient;
+            ctx.fill();
+            
+            // 番茄高光
+            ctx.beginPath();
+            ctx.ellipse(
+                centerX - tomatoRadius * 0.35, 
+                centerY - tomatoRadius * 0.25, 
+                tomatoRadius * 0.25, 
+                tomatoRadius * 0.18, 
+                -0.4, 0, Math.PI * 2
+            );
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.fill();
+            
+            // 小高光
+            ctx.beginPath();
+            ctx.ellipse(
+                centerX - tomatoRadius * 0.45, 
+                centerY - tomatoRadius * 0.35, 
+                tomatoRadius * 0.1, 
+                tomatoRadius * 0.08, 
+                -0.4, 0, Math.PI * 2
+            );
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.fill();
+            
+            // 叶子位置
+            const leafY = centerY - tomatoRadius * 0.75;
+            
+            // 左叶子
+            ctx.beginPath();
+            ctx.moveTo(centerX, leafY);
+            ctx.quadraticCurveTo(centerX - tomatoRadius * 0.5, leafY - tomatoRadius * 0.3, centerX - tomatoRadius * 0.6, leafY + tomatoRadius * 0.1);
+            ctx.quadraticCurveTo(centerX - tomatoRadius * 0.3, leafY + tomatoRadius * 0.1, centerX, leafY);
+            ctx.fillStyle = '#34C759';
+            ctx.fill();
+            
+            // 右叶子
+            ctx.beginPath();
+            ctx.moveTo(centerX, leafY);
+            ctx.quadraticCurveTo(centerX + tomatoRadius * 0.5, leafY - tomatoRadius * 0.3, centerX + tomatoRadius * 0.6, leafY + tomatoRadius * 0.1);
+            ctx.quadraticCurveTo(centerX + tomatoRadius * 0.3, leafY + tomatoRadius * 0.1, centerX, leafY);
+            ctx.fillStyle = '#34C759';
+            ctx.fill();
+            
+            // 茎
+            ctx.beginPath();
+            ctx.roundRect(centerX - size * 0.025, leafY - size * 0.08, size * 0.05, size * 0.1, size * 0.02);
+            ctx.fillStyle = '#28A745';
+            ctx.fill();
+        }
+        
+        // 初始化绘制
+        function init() {
+            drawTomatoIcon(document.getElementById('icon144'), 144);
+            drawTomatoIcon(document.getElementById('icon200'), 200);
+        }
+        
+        // 下载图标
+        function downloadIcon() {
+            const canvas = document.getElementById('icon144');
+            const link = document.createElement('a');
+            link.download = 'pomodoro-icon-144x144.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // 页面加载后绘制
+        window.onload = init;
+    </script>
+</body>
+</html>
+

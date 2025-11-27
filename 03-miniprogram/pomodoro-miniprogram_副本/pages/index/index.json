@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "🍅 番茄钟",
+  "navigationBarBackgroundColor": "#FFF5F0",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFE8DD",
+  "backgroundTextStyle": "dark",
+  "enablePullDownRefresh": false,
+  "usingComponents": {}
+}

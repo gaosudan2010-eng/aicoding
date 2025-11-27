@@ -13,6 +13,12 @@
 - [x] Todo List 待办事项应用
 - [x] FlowerCare 鲜花养护 App
 - [x] 科技感计数器
+- [x] 🍅 番茄钟计时器（可爱风格）
+- [x] 🌤️ 天气查询App（Material Design风格）
+- [x] 📝 Markdown编辑器（极客终端风格）
+- [x] 📈 股票数据大屏（科技感可视化）
+- [x] 📱 天气查询微信小程序
+- [x] 🍅 番茄钟微信小程序
 
 ### 🔄 进行中
 - [ ] 更多练习项目
@@ -69,9 +75,16 @@ aicode/
 │   ├── guide.html       # 学习指南
 │   ├── about-me.html    # 个人介绍
 │   ├── counter.html     # 计数器
+│   ├── pomodoro.html    # 🍅 番茄钟
+│   ├── weather.html     # 🌤️ 天气查询
+│   ├── markdown-editor.html  # 📝 Markdown编辑器
+│   ├── stock-dashboard.html  # 📈 股票数据大屏
 │   └── images/          # 截图素材
 ├── 02-projects/         # 实战项目
 │   └── todo-app/        # Todo List
+├── 03-miniprogram/      # 微信小程序
+│   ├── weather-miniprogram/  # 📱 天气小程序
+│   └── pomodoro-miniprogram/ # 🍅 番茄钟小程序
 ├── FlowerCare/          # 鲜花养护 App Demo
 └── README.md            # 本文档
 ```

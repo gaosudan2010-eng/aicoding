@@ -1,0 +1,201 @@
+<!--
+  🍅 番茄钟小程序 - 主页面
+  iOS 设计风格
+-->
+<view class="page {{isWorkPhase ? 'work-mode' : 'rest-mode'}}">
+  <!-- 标题区域 -->
+  <view class="header">
+    <view class="title">🍅 番茄钟</view>
+    <view class="subtitle">专注工作，高效休息</view>
+    <!-- 设置按钮 -->
+    <view class="settings-btn" bindtap="openSettings">
+      <text class="settings-icon">⚙️</text>
+    </view>
+  </view>
+
+  <!-- 番茄计时器 -->
+  <view class="timer-container">
+    <!-- 进度环背景 -->
+    <view class="progress-ring">
+      <view class="progress-ring-bg"></view>
+      <!-- 进度环填充 - 使用 canvas 实现 -->
+      <canvas 
+        type="2d" 
+        id="progressCanvas" 
+        class="progress-canvas"
+        style="width: 100%; height: 100%;"
+      ></canvas>
+      <!-- 流动光点 -->
+      <view 
+        class="progress-dot {{isRunning ? 'visible' : ''}}" 
+        style="left: {{dotPosition.x}}%; top: {{dotPosition.y}}%;"
+      ></view>
+    </view>
+
+    <!-- 番茄图形 -->
+    <view class="tomato {{isWorkPhase ? 'tomato-work' : 'tomato-rest'}}">
+      <!-- 番茄身体 -->
+      <view class="tomato-body"></view>
+      <!-- 番茄高光 -->
+      <view class="tomato-highlight"></view>
+      <view class="tomato-highlight-small"></view>
+      <!-- 番茄叶子 -->
+      <view class="tomato-leaves">
+        <view class="leaf leaf-left"></view>
+        <view class="leaf leaf-right"></view>
+        <view class="stem"></view>
+      </view>
+    </view>
+
+    <!-- 时间显示 -->
+    <view class="timer-display">
+      <view class="timer-time">{{timerDisplay}}</view>
+      <view class="timer-label">{{timerLabel}}</view>
+    </view>
+  </view>
+
+  <!-- 控制按钮 -->
+  <view class="controls">
+    <view class="btn btn-secondary" bindtap="resetTimer">
+      <text class="btn-icon">↺</text>
+    </view>
+    <view class="btn btn-primary {{isWorkPhase ? '' : 'btn-rest'}}" bindtap="toggleTimer">
+      <text class="btn-icon">{{isRunning ? '⏸' : '▶'}}</text>
+      <text class="btn-text">{{btnText}}</text>
+    </view>
+    <view class="btn btn-secondary" bindtap="skipPhase">
+      <text class="btn-icon">⏭</text>
+    </view>
+  </view>
+
+  <!-- 统计面板 -->
+  <view class="stats-panel">
+    <view class="stats-title">📊 今日统计</view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <view class="stat-value {{isWorkPhase ? '' : 'stat-value-rest'}}">{{completedPomodoros}}</view>
+        <view class="stat-label">完成番茄</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-value {{isWorkPhase ? '' : 'stat-value-rest'}}">{{totalMinutes}}</view>
+        <view class="stat-label">专注分钟</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-value {{isWorkPhase ? '' : 'stat-value-rest'}}">{{currentStreak}}</view>
+        <view class="stat-label">连续番茄</view>
+      </view>
+    </view>
+    <!-- 番茄进度图标 -->
+    <view class="tomato-icons">
+      <text 
+        wx:for="{{tomatoIcons}}" 
+        wx:key="index" 
+        class="tomato-icon {{item.completed ? 'completed' : ''}}"
+      >🍅</text>
+    </view>
+  </view>
+
+  <!-- 设置面板 - iOS Sheet 风格 -->
+  <view class="settings-overlay {{showSettings ? 'active' : ''}}" bindtap="closeSettingsOverlay">
+    <view class="settings-modal" catchtap="preventClose">
+      <!-- 拖动指示条 -->
+      <view class="sheet-handle"></view>
+      
+      <!-- 标题 -->
+      <view class="settings-header">
+        <view class="settings-title-text">设置</view>
+        <view class="close-btn" bindtap="closeSettings">✕</view>
+      </view>
+      
+      <!-- 时间设置 -->
+      <view class="settings-section">
+        <view class="settings-section-title">时间设置</view>
+        <view class="settings-list">
+          <view class="setting-item">
+            <view class="setting-item-left">
+              <text class="setting-icon">🍅</text>
+              <text class="setting-label">工作时长</text>
+            </view>
+            <input 
+              type="number" 
+              class="setting-input" 
+              value="{{settings.workDuration}}"
+              bindinput="onWorkDurationChange"
+            />
+          </view>
+          <view class="setting-item">
+            <view class="setting-item-left">
+              <text class="setting-icon">☕</text>
+              <text class="setting-label">短休息</text>
+            </view>
+            <input 
+              type="number" 
+              class="setting-input" 
+              value="{{settings.shortBreakDuration}}"
+              bindinput="onShortBreakChange"
+            />
+          </view>
+          <view class="setting-item">
+            <view class="setting-item-left">
+              <text class="setting-icon">🌴</text>
+              <text class="setting-label">长休息</text>
+            </view>
+            <input 
+              type="number" 
+              class="setting-input" 
+              value="{{settings.longBreakDuration}}"
+              bindinput="onLongBreakChange"
+            />
+          </view>
+          <view class="setting-item last">
+            <view class="setting-item-left">
+              <text class="setting-icon">🔄</text>
+              <text class="setting-label">长休息间隔</text>
+            </view>
+            <input 
+              type="number" 
+              class="setting-input" 
+              value="{{settings.longBreakInterval}}"
+              bindinput="onIntervalChange"
+            />
+          </view>
+        </view>
+      </view>
+
+      <!-- 提醒设置 -->
+      <view class="settings-section">
+        <view class="settings-section-title">提醒</view>
+        <view class="settings-list">
+          <view class="setting-item">
+            <view class="setting-item-left">
+              <text class="setting-icon">📳</text>
+              <text class="setting-label">震动提醒</text>
+            </view>
+            <switch 
+              checked="{{settings.vibrate}}" 
+              bindchange="onVibrateChange"
+              color="#FF6B6B"
+            />
+          </view>
+          <view class="setting-item last">
+            <view class="setting-item-left">
+              <text class="setting-icon">🔔</text>
+              <text class="setting-label">声音提醒</text>
+            </view>
+            <switch 
+              checked="{{settings.sound}}" 
+              bindchange="onSoundChange"
+              color="#FF6B6B"
+            />
+          </view>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="settings-actions">
+        <view class="btn btn-action btn-secondary-action" bindtap="resetStats">清空统计</view>
+        <view class="btn btn-action btn-primary-action" bindtap="saveSettings">保存设置</view>
+      </view>
+    </view>
+  </view>
+</view>

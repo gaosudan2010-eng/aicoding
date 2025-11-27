@@ -1,0 +1,5 @@
+/* pages/forecast/forecast.wxss */
+.page {
+  padding: 30rpx;
+}
+

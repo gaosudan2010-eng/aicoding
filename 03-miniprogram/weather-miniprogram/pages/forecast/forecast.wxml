@@ -1,0 +1,5 @@
+<!--pages/forecast/forecast.wxml-->
+<view class="page">
+  <text>详细天气预报页面</text>
+</view>
+
