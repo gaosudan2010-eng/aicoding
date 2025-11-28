@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello AI Coding</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --cyan: #00d4ff;
+            --cyan-light: #00ffff;
+            --green: #00ff88;
+            --bg-dark: #000510;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: var(--bg-dark);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* 科技感静态背景 */
+        .tech-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            /* 网格背景 - 更明显 */
+            background-image: 
+                /* 主网格 */
+                linear-gradient(rgba(0, 212, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.15) 1px, transparent 1px),
+                /* 细网格 */
+                linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+            background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+        }
+        
+        /* 中心放射渐变 */
+        .tech-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 5, 16, 0.8) 70%);
+        }
+
+        /* 角落装饰 */
+        .corner-decor {
+            position: fixed;
+            width: 150px;
+            height: 150px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .corner-decor::before,
+        .corner-decor::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 212, 255, 0.3);
+        }
+        .corner-top-left { top: 0; left: 0; }
+        .corner-top-left::before { top: 0; left: 0; width: 80px; height: 2px; }
+        .corner-top-left::after { top: 0; left: 0; width: 2px; height: 80px; }
+        .corner-top-right { top: 0; right: 0; }
+        .corner-top-right::before { top: 0; right: 0; width: 80px; height: 2px; }
+        .corner-top-right::after { top: 0; right: 0; width: 2px; height: 80px; }
+        .corner-bottom-left { bottom: 0; left: 0; }
+        .corner-bottom-left::before { bottom: 0; left: 0; width: 80px; height: 2px; }
+        .corner-bottom-left::after { bottom: 0; left: 0; width: 2px; height: 80px; }
+        .corner-bottom-right { bottom: 0; right: 0; }
+        .corner-bottom-right::before { bottom: 0; right: 0; width: 80px; height: 2px; }
+        .corner-bottom-right::after { bottom: 0; right: 0; width: 2px; height: 80px; }
+
+        /* 发光粒子动画 */
+        .glow-particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--green), 0 0 20px var(--green);
+            z-index: 2;
+            pointer-events: none;
+            animation: float-particle 15s infinite ease-in-out;
+        }
+        .glow-particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .glow-particle:nth-child(2) { top: 60%; left: 85%; animation-delay: -3s; }
+        .glow-particle:nth-child(3) { top: 80%; left: 30%; animation-delay: -6s; }
+        .glow-particle:nth-child(4) { top: 30%; left: 70%; animation-delay: -9s; }
+        .glow-particle:nth-child(5) { top: 50%; left: 50%; animation-delay: -12s; }
+
+        @keyframes float-particle {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+            25% { transform: translate(30px, -20px) scale(1.2); opacity: 1; }
+            50% { transform: translate(-20px, -40px) scale(0.8); opacity: 0.6; }
+            75% { transform: translate(40px, -10px) scale(1.1); opacity: 1; }
+        }
+
+        /* 边缘发光线 */
+        .edge-glow {
+            position: fixed;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .edge-glow-top {
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            animation: edge-pulse 3s ease-in-out infinite;
+        }
+        .edge-glow-bottom {
+            bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+            animation: edge-pulse 3s ease-in-out infinite 1.5s;
+        }
+        @keyframes edge-pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        /* 背景画布 */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* 扫描线 */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 4;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.06) 0px,
+                rgba(0, 0, 0, 0.06) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            opacity: 0.4;
+        }
+
+        /* 内容容器 */
+        .content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            margin-top: 15vh;
+            margin-bottom: 4rem;
+        }
+
+        /* 作品集区域 */
+        .portfolio-section {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 2rem 4rem;
+            margin-bottom: 4rem;
+        }
+
+        .portfolio-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .portfolio-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .portfolio-title::before,
+        .portfolio-title::after {
+            content: '';
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan));
+        }
+
+        .portfolio-title::after {
+            background: linear-gradient(90deg, var(--cyan), transparent);
+        }
+
+        .portfolio-subtitle {
+            font-size: 0.9rem;
+            color: rgba(0, 212, 255, 0.5);
+            font-family: 'SF Mono', Monaco, monospace;
+            letter-spacing: 2px;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            text-decoration: none;
+            display: block;
+            cursor: none;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cyan), var(--green), var(--cyan));
+            background-size: 200% 100%;
+            animation: gradientMove 3s ease infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15);
+        }
+
+        .project-card:hover::before { opacity: 1; }
+
+        .project-preview {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #0a0a1a, #1a1a3a);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .project-preview-inner {
+            width: 90%;
+            height: 85%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.4s;
+        }
+
+        .project-card:hover .project-preview-inner { transform: scale(1.02); }
+
+        .preview-screenshot {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            transition: transform 0.4s;
+        }
+
+        .project-card:hover .preview-screenshot { transform: scale(1.05); }
+
+        .project-preview::before,
+        .project-preview::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            z-index: 2;
+        }
+
+        .project-preview::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .project-preview::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+        .project-info { padding: 1.5rem; }
+
+        .project-tags { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+
+        .project-tag {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: var(--cyan);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .project-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .project-name svg { width: 20px; height: 20px; color: var(--cyan); }
+
+        .project-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .project-features { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+        .project-feature {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: var(--green);
+            border-radius: 4px;
+        }
+
+        .project-link {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--cyan);
+            font-size: 0.85rem;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .project-link svg { width: 16px; height: 16px; transition: transform 0.3s; }
+        .project-card:hover .project-link svg { transform: translateX(5px); }
+
+        .project-card-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            border-style: dashed;
+        }
+
+        .placeholder-icon { font-size: 3rem; color: rgba(0, 212, 255, 0.3); margin-bottom: 1rem; }
+        .placeholder-text { color: rgba(255, 255, 255, 0.4); font-size: 0.9rem; }
+        .placeholder-hint { color: rgba(255, 255, 255, 0.2); font-size: 0.75rem; font-family: 'SF Mono', Monaco, monospace; margin-top: 0.5rem; }
+
+        /* 科技边框容器 */
+        .tech-container {
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 3rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .tech-container::before,
+        .tech-container::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border: 2px solid var(--cyan);
+        }
+
+        .tech-container::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+        .tech-container::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.75rem;
+            color: var(--green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: statusBlink 2s ease-in-out infinite;
+        }
+
+        @keyframes statusBlink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--green); }
+            50% { opacity: 0.4; box-shadow: none; }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--cyan), var(--green), var(--cyan-light), var(--cyan));
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 5s ease infinite;
+            letter-spacing: 2px;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .subtitle { font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem; }
+
+        .time-display {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 1rem;
+            color: rgba(0, 212, 255, 0.8);
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-start {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #000;
+            background: linear-gradient(90deg, var(--cyan), var(--green));
+            border: none;
+            cursor: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'SF Mono', Monaco, monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-start::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-start:hover {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 255, 136, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-start:hover::before { left: 100%; }
+
+        .hint {
+            position: relative;
+            z-index: 10;
+            font-size: 0.75rem;
+            color: rgba(0, 212, 255, 0.4);
+            font-family: 'SF Mono', Monaco, monospace;
+            letter-spacing: 2px;
+            margin-top: 3rem;
+        }
+
+        /* 猫咪头像（科技感增强版 1.5x） */
+        .cat-avatar-link {
+            position: fixed;
+            z-index: 100;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        .cat-avatar-container { 
+            position: relative; 
+            width: 100px; 
+            height: 100px; 
+        }
+
+        /* 外圈旋转环 */
+        .cat-avatar-ring {
+            position: absolute;
+            top: -8px; left: -8px; right: -8px; bottom: -8px;
+            border: 1px solid rgba(255, 213, 79, 0.3);
+            border-radius: 50%;
+            animation: catRingRotate 12s linear infinite;
+        }
+        .cat-avatar-ring::before {
+            content: '';
+            position: absolute;
+            top: -3px; left: 50%;
+            transform: translateX(-50%);
+            width: 6px; height: 6px;
+            background: #FFD54F;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #FFD54F;
+        }
+        .cat-avatar-ring-inner {
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border: 1px dashed rgba(255, 165, 0, 0.25);
+            border-radius: 50%;
+            animation: catRingRotate 20s linear infinite reverse;
+        }
+        @keyframes catRingRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cat-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 213, 79, 0.5);
+            box-shadow: 0 0 20px rgba(255, 213, 79, 0.25);
+            transition: all 0.3s ease;
+            background: #000510;
+            position: relative;
+        }
+
+        /* 扫描线效果 */
+        .cat-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #FFD54F, transparent);
+            animation: catScanline 2.5s linear infinite;
+            z-index: 10;
+        }
+        @keyframes catScanline {
+            0% { top: 0; opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .cat-avatar svg { width: 100%; height: 100%; position: relative; z-index: 1; }
+
+        /* 状态指示灯 */
+        .cat-status {
+            position: absolute;
+            top: 5px; right: 5px;
+            width: 10px; height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            border: 2px solid #000510;
+            box-shadow: 0 0 8px #00ff88;
+            animation: catStatusPulse 2s ease-in-out infinite;
+            z-index: 20;
+        }
+        @keyframes catStatusPulse {
+            0%, 100% { box-shadow: 0 0 5px #00ff88; }
+            50% { box-shadow: 0 0 15px #00ff88, 0 0 25px #00ff88; }
+        }
+
+        .cat-avatar-label {
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: #FFD54F;
+            font-family: 'SF Mono', Monaco, monospace;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            background: rgba(0, 5, 16, 0.9);
+            border: 1px solid rgba(255, 213, 79, 0.3);
+        }
+        .cat-avatar-label::before { content: '>'; margin-right: 5px; animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .cat-avatar-link:hover .cat-avatar-label { opacity: 1; bottom: -32px; }
+        .cat-avatar-link:hover .cat-avatar {
+            transform: scale(1.08);
+            box-shadow: 0 0 35px rgba(255, 213, 79, 0.5);
+            border-color: rgba(255, 213, 79, 0.8);
+        }
+        .cat-avatar-link:hover .cat-avatar-ring {
+            border-color: rgba(255, 213, 79, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .tech-container { padding: 2rem 1.5rem; margin: 0 1rem; }
+            .portfolio-section { padding: 0 1rem 2rem; }
+            .portfolio-grid { grid-template-columns: 1fr; }
+            .cat-avatar-container { width: 80px; height: 80px; }
+            .cat-avatar { width: 80px; height: 80px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景画布（动态科技感效果） -->
+    <canvas id="bgCanvas"></canvas>
+    
+    <!-- 科技感静态背景（网格） -->
+    <div class="tech-bg"></div>
+    
+    <!-- 角落装饰 -->
+    <div class="corner-decor corner-top-left"></div>
+    <div class="corner-decor corner-top-right"></div>
+    <div class="corner-decor corner-bottom-left"></div>
+    <div class="corner-decor corner-bottom-right"></div>
+    
+    <!-- 边缘发光线 -->
+    <div class="edge-glow edge-glow-top"></div>
+    <div class="edge-glow edge-glow-bottom"></div>
+    
+    <!-- 发光粒子 -->
+    <div class="glow-particle"></div>
+    <div class="glow-particle"></div>
+    <div class="glow-particle"></div>
+    <div class="glow-particle"></div>
+    <div class="glow-particle"></div>
+    
+    <!-- 扫描线 -->
+    <div class="scanlines"></div>
+
+    <!-- 猫咪头像（科技感增强版） -->
+    <a href="01-basics/about-me.html" class="cat-avatar-link" id="catAvatar">
+        <div class="cat-avatar-container">
+            <!-- 外圈旋转环 -->
+            <div class="cat-avatar-ring"></div>
+            <div class="cat-avatar-ring-inner"></div>
+            <!-- 状态指示灯 -->
+            <div class="cat-status"></div>
+            <!-- 猫咪头像 -->
+            <div class="cat-avatar">
+                <svg viewBox="0 0 100 100">
+                    <!-- 背景圆 -->
+                    <circle cx="50" cy="50" r="48" fill="#000510"/>
+                    
+                    <!-- 科技感网格背景 -->
+                    <g stroke="#FFD54F" stroke-width="0.3" opacity="0.15">
+                        <line x1="10" y1="25" x2="90" y2="25"/>
+                        <line x1="10" y1="50" x2="90" y2="50"/>
+                        <line x1="10" y1="75" x2="90" y2="75"/>
+                        <line x1="25" y1="10" x2="25" y2="90"/>
+                        <line x1="50" y1="10" x2="50" y2="90"/>
+                        <line x1="75" y1="10" x2="75" y2="90"/>
+                    </g>
+                    
+                    <!-- 实心黄色猫咪 -->
+                    <!-- 脸部 -->
+                    <ellipse cx="50" cy="56" rx="26" ry="24" fill="#FFD54F"/>
+                    
+                    <!-- 左耳（更大） -->
+                    <path d="M 20 36 L 30 54 L 42 40 Z" fill="#FFD54F"/>
+                    <path d="M 24 40 L 30 50 L 38 42 Z" fill="#FFAB40"/>
+                    
+                    <!-- 右耳（更大） -->
+                    <path d="M 80 36 L 70 54 L 58 40 Z" fill="#FFD54F"/>
+                    <path d="M 76 40 L 70 50 L 62 42 Z" fill="#FFAB40"/>
+                    
+                    <!-- 眼睛 -->
+                    <ellipse cx="38" cy="52" rx="7" ry="8" fill="#fff"/>
+                    <ellipse cx="62" cy="52" rx="7" ry="8" fill="#fff"/>
+                    <circle cx="38" cy="52" r="4" fill="#333"/>
+                    <circle cx="62" cy="52" r="4" fill="#333"/>
+                    <circle cx="40" cy="50" r="2" fill="#fff"/>
+                    <circle cx="64" cy="50" r="2" fill="#fff"/>
+                    
+                    <!-- 鼻子 -->
+                    <ellipse cx="50" cy="62" rx="3" ry="2.5" fill="#FF8A65"/>
+                    
+                    <!-- 嘴巴 -->
+                    <path d="M 44 66 Q 47 70 50 66 Q 53 70 56 66" stroke="#FF8A65" stroke-width="1.5" fill="none"/>
+                    
+                    <!-- 胡须 -->
+                    <g stroke="#FFA726" stroke-width="1" opacity="0.8">
+                        <line x1="20" y1="56" x2="32" y2="58"/>
+                        <line x1="18" y1="62" x2="32" y2="62"/>
+                        <line x1="20" y1="68" x2="32" y2="66"/>
+                        <line x1="68" y1="58" x2="80" y2="56"/>
+                        <line x1="68" y1="62" x2="82" y2="62"/>
+                        <line x1="68" y1="66" x2="80" y2="68"/>
+                    </g>
+                    
+                    <!-- 腮红 -->
+                    <circle cx="30" cy="60" r="4" fill="#FFAB91" opacity="0.5"/>
+                    <circle cx="70" cy="60" r="4" fill="#FFAB91" opacity="0.5"/>
+                </svg>
+            </div>
+            <span class="cat-avatar-label">ABOUT_ME</span>
+        </div>
+    </a>
+
+    <!-- 主要内容 -->
+    <div class="content">
+        <div class="tech-container">
+            <div class="system-status"><span class="status-dot"></span><span>System Online</span></div>
+            <h1>李松松的AI编程之旅</h1>
+            <p class="subtitle">用AI改变产品开发的方式</p>
+            <p class="time-display" id="time"></p>
+            <button class="btn-start" onclick="startLearning()">▶ 开始学习</button>
+        </div>
+    </div>
+
+    <p class="hint">[ 向下滚动查看作品 ]</p>
+
+    <!-- 作品集 -->
+    <section class="portfolio-section">
+        <div class="portfolio-header">
+            <h2 class="portfolio-title">我的作品集</h2>
+            <p class="portfolio-subtitle">// Projects Built with AI Coding</p>
+        </div>
+        <div class="portfolio-grid">
+            <a href="02-projects/todo-app/index.html" class="project-card">
+                <div class="project-preview"><div class="project-preview-inner"><img src="01-basics/images/todo-app.png" alt="Todo List" class="preview-screenshot"></div></div>
+                <div class="project-info">
+                    <div class="project-tags"><span class="project-tag">HTML</span><span class="project-tag">CSS</span><span class="project-tag">JavaScript</span></div>
+                    <h3 class="project-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Todo List 待办事项</h3>
+                    <p class="project-desc">精美的待办事项应用，支持添加、完成、删除任务，数据本地持久化存储。</p>
+                    <div class="project-features"><span class="project-feature">✓ 本地存储</span><span class="project-feature">✓ 筛选功能</span><span class="project-feature">✓ 进度统计</span></div>
+                </div>
+                <div class="project-link"><span>查看项目</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+            </a>
+            <a href="01-basics/pomodoro.html" class="project-card">
+                <div class="project-preview"><div class="project-preview-inner"><img src="01-basics/images/pomodoro-icon.svg" alt="番茄钟" class="preview-screenshot" style="object-fit: contain; background: linear-gradient(135deg, #FFF5F0, #FFE8DD);"></div></div>
+                <div class="project-info">
+                    <div class="project-tags"><span class="project-tag">HTML</span><span class="project-tag">CSS</span><span class="project-tag">JavaScript</span><span class="project-tag">小程序</span></div>
+                    <h3 class="project-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>🍅 番茄钟 Pomodoro</h3>
+                    <p class="project-desc">iOS 风格的番茄工作法计时器，支持自定义时长、桌面通知、数据统计。已适配微信小程序。</p>
+                    <div class="project-features"><span class="project-feature">✓ 进度动画</span><span class="project-feature">✓ 桌面通知</span><span class="project-feature">✓ 小程序版</span></div>
+                </div>
+                <div class="project-link"><span>查看项目</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+            </a>
+            <a href="01-basics/counter.html" class="project-card">
+                <div class="project-preview"><div class="project-preview-inner"><img src="01-basics/images/counter-preview.png" alt="计数器" class="preview-screenshot"></div></div>
+                <div class="project-info">
+                    <div class="project-tags"><span class="project-tag">HTML</span><span class="project-tag">CSS</span><span class="project-tag">JavaScript</span></div>
+                    <h3 class="project-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>科技感计数器</h3>
+                    <p class="project-desc">学习 JavaScript 交互的经典练习项目，支持键盘快捷键、历史记录。</p>
+                    <div class="project-features"><span class="project-feature">✓ 键盘控制</span><span class="project-feature">✓ 历史记录</span><span class="project-feature">✓ 动画效果</span></div>
+                </div>
+                <div class="project-link"><span>查看项目</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+            </a>
+            <a href="FlowerCare/index.html" class="project-card">
+                <div class="project-preview"><div class="project-preview-inner"><img src="01-basics/images/flowercare-home.png" alt="FlowerCare" class="preview-screenshot"></div></div>
+                <div class="project-info">
+                    <div class="project-tags"><span class="project-tag">HTML</span><span class="project-tag">CSS</span><span class="project-tag">JavaScript</span></div>
+                    <h3 class="project-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>FlowerCare 鲜花养护</h3>
+                    <p class="project-desc">小红书风格的鲜花养护 App Demo，包含花材图鉴、养护提醒。</p>
+                    <div class="project-features"><span class="project-feature">✓ 12种花材</span><span class="project-feature">✓ 养护指南</span><span class="project-feature">✓ 日历提醒</span></div>
+                </div>
+                <div class="project-link"><span>查看项目</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+            </a>
+            <div class="project-card project-card-placeholder">
+                <div class="placeholder-icon">+</div>
+                <p class="placeholder-text">更多项目即将上线</p>
+                <p class="placeholder-hint">// Coming Soon...</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ========================================
+        // 科技感背景动画系统（简化版）
+        // ========================================
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+
+        let width = bgCanvas.width = window.innerWidth;
+        let height = bgCanvas.height = window.innerHeight;
+        
+        // 鼠标位置追踪
+        let mouseX = width / 2;
+        let mouseY = height / 2;
+        let isMouseOnCanvas = false;
+
+        // ========================================
+        // 科技感粒子（增加数量 + 鼠标交互）
+        // ========================================
+        const techParticles = [];
+        const particleCount = 80; // 增加粒子数量
+        
+        for (let i = 0; i < particleCount; i++) {
+            techParticles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                baseVx: (Math.random() - 0.5) * 0.5,
+                baseVy: (Math.random() - 0.5) * 0.5,
+                vx: 0,
+                vy: 0,
+                size: Math.random() * 2 + 1.5,
+                baseSize: Math.random() * 2 + 1.5,
+                hue: Math.random() > 0.5 ? 180 : 150, // 青色或绿色
+                pulsePhase: Math.random() * Math.PI * 2,
+                isNearMouse: false
+            });
+        }
+        
+        // 鼠标波纹效果
+        const ripples = [];
+        class Ripple {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                this.maxRadius = 150;
+                this.alpha = 0.5;
+            }
+            update() {
+                this.radius += 3;
+                this.alpha = 0.5 * (1 - this.radius / this.maxRadius);
+            }
+            draw() {
+                if (this.alpha <= 0) return;
+                bgCtx.strokeStyle = `rgba(0, 212, 255, ${this.alpha})`;
+                bgCtx.lineWidth = 2;
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                bgCtx.stroke();
+            }
+            isDead() { return this.radius >= this.maxRadius; }
+        }
+
+        // 绘制网格（更明显）
+        function drawGrid() {
+            // 主网格
+            bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.08)';
+            bgCtx.lineWidth = 1;
+            const gridSize = 60;
+            for (let x = 0; x < width; x += gridSize) {
+                bgCtx.beginPath();
+                bgCtx.moveTo(x, 0);
+                bgCtx.lineTo(x, height);
+                bgCtx.stroke();
+            }
+            for (let y = 0; y < height; y += gridSize) {
+                bgCtx.beginPath();
+                bgCtx.moveTo(0, y);
+                bgCtx.lineTo(width, y);
+                bgCtx.stroke();
+            }
+            
+            // 网格交叉点发光
+            bgCtx.fillStyle = 'rgba(0, 212, 255, 0.15)';
+            for (let x = 0; x < width; x += gridSize) {
+                for (let y = 0; y < height; y += gridSize) {
+                    bgCtx.beginPath();
+                    bgCtx.arc(x, y, 2, 0, Math.PI * 2);
+                    bgCtx.fill();
+                }
+            }
+        }
+
+        // 绘制六边形（更大更亮）
+        let hexTime = 0;
+        function drawHexagons() {
+            hexTime += 0.01;
+            const hexSize = 80;
+            const hexHeight = hexSize * Math.sqrt(3);
+            
+            for (let row = 0; row < height / hexHeight + 1; row++) {
+                for (let col = 0; col < width / (hexSize * 1.5) + 1; col++) {
+                    const x = col * hexSize * 1.5;
+                    const y = row * hexHeight + (col % 2 ? hexHeight / 2 : 0);
+                    
+                    // 随机闪烁
+                    const flicker = Math.sin(hexTime + row * 0.5 + col * 0.3) * 0.5 + 0.5;
+                    const alpha = 0.03 + flicker * 0.08;
+                    
+                    bgCtx.strokeStyle = `rgba(0, 255, 136, ${alpha})`;
+                    bgCtx.lineWidth = 1;
+                    
+                    bgCtx.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        const angle = Math.PI / 3 * i - Math.PI / 6;
+                        const px = x + hexSize * 0.35 * Math.cos(angle);
+                        const py = y + hexSize * 0.35 * Math.sin(angle);
+                        if (i === 0) bgCtx.moveTo(px, py);
+                        else bgCtx.lineTo(px, py);
+                    }
+                    bgCtx.closePath();
+                    bgCtx.stroke();
+                }
+            }
+        }
+
+        // 绘制粒子和连接线（增强版 + 鼠标交互）
+        let particleTime = 0;
+        const mouseInfluenceRadius = 180; // 鼠标影响半径
+        
+        function drawTechParticles() {
+            particleTime += 0.02;
+            
+            // 更新粒子位置和鼠标交互
+            techParticles.forEach(p => {
+                // 计算与鼠标的距离
+                const dx = mouseX - p.x;
+                const dy = mouseY - p.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                // 鼠标交互效果
+                if (dist < mouseInfluenceRadius && isMouseOnCanvas) {
+                    p.isNearMouse = true;
+                    // 排斥效果
+                    const force = (1 - dist / mouseInfluenceRadius) * 2;
+                    p.vx = p.baseVx - (dx / dist) * force;
+                    p.vy = p.baseVy - (dy / dist) * force;
+                    // 靠近鼠标时变大
+                    p.size = p.baseSize * (1 + (1 - dist / mouseInfluenceRadius) * 1.5);
+                } else {
+                    p.isNearMouse = false;
+                    p.vx = p.baseVx;
+                    p.vy = p.baseVy;
+                    p.size = p.baseSize;
+                }
+                
+                // 更新位置
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                // 边界反弹
+                if (p.x < 0) { p.x = 0; p.baseVx *= -1; }
+                if (p.x > width) { p.x = width; p.baseVx *= -1; }
+                if (p.y < 0) { p.y = 0; p.baseVy *= -1; }
+                if (p.y > height) { p.y = height; p.baseVy *= -1; }
+            });
+            
+            // 绘制连接线（更多连接 + 鼠标增强）
+            for (let i = 0; i < techParticles.length; i++) {
+                for (let j = i + 1; j < techParticles.length; j++) {
+                    const p1 = techParticles[i];
+                    const p2 = techParticles[j];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const maxDist = 200;
+                    
+                    if (dist < maxDist) {
+                        // 基础透明度
+                        let alpha = (1 - dist / maxDist) * 0.3;
+                        let lineWidth = 1;
+                        
+                        // 鼠标附近的线更亮更粗
+                        if (p1.isNearMouse || p2.isNearMouse) {
+                            alpha = (1 - dist / maxDist) * 0.8;
+                            lineWidth = 2;
+                        }
+                        
+                        bgCtx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
+                        bgCtx.lineWidth = lineWidth;
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(p1.x, p1.y);
+                        bgCtx.lineTo(p2.x, p2.y);
+                        bgCtx.stroke();
+                    }
+                }
+                
+                // 鼠标与粒子的连接线
+                if (isMouseOnCanvas) {
+                    const p = techParticles[i];
+                    const dx = mouseX - p.x;
+                    const dy = mouseY - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < mouseInfluenceRadius) {
+                        const alpha = (1 - dist / mouseInfluenceRadius) * 0.5;
+                        bgCtx.strokeStyle = `rgba(0, 255, 136, ${alpha})`;
+                        bgCtx.lineWidth = 1;
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(p.x, p.y);
+                        bgCtx.lineTo(mouseX, mouseY);
+                        bgCtx.stroke();
+                    }
+                }
+            }
+            
+            // 绘制粒子
+            techParticles.forEach(p => {
+                // 脉冲效果
+                const pulse = Math.sin(particleTime + p.pulsePhase) * 0.3 + 1;
+                const glowSize = p.size * 4 * pulse;
+                
+                // 外圈光晕
+                const gradient = bgCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowSize);
+                if (p.isNearMouse) {
+                    // 鼠标附近的粒子更亮，颜色变化
+                    gradient.addColorStop(0, 'rgba(0, 255, 200, 0.8)');
+                    gradient.addColorStop(0.3, 'rgba(0, 255, 136, 0.5)');
+                    gradient.addColorStop(0.6, 'rgba(0, 212, 255, 0.2)');
+                    gradient.addColorStop(1, 'transparent');
+                } else {
+                    gradient.addColorStop(0, 'rgba(0, 255, 136, 0.4)');
+                    gradient.addColorStop(0.5, 'rgba(0, 212, 255, 0.15)');
+                    gradient.addColorStop(1, 'transparent');
+                }
+                bgCtx.fillStyle = gradient;
+                bgCtx.beginPath();
+                bgCtx.arc(p.x, p.y, glowSize, 0, Math.PI * 2);
+                bgCtx.fill();
+                
+                // 核心点
+                bgCtx.beginPath();
+                bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                bgCtx.fillStyle = p.isNearMouse ? 'rgba(0, 255, 200, 1)' : 'rgba(0, 255, 136, 0.8)';
+                bgCtx.fill();
+                
+                // 鼠标附近的粒子添加外环
+                if (p.isNearMouse) {
+                    bgCtx.strokeStyle = 'rgba(0, 255, 200, 0.6)';
+                    bgCtx.lineWidth = 1;
+                    bgCtx.beginPath();
+                    bgCtx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+                    bgCtx.stroke();
+                }
+            });
+            
+            // 绘制鼠标位置指示器
+            if (isMouseOnCanvas) {
+                // 鼠标光环
+                const mouseGradient = bgCtx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 30);
+                mouseGradient.addColorStop(0, 'rgba(0, 255, 136, 0.3)');
+                mouseGradient.addColorStop(0.5, 'rgba(0, 212, 255, 0.1)');
+                mouseGradient.addColorStop(1, 'transparent');
+                bgCtx.fillStyle = mouseGradient;
+                bgCtx.beginPath();
+                bgCtx.arc(mouseX, mouseY, 30, 0, Math.PI * 2);
+                bgCtx.fill();
+            }
+            
+            // 更新和绘制波纹
+            for (let i = ripples.length - 1; i >= 0; i--) {
+                ripples[i].update();
+                ripples[i].draw();
+                if (ripples[i].isDead()) ripples.splice(i, 1);
+            }
+        }
+
+        // 绘制电路线条（更明显）
+        let circuitTime = 0;
+        function drawCircuits() {
+            circuitTime += 0.02;
+            
+            // 四角电路装饰
+            const cornerSize = 150;
+            bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.2)';
+            bgCtx.lineWidth = 1;
+            
+            // 左上角
+            bgCtx.beginPath();
+            bgCtx.moveTo(0, cornerSize);
+            bgCtx.lineTo(0, 30);
+            bgCtx.lineTo(30, 0);
+            bgCtx.lineTo(cornerSize, 0);
+            bgCtx.stroke();
+            
+            // 右上角
+            bgCtx.beginPath();
+            bgCtx.moveTo(width - cornerSize, 0);
+            bgCtx.lineTo(width - 30, 0);
+            bgCtx.lineTo(width, 30);
+            bgCtx.lineTo(width, cornerSize);
+            bgCtx.stroke();
+            
+            // 左下角
+            bgCtx.beginPath();
+            bgCtx.moveTo(0, height - cornerSize);
+            bgCtx.lineTo(0, height - 30);
+            bgCtx.lineTo(30, height);
+            bgCtx.lineTo(cornerSize, height);
+            bgCtx.stroke();
+            
+            // 右下角
+            bgCtx.beginPath();
+            bgCtx.moveTo(width - cornerSize, height);
+            bgCtx.lineTo(width - 30, height);
+            bgCtx.lineTo(width, height - 30);
+            bgCtx.lineTo(width, height - cornerSize);
+            bgCtx.stroke();
+            
+            // 流动的数据点
+            const flowProgress = (circuitTime % (Math.PI * 2)) / (Math.PI * 2);
+            bgCtx.fillStyle = 'rgba(0, 255, 136, 0.8)';
+            
+            // 顶部流动
+            const topX = flowProgress * width;
+            bgCtx.beginPath();
+            bgCtx.arc(topX, 0, 3, 0, Math.PI * 2);
+            bgCtx.fill();
+            
+            // 底部流动（反向）
+            const bottomX = (1 - flowProgress) * width;
+            bgCtx.beginPath();
+            bgCtx.arc(bottomX, height, 3, 0, Math.PI * 2);
+            bgCtx.fill();
+            
+            // 左边流动
+            const leftY = flowProgress * height;
+            bgCtx.beginPath();
+            bgCtx.arc(0, leftY, 3, 0, Math.PI * 2);
+            bgCtx.fill();
+            
+            // 右边流动（反向）
+            const rightY = (1 - flowProgress) * height;
+            bgCtx.beginPath();
+            bgCtx.arc(width, rightY, 3, 0, Math.PI * 2);
+            bgCtx.fill();
+        }
+        
+        // 绘制扫描线效果
+        let scanY = 0;
+        function drawScanLine() {
+            scanY += 1.5;
+            if (scanY > height) scanY = 0;
+            
+            const gradient = bgCtx.createLinearGradient(0, scanY - 50, 0, scanY + 50);
+            gradient.addColorStop(0, 'transparent');
+            gradient.addColorStop(0.5, 'rgba(0, 212, 255, 0.08)');
+            gradient.addColorStop(1, 'transparent');
+            
+            bgCtx.fillStyle = gradient;
+            bgCtx.fillRect(0, scanY - 50, width, 100);
+        }
+
+        // ========================================
+        // 背景动画（只保留科技感元素，无代码雨）
+        // ========================================
+        function animateBg() {
+            // 清除画布（保持背景清晰）
+            bgCtx.fillStyle = 'rgba(0, 5, 16, 0.15)';
+            bgCtx.fillRect(0, 0, width, height);
+
+            // 绘制科技感背景元素
+            drawHexagons();
+            drawTechParticles();
+            drawCircuits();
+            drawScanLine();
+            
+            requestAnimationFrame(animateBg);
+        }
+
+        // ========================================
+        // 鼠标事件监听（用于粒子交互）
+        // ========================================
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            isMouseOnCanvas = true;
+        });
+        
+        document.addEventListener('mouseleave', () => {
+            isMouseOnCanvas = false;
+        });
+        
+        // 点击产生波纹
+        document.addEventListener('click', (e) => {
+            ripples.push(new Ripple(e.clientX, e.clientY));
+        });
+
+        window.addEventListener('resize', () => {
+            width = bgCanvas.width = window.innerWidth;
+            height = bgCanvas.height = window.innerHeight;
+        });
+
+        animateBg();
+
+        // 时间显示
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('time').textContent = timeStr;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        function startLearning() { window.location.href = '01-basics/guide.html'; }
+
+        // 猫咪游走（超慢速漂浮 - 0.5倍速）
+        const catAvatar = document.getElementById('catAvatar');
+        let catX = window.innerWidth - 130, catY = 100, catTargetX = catX, catTargetY = catY, isHovered = false;
+
+        catAvatar.addEventListener('mouseenter', () => { isHovered = true; });
+        catAvatar.addEventListener('mouseleave', () => { isHovered = false; });
+
+        function updateCatPosition() {
+            if (!isHovered) {
+                // 更低的概率改变目标位置（减半）
+                if (Math.random() < 0.001) {
+                    const margin = 120, side = Math.floor(Math.random() * 4);
+                    switch(side) {
+                        case 0: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = margin; break;
+                        case 1: catTargetX = window.innerWidth - margin; catTargetY = margin + Math.random() * (window.innerHeight - margin * 2); break;
+                        case 2: catTargetX = margin + Math.random() * (window.innerWidth - margin * 2); catTargetY = window.innerHeight - margin - 100; break;
+                        case 3: catTargetX = margin; catTargetY = margin + Math.random() * (window.innerHeight - margin * 2); break;
+                    }
+                }
+                // 更慢的移动速度（0.5倍）
+                catX += (catTargetX - catX) * 0.0025;
+                catY += (catTargetY - catY) * 0.0025;
+                catAvatar.style.left = catX + 'px';
+                catAvatar.style.top = catY + 'px';
+            }
+            requestAnimationFrame(updateCatPosition);
+        }
+        catAvatar.style.left = catX + 'px';
+        catAvatar.style.top = catY + 'px';
+        updateCatPosition();
+    </script>
+</body>
+</html>
